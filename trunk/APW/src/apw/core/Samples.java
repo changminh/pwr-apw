@@ -47,6 +47,15 @@ import java.util.ListIterator;
 public class Samples implements List<Sample> {
 
     FastVector data;
+    String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     /** @inheritdoc */
     public int size() {
