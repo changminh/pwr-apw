@@ -1,1 +1,4 @@
-$Revision $
+$Revision$
+$Rev$
+$LastChangedDate$
+$Rev$
