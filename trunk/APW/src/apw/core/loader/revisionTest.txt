@@ -1,4 +1,4 @@
-$Revision$
-$Rev$
+$Revision: 16 $
+$Rev:$
 $LastChangedDate$
-$Rev$
+$Rev:$
