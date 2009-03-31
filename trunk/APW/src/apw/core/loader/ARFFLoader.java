@@ -44,15 +44,17 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 
 /**
- * $Rev $
+ * $Rev$
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
 public class ARFFLoader {
 
-    public static final String ARFF_COMMENT_TAG = "%";
-    public static final String ARFF_RELATION_TAG = "@relation";
+    private static final String ARFF_COMMENT_TAG = "%";
+    private static final String ARFF_RELATION_TAG = "@relation";
+    private static final String ARFF_ATTRIBUTE_TAG = "@attribute";
     BufferedReader in;
     String name;
     String line;
@@ -92,6 +94,13 @@ public class ARFFLoader {
         readData();
     }
 
+    private void parseAttribute(String k) {
+        StringTokenizer st = new StringTokenizer(k);
+
+        // TODO: Add name with spaces handling
+        System.out.println("name :" + st.nextToken());
+    }
+
     /**
      * <a href="http://www.cs.waikato.ac.nz/~ml/weka/arff.html">specification</a>
      * @throws java.text.ParseException
@@ -101,10 +110,15 @@ public class ARFFLoader {
         boolean done = false;
 
         // get relation name
-        String l = nextLine();
+        String l = nextLine(), k;
         if (!l.toLowerCase().startsWith(ARFF_RELATION_TAG))
             errorMessage("relation");
         name = l.substring(ARFF_RELATION_TAG.length()).trim();
+
+        while ((l = nextLine()).toLowerCase().startsWith(ARFF_ATTRIBUTE_TAG)) {
+            k = l.substring(ARFF_ATTRIBUTE_TAG.length() + 1);
+            parseAttribute(k);
+        }
     }
 
     private void readData() throws ParseException {
@@ -122,11 +136,14 @@ public class ARFFLoader {
         final String bundle = "apw/core/loader/ARFFLoader";
 
         String message =
-                ResourceBundle.getBundle(bundle).getString(resource_msg) + ls;
+                ResourceBundle.getBundle(bundle).getString(
+                resource_msg) + ls;
         String exc =
-                ResourceBundle.getBundle(bundle).getString("parseException") + ": " + message;
+                ResourceBundle.getBundle(bundle).getString(
+                "parseException") + ": " + message;
         String linetxt =
-                ResourceBundle.getBundle(bundle).getString("line_no") + lNo + ": \"" + line + "\"";
+                ResourceBundle.getBundle(bundle).getString(
+                "line_no") + lNo + ": \"" + line + "\"";
 
         throw new ParseException(exc + linetxt, lNo);
     }
