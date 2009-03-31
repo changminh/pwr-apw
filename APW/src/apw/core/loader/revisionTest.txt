@@ -1,4 +1,3 @@
-$Revision: 16 $
-$Rev:$
-$LastChangedDate$
-$Rev:$
+$Revision$
+$Author$
+$Date$
