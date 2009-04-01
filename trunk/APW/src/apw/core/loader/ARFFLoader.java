@@ -94,11 +94,34 @@ public class ARFFLoader {
         readData();
     }
 
-    private void parseAttribute(String k) {
-        StringTokenizer st = new StringTokenizer(k);
+    @SuppressWarnings("unchecked")
+    private void parseAttribute(String k) throws ParseException {
 
+        String attName;
+        int i;
         // TODO: Add name with spaces handling
-        System.out.println("name :" + st.nextToken());
+        k = k.trim();
+        // extract attribute name
+        // name is quoted
+        if (k.charAt(0) == '"') {
+            i = k.indexOf('"', 1);
+            attName = k.substring(1, i);
+            i++;
+        } else {
+            i = 1;
+            try {
+                while (!Character.isWhitespace(k.charAt(i))) {
+                    i++;
+                }
+            } catch (IndexOutOfBoundsException _) {
+                // no whitespace character = wrong file format
+                errorMessage("unparsable_attribute");
+            }
+            attName = k.substring(0, i);
+        }
+        k = k.substring(i).trim();
+        System.out.println("attname =" + attName + "; rest =" + k + ";");
+
     }
 
     /**
@@ -107,7 +130,6 @@ public class ARFFLoader {
      * @throws java.io.IOException
      */
     private void readHeader() throws ParseException, IOException {
-        boolean done = false;
 
         // get relation name
         String l = nextLine(), k;
