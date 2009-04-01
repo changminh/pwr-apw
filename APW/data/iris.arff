@@ -63,7 +63,7 @@
 
 @RELATION iris
 
-@ATTRIBUTE sepallength	REAL
+@ATTRIBUTE "sepal length"	REAL
 @ATTRIBUTE sepalwidth 	REAL
 @ATTRIBUTE petallength 	REAL
 @ATTRIBUTE petalwidth	REAL
