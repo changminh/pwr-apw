@@ -38,5 +38,8 @@ package apw.classifiers;
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class Classifier {
+public abstract class Classifier {
+    public enum Type {
+        REAL, NOMINAL
+    }
 }
