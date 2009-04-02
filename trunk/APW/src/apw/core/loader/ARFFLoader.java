@@ -42,9 +42,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
-import java.util.StringTokenizer;
 
 /**
  * $Rev$
@@ -58,7 +57,7 @@ public class ARFFLoader {
     BufferedReader in;
     String name;
     String line;
-    List<Attribute> atts;
+    ArrayList<Attribute> atts = new ArrayList<Attribute>();
     /** Supposed to be of type long, but ParseException accepts only
     int as a argument = LAME */
     int lNo = 0;
@@ -120,6 +119,7 @@ public class ARFFLoader {
             attName = k.substring(0, i);
         }
         k = k.substring(i).trim();
+        atts.add(Attribute.createAttribute(attName, k));
         System.out.println("attname =" + attName + "; rest =" + k + ";");
 
     }
@@ -141,6 +141,7 @@ public class ARFFLoader {
             k = l.substring(ARFF_ATTRIBUTE_TAG.length() + 1);
             parseAttribute(k);
         }
+        System.out.println(atts.toString());
     }
 
     private void readData() throws ParseException {

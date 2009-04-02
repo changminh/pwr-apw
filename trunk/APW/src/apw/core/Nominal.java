@@ -34,49 +34,44 @@
 package apw.core;
 
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public abstract class Attribute {
+public class Nominal extends Attribute {
 
-    protected String name;
+    private Map<Double, String> dts = new HashMap<Double, String>();
+    private Map<String, Double> std = new HashMap<String, Double>();
 
-    public static Attribute createAttribute(String name, String type)
-            throws ParseException {
-        type = type.trim();
-        if (type.startsWith("{") && type.endsWith("}")) {
-            type = type.substring(1, type.length() - 1);
-            Nominal nominal = new Nominal(type);
-            nominal.setName(name);
-            return nominal;
+    public Nominal(String values) throws ParseException {
+        String[] v = values.split(",");
+        if (v.length == 0)
+            throw new ParseException("", 0);
+        for (int i = 0; i < v.length; i++) {
+            std.put(v[i], Double.valueOf(i));
+            dts.put(Double.valueOf(i), v[i]);
         }
-        type = type.toLowerCase();
-        if (type.startsWith("real") ||
-                type.startsWith("numeric") ||
-                type.startsWith("integer")) {
-            Numeric n = new Numeric();
-            n.setName(name);
-            return n;
-        }
-        return null;
-
     }
 
-    public abstract Object valueOf(String toParse);
-
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
+    @Override
+    public Object valueOf(String toParse) {
+        return std.get(dts);
     }
 
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
+    public String getString(Double id) {
+        return dts.get(id);
+    }
+
+    public Set<String> getKeys() {
+        return std.keySet();
+    }
+
+    @Override
+    public String toString() {
+        return name + ":NOMINAL" + std.keySet().toString().replace("[", "{").replace("]", "}");
     }
 }

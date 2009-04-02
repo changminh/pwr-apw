@@ -15,7 +15,7 @@
  *   • Neither  the name of the  Wrocław University of  Technology
  *     nor the names of its contributors may be used to endorse or
  *     promote products derived from this  software without speci-
- *     fic prior  written permission.
+ *     fic prior written permission.
  * 
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRI-
  *  BUTORS "AS IS" AND ANY  EXPRESS OR IMPLIED WARRANTIES, INCLUD-
@@ -33,50 +33,19 @@
  */
 package apw.core;
 
-import java.text.ParseException;
-
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public abstract class Attribute {
+public class Numeric extends Attribute {
 
-    protected String name;
-
-    public static Attribute createAttribute(String name, String type)
-            throws ParseException {
-        type = type.trim();
-        if (type.startsWith("{") && type.endsWith("}")) {
-            type = type.substring(1, type.length() - 1);
-            Nominal nominal = new Nominal(type);
-            nominal.setName(name);
-            return nominal;
-        }
-        type = type.toLowerCase();
-        if (type.startsWith("real") ||
-                type.startsWith("numeric") ||
-                type.startsWith("integer")) {
-            Numeric n = new Numeric();
-            n.setName(name);
-            return n;
-        }
-        return null;
-
+    @Override
+    public Object valueOf(String toParse) {
+        return Double.valueOf(toParse);
     }
 
-    public abstract Object valueOf(String toParse);
-
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
+    @Override
+    public String toString() {
+        return name + ":Real";
     }
 }
