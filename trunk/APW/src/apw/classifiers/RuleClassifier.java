@@ -4,7 +4,7 @@
  *  Redistribution  and use in source  and binary  forms,  with or
  *  without modification,  are permitted provided that the follow-
  *  ing conditions are met:
- *
+ * 
  *   • Redistributions of source code  must retain the above copy-
  *     right  notice, this list  of conditions and  the  following
  *     disclaimer.
@@ -16,7 +16,7 @@
  *     nor the names of its contributors may be used to endorse or
  *     promote products derived from this  software without speci-
  *     fic prior  written permission.
- *
+ * 
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRI-
  *  BUTORS "AS IS" AND ANY  EXPRESS OR IMPLIED WARRANTIES, INCLUD-
  *  ING, BUT NOT  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTA-
@@ -32,16 +32,19 @@
  *  BILITY OF SUCH DAMAGE.
  */
 
-package apw.core;
+package apw.classifiers;
+
+import apw.core.Samples;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class Sample {
-    Attribute [] atts;
-    Object []
-    public Object getValue(int i ) {
-        return atts[i].
+public abstract class RuleClassifier extends Classifier {
+
+    public RuleClassifier(Samples s) {
+        super(s);
     }
+
+    public abstract String [] getRules();
 }

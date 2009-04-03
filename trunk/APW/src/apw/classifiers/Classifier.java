@@ -31,15 +31,25 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-
 package apw.classifiers;
+
+import apw.core.Sample;
+import apw.core.Samples;
+import java.io.Serializable;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public abstract class Classifier {
-    public enum Type {
-        REAL, NOMINAL
+public abstract class Classifier implements Serializable {
+
+    public Classifier(Samples s) {
     }
+
+    public abstract double[] classifySample(Sample s);
+
+    public abstract void addSamples(Samples s) throws UnsupportedOperationException;
+    public abstract void addSample(Sample s) throws UnsupportedOperationException;
+    public abstract void rebuild();
+    public abstract Classifier copy();
 }
