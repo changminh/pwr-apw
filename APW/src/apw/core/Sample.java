@@ -40,8 +40,5 @@ package apw.core;
  */
 public class Sample {
     Attribute [] atts;
-    Object []
-    public Object getValue(int i ) {
-        return atts[i].
-    }
+
 }
