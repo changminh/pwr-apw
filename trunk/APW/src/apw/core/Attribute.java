@@ -4,19 +4,19 @@
  *  Redistribution  and use in source  and binary  forms,  with or
  *  without modification,  are permitted provided that the follow-
  *  ing conditions are met:
- * 
+ *
  *   • Redistributions of source code  must retain the above copy-
  *     right  notice, this list  of conditions and  the  following
  *     disclaimer.
  *   • Redistributions  in binary  form must  reproduce the  above
  *     copyright notice, this list of conditions and the following
- *     disclaimer in the  documentation and/or other mate provided
- *     with the distribution.
+ *     disclaimer  in  the  documentation and / or other materials
+ *     provided with the distribution.
  *   • Neither  the name of the  Wrocław University of  Technology
  *     nor the names of its contributors may be used to endorse or
  *     promote products derived from this  software without speci-
  *     fic prior  written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRI-
  *  BUTORS "AS IS" AND ANY  EXPRESS OR IMPLIED WARRANTIES, INCLUD-
  *  ING, BUT NOT  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTA-
@@ -64,8 +64,6 @@ public abstract class Attribute {
 
     }
 
-    public abstract Object valueOf(String toParse);
-
     /**
      * @return the name
      */
@@ -79,4 +77,8 @@ public abstract class Attribute {
     public void setName(String name) {
         this.name = name;
     }
+
+    public abstract Object getInterpretation(Object o);
+    public abstract Object getRepresentation(Object o);
+    public abstract Object getRepresentation(String s);
 }
