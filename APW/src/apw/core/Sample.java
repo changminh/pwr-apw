@@ -118,6 +118,12 @@ public class Sample extends SampleListAdapter {
                 return sb.append(']').toString();
             sb.append(", ");
         }
+    }
 
+    @Override
+    public Object set(int index, Object element) {
+        Object old = atts.get(index).getInterpretation(element);
+        vals[index] = atts.get(index).getRepresentation(element);
+        return old;
     }
 }
