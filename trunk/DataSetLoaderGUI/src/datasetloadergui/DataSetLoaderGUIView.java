@@ -4,6 +4,12 @@
 
 package datasetloadergui;
 
+import apw.core.loader.ARFFLoader;
+import apw.core.util.SamplesUtils;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
@@ -11,6 +17,7 @@ import org.jdesktop.application.FrameView;
 import org.jdesktop.application.TaskMonitor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import javax.swing.Timer;
 import javax.swing.Icon;
 import javax.swing.JDialog;
@@ -25,6 +32,17 @@ public class DataSetLoaderGUIView extends FrameView {
         super(app);
 
         initComponents();
+        ARFFLoader loader;
+        try {
+            loader = new ARFFLoader(new File("data\\segment-test.arff"));
+            jTable1.setModel(loader.getSamples().getTableModel());
+            SamplesUtils.setUpTableEditors(jTable1, loader.getSamples());
+
+        } catch (IOException ex) {
+            Logger.getLogger(DataSetLoaderGUIView.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
+            Logger.getLogger(DataSetLoaderGUIView.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         // status bar initialization - message timeout, idle icon and busy animation, etc
         ResourceMap resourceMap = getResourceMap();
