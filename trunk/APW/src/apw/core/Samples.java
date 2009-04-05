@@ -40,6 +40,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import javax.swing.table.AbstractTableModel;
 
 /**
  *
@@ -57,6 +58,10 @@ public class Samples implements List<Sample> {
 
     public String getName() {
         return name;
+    }
+
+    public ArrayList<Attribute> getAtts() {
+        return atts;
     }
 
     public void setName(String name) {
@@ -84,7 +89,7 @@ public class Samples implements List<Sample> {
 
     /** @inheritdoc */
     public Iterator<Sample> iterator() {
-        ArrayIterator it = new ArrayIterator(data.getData(),size());
+        ArrayIterator it = new ArrayIterator(data.getData(), size());
         return it;
     }
 
@@ -228,4 +233,47 @@ public class Samples implements List<Sample> {
     public List<Sample> subList(int fromIndex, int toIndex) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+    TableModel tm;
+
+    public AbstractTableModel getTableModel() {
+        if (tm == null)
+            tm = new TableModel();
+        return tm;
+    }
+
+    private class TableModel extends AbstractTableModel {
+
+        public int getRowCount() {
+            return size();
+        }
+
+        public int getColumnCount() {
+            return atts.size();
+        }
+
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            return ((Sample) data.get(rowIndex)).get(columnIndex);
+        }
+
+        @Override
+        public String getColumnName(int column) {
+            return atts.get(column).getName();
+        }
+
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            return Object.class;
+        }
+
+        @Override
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            return true;
+        }
+
+        @Override
+        public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+            Sample s = (Sample) data.get(rowIndex);
+            s.set(columnIndex, aValue);
+        }
+    };
 }

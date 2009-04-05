@@ -57,6 +57,12 @@ public class FastVector {
         data[size++] = element;
     }
 
+    public Object get(int index) {
+        if (index < 0 || index > size)
+            throw new IllegalArgumentException("Illegal index");
+        return data[index];
+    }
+
     public boolean removeElement(Object element) {
         for (int i = 0; i < size; i++)
             if (data[i].equals(element)) {

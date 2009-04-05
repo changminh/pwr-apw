@@ -4,7 +4,7 @@
  *  Redistribution  and use in source  and binary  forms,  with or
  *  without modification,  are permitted provided that the follow-
  *  ing conditions are met:
- *
+ * 
  *   • Redistributions of source code  must retain the above copy-
  *     right  notice, this list  of conditions and  the  following
  *     disclaimer.
@@ -16,7 +16,7 @@
  *     nor the names of its contributors may be used to endorse or
  *     promote products derived from this  software without speci-
  *     fic prior  written permission.
- *
+ * 
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRI-
  *  BUTORS "AS IS" AND ANY  EXPRESS OR IMPLIED WARRANTIES, INCLUD-
  *  ING, BUT NOT  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTA-
@@ -31,57 +31,52 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.core;
+package apw.core.util;
 
-import java.lang.reflect.Array;
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import apw.core.Attribute;
+import apw.core.Nominal;
+import apw.core.Numeric;
+import apw.core.Samples;
+import java.util.ArrayList;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class Nominal extends Attribute {
+public class SamplesUtils {
 
-    private Map<Double, String> dts = new HashMap<Double, String>();
-    private Map<String, Double> std = new HashMap<String, Double>();
-
-    public Nominal(String values) throws ParseException {
-        String[] v = values.split(",");
-        if (v.length == 0)
-            throw new ParseException("", 0);
-        for (int i = 0; i < v.length; i++) {
-            std.put(v[i], Double.valueOf(i));
-            dts.put(Double.valueOf(i), v[i]);
+    public static void setUpTableEditors(JTable table, Samples samples) {
+        TableColumnModel m = table.getColumnModel();
+        ArrayList<Attribute> l = samples.getAtts();
+        TableColumn c;
+        Attribute a;
+        for (int i = 0; i < l.size(); i++) {
+            a = l.get(i);
+            c = m.getColumn(i);
+            if (a instanceof Nominal) {
+                Nominal n = (Nominal) a;
+                JComboBox j = new JComboBox();
+                for (String key : n.getKeys())
+                    j.addItem(key);
+                c.setCellEditor(new DefaultCellEditor(j));
+            }
         }
+
+        table.setDefaultRenderer(Numeric.class, new NumberRenderer());
     }
 
-    public Set<String> getKeys() {
-        return std.keySet();
-    }
+    private static class NumberRenderer extends DefaultTableCellRenderer.UIResource {
 
-    @Override
-    public String toString() {
-        return name + ":NOMINAL" + std.toString().replace("[", "{").replace("]", "}");
-    }
-
-    @Override
-    public Object getInterpretation(Object o) {
-        return dts.get(o);
-    }
-
-    @Override
-    public Object getRepresentation(Object o) {
-        if (o instanceof String)
-            return std.get((String) o);
-        else
-            throw new IllegalArgumentException("o must be String");
-    }
-
-    @Override
-    public Object getRepresentation(String s) {
-        return getRepresentation((Object) s);
+        public NumberRenderer() {
+            super();
+            setHorizontalAlignment(JLabel.RIGHT);
+        }
     }
 }
