@@ -10,8 +10,8 @@
  *     disclaimer.
  *   • Redistributions  in binary  form must  reproduce the  above
  *     copyright notice, this list of conditions and the following
- *     disclaimer in the  documentation and/or other mate provided
- *     with the distribution.
+ *     disclaimer  in  the  documentation and / or other materials
+ *     provided with the distribution.
  *   • Neither  the name of the  Wrocław University of  Technology
  *     nor the names of its contributors may be used to endorse or
  *     promote products derived from this  software without speci-
@@ -35,6 +35,7 @@ package apw.core;
 
 import apw.core.util.ArrayIterator;
 import apw.core.util.FastVector;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -46,7 +47,12 @@ import java.util.ListIterator;
  */
 public class Samples implements List<Sample> {
 
+    public Samples(FastVector data, ArrayList<Attribute> atts) {
+        this.data = data;
+        this.atts = atts;
+    }
     FastVector data;
+    ArrayList<Attribute> atts;
     String name;
 
     public String getName() {
@@ -78,7 +84,7 @@ public class Samples implements List<Sample> {
 
     /** @inheritdoc */
     public Iterator<Sample> iterator() {
-        ArrayIterator it = new ArrayIterator(data.getData());
+        ArrayIterator it = new ArrayIterator(data.getData(),size());
         return it;
     }
 
@@ -169,6 +175,24 @@ public class Samples implements List<Sample> {
             if (os[i].equals(o))
                 return i;
         return -1;
+    }
+
+    @Override
+    public String toString() {
+        Iterator<Sample> i = iterator();
+        if (!i.hasNext())
+            return "[]";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        for (;;) {
+            Sample e = i.next();
+            sb.append(e);
+            if (!i.hasNext())
+                return sb.append(']').toString();
+            sb.append(", ");
+        }
+
     }
 
     /** @inheritdoc */

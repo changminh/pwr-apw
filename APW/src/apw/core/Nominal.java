@@ -4,19 +4,19 @@
  *  Redistribution  and use in source  and binary  forms,  with or
  *  without modification,  are permitted provided that the follow-
  *  ing conditions are met:
- * 
+ *
  *   • Redistributions of source code  must retain the above copy-
  *     right  notice, this list  of conditions and  the  following
  *     disclaimer.
  *   • Redistributions  in binary  form must  reproduce the  above
  *     copyright notice, this list of conditions and the following
- *     disclaimer in the  documentation and/or other mate provided
- *     with the distribution.
+ *     disclaimer  in  the  documentation and / or other materials
+ *     provided with the distribution.
  *   • Neither  the name of the  Wrocław University of  Technology
  *     nor the names of its contributors may be used to endorse or
  *     promote products derived from this  software without speci-
  *     fic prior  written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRI-
  *  BUTORS "AS IS" AND ANY  EXPRESS OR IMPLIED WARRANTIES, INCLUD-
  *  ING, BUT NOT  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTA-
@@ -57,21 +57,30 @@ public class Nominal extends Attribute {
         }
     }
 
-    @Override
-    public Object valueOf(String toParse) {
-        return std.get(dts);
-    }
-
-    public String getString(Double id) {
-        return dts.get(id);
-    }
-
     public Set<String> getKeys() {
         return std.keySet();
     }
 
     @Override
     public String toString() {
-        return name + ":NOMINAL" + std.keySet().toString().replace("[", "{").replace("]", "}");
+        return name + ":NOMINAL" + std.toString().replace("[", "{").replace("]", "}");
+    }
+
+    @Override
+    public Object getInterpretation(Object o) {
+        return dts.get(o);
+    }
+
+    @Override
+    public Object getRepresentation(Object o) {
+        if (o instanceof String)
+            return std.get((String) o);
+        else
+            throw new IllegalArgumentException("o must be String");
+    }
+
+    @Override
+    public Object getRepresentation(String s) {
+        return getRepresentation((Object) s);
     }
 }

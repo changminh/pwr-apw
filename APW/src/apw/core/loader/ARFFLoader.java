@@ -4,19 +4,19 @@
  *  Redistribution  and use in source  and binary  forms,  with or
  *  without modification,  are permitted provided that the follow-
  *  ing conditions are met:
- * 
+ *
  *   • Redistributions of source code  must retain the above copy-
  *     right  notice, this list  of conditions and  the  following
  *     disclaimer.
  *   • Redistributions  in binary  form must  reproduce the  above
  *     copyright notice, this list of conditions and the following
- *     disclaimer in the  documentation and/or other mate provided
- *     with the distribution.
+ *     disclaimer  in  the  documentation and / or other materials
+ *     provided with the distribution.
  *   • Neither  the name of the  Wrocław University of  Technology
  *     nor the names of its contributors may be used to endorse or
  *     promote products derived from this  software without speci-
  *     fic prior  written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRI-
  *  BUTORS "AS IS" AND ANY  EXPRESS OR IMPLIED WARRANTIES, INCLUD-
  *  ING, BUT NOT  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTA-
@@ -34,7 +34,9 @@
 package apw.core.loader;
 
 import apw.core.Attribute;
+import apw.core.Sample;
 import apw.core.Samples;
+import apw.core.util.FastVector;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,6 +60,8 @@ public class ARFFLoader {
     String name;
     String line;
     ArrayList<Attribute> atts = new ArrayList<Attribute>();
+    FastVector data = new FastVector();
+    Samples s;
     /** Supposed to be of type long, but ParseException accepts only
     int as a argument = LAME */
     int lNo = 0;
@@ -69,11 +73,11 @@ public class ARFFLoader {
     public ARFFLoader(InputStream in) throws ParseException, IOException {
         this.in = new BufferedReader(new InputStreamReader(in));
         parse();
+        s = new Samples(data, atts);
     }
 
     public Samples getSamples() {
-        // TODO: Do me do
-        return null;
+        return s;
     }
 
     private String nextLine() throws IOException {
@@ -144,8 +148,17 @@ public class ARFFLoader {
         System.out.println(atts.toString());
     }
 
-    private void readData() throws ParseException {
-        throw new UnsupportedOperationException("Not yet implemented");
+    private void readData() throws ParseException, IOException {
+        String l, t[];
+        Object o[];
+        while ((l = nextLine()) != null) {
+            t = l.split(",");
+            o = new Object[t.length];
+            for (int i = 0; i < t.length; i++)
+                o[i] = atts.get(i).getRepresentation(t[i].trim());
+            Sample s = new Sample(atts, o);
+            data.addElement(s);
+        }
     }
 
     /**
@@ -175,6 +188,8 @@ public class ARFFLoader {
         try {
             File f = new File("data/iris.arff");
             ARFFLoader l = new ARFFLoader(f);
+            System.out.println("No: " + l.getSamples().size());
+            System.out.println("Samples:\n" + l.getSamples().toString());
         } catch (ParseException ex) {
             System.out.println("Parse łeksepszyn!");
             System.out.println(ex.getMessage());
