@@ -34,6 +34,7 @@
 package apw.core;
 
 import apw.core.util.ArrayIterator;
+import apw.core.util.EmptyIterator;
 import apw.core.util.FastVector;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,8 +49,32 @@ import javax.swing.table.AbstractTableModel;
  */
 public class Samples implements List<Sample> {
 
-    public Samples(FastVector data, ArrayList<Attribute> atts) {
-        this.data = data;
+    // BEGIN View attributes ****************************
+    private void notifySamplesOfViewChange() {
+        for (int i = 0; i < data.getSize(); i++)
+            ((Sample) data.get(i)).viewObsolete = true;
+    }
+    int classAttributeIndex;
+    private boolean selected[];
+
+    public void setClassAttributeIndex(int index) {
+        if (index == classAttributeIndex)
+            return;
+        classAttributeIndex = index;
+        notifySamplesOfViewChange();
+    }
+
+    public void setSelected(int index, boolean select) {
+        selected[index] = select;
+        notifySamplesOfViewChange();
+    }
+
+    public boolean isSelected(int index) {
+        return selected[index];
+    }
+    // END   View attributes ****************************
+
+    public Samples(ArrayList<Attribute> atts) {
         this.atts = atts;
     }
     FastVector data;
@@ -68,18 +93,34 @@ public class Samples implements List<Sample> {
         this.name = name;
     }
 
-    /** @inheritdoc */
+    public void setData(FastVector data) {
+        if (data == null)
+            return;
+        this.data = data;
+        for (int i = 0; i < data.getSize(); i++)
+            ((Sample) data.get(i)).setSamples(this);
+        selected = new boolean[atts.size()];
+        for (int i = 0; i < selected.length; i++)
+            selected[i] = true;
+        classAttributeIndex = atts.size() - 1;
+    }
+
+    @Override
     public int size() {
+        if (data == null)
+            return 0;
         return data.getSize();
     }
 
-    /** @inheritdoc */
+    @Override
     public boolean isEmpty() {
-        return data.getSize() > 0;
+        return data == null || data.getSize() < 1;
     }
 
-    /** @inheritdoc */
+    @Override
     public boolean contains(Object o) {
+        if (data == null)
+            return false;
         Object os[] = data.getData();
         for (int i = 0; i < os.length; i++)
             if (os[i].equals(o))
@@ -87,23 +128,29 @@ public class Samples implements List<Sample> {
         return false;
     }
 
-    /** @inheritdoc */
+    @Override
     public Iterator<Sample> iterator() {
+        if (data == null)
+            return new EmptyIterator<Sample>();
         ArrayIterator it = new ArrayIterator(data.getData(), size());
         return it;
     }
 
-    /** @inheritdoc */
+    @Override
     public Object[] toArray() {
+        if (data == null)
+            return null;
+        Sample[] r = new Sample[size()];
+        System.arraycopy(data.getData(), 0, r, 0, r.length);
         return data.getData();
     }
 
-    /** Operation not supported */
+    @Override
     public <T> T[] toArray(T[] a) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    /** @inheritdoc */
+    @Override
     @SuppressWarnings("unused")
     public boolean add(Sample e) {
         try {
@@ -114,7 +161,7 @@ public class Samples implements List<Sample> {
         return true;
     }
 
-    /** @inheritdoc */
+    @Override
     public boolean remove(Object o) {
         if (!(o instanceof Sample))
             throw new ClassCastException(
@@ -129,7 +176,7 @@ public class Samples implements List<Sample> {
 
     }
 
-    /** @inheritdoc */
+    @Override
     public boolean containsAll(Collection<?> c) {
         boolean contains = true;
         for (Object object : c)
@@ -137,6 +184,7 @@ public class Samples implements List<Sample> {
         return contains;
     }
 
+    @Override
     public boolean addAll(Collection<? extends Sample> c) {
         boolean added = false;
         for (Object object : c)
@@ -144,6 +192,7 @@ public class Samples implements List<Sample> {
         return added;
     }
 
+    @Override
     public boolean removeAll(Collection<?> c) {
         boolean removed = false;
         for (Object object : c)
@@ -151,11 +200,12 @@ public class Samples implements List<Sample> {
         return removed;
     }
 
+    @Override
     public Sample get(int index) {
         return (Sample) data.getData()[index];
     }
 
-    /** @inheritdoc */
+    @Override
     public Sample set(int index, Sample element) {
         if (index > data.getSize())
             throw new IndexOutOfBoundsException("index greater than no of samples");
@@ -164,7 +214,7 @@ public class Samples implements List<Sample> {
         return old;
     }
 
-    /** @inheritdoc */
+    @Override
     public int indexOf(Object o) {
         Object os[] = data.getData();
         for (int i = 0; i < os.length; i++)
@@ -173,7 +223,7 @@ public class Samples implements List<Sample> {
         return -1;
     }
 
-    /** @inheritdoc */
+    @Override
     public int lastIndexOf(Object o) {
         Object os[] = data.getData();
         for (int i = os.length - 1; i >= 0; i--)
@@ -200,36 +250,42 @@ public class Samples implements List<Sample> {
 
     }
 
-    /** @inheritdoc */
+    @Override
     public Sample remove(int index) {
         return (Sample) data.removeElementAt(index);
     }
 
-    /** Unsupported */
+    @Override
     public void add(int index, Sample element) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public boolean addAll(int index, Collection<? extends Sample> c) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public boolean retainAll(Collection<?> c) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public void clear() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public ListIterator<Sample> listIterator() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public ListIterator<Sample> listIterator(int index) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public List<Sample> subList(int fromIndex, int toIndex) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -243,14 +299,17 @@ public class Samples implements List<Sample> {
 
     private class TableModel extends AbstractTableModel {
 
+        @Override
         public int getRowCount() {
             return size();
         }
 
+        @Override
         public int getColumnCount() {
             return atts.size();
         }
 
+        @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             return ((Sample) data.get(rowIndex)).get(columnIndex);
         }

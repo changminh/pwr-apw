@@ -61,10 +61,10 @@ public class ARFFLoader {
     String line;
     ArrayList<Attribute> atts = new ArrayList<Attribute>();
     FastVector data = new FastVector();
-    Samples s;
     /** Supposed to be of type long, but ParseException accepts only
     int as a argument = LAME */
     int lNo = 0;
+    private Samples samples;
 
     public ARFFLoader(File input) throws IOException, ParseException {
         this(new FileInputStream(input));
@@ -73,11 +73,11 @@ public class ARFFLoader {
     public ARFFLoader(InputStream in) throws ParseException, IOException {
         this.in = new BufferedReader(new InputStreamReader(in));
         parse();
-        s = new Samples(data, atts);
+        samples.setData(data);
     }
 
     public Samples getSamples() {
-        return s;
+        return samples;
     }
 
     private String nextLine() throws IOException {
@@ -145,6 +145,7 @@ public class ARFFLoader {
             k = l.substring(ARFF_ATTRIBUTE_TAG.length() + 1);
             parseAttribute(k);
         }
+        samples = new Samples(atts);
         System.out.println(atts.toString());
     }
 
@@ -156,8 +157,8 @@ public class ARFFLoader {
             o = new Object[t.length];
             for (int i = 0; i < t.length; i++)
                 o[i] = atts.get(i).getRepresentation(t[i].trim());
-            Sample s = new Sample(atts, o);
-            data.addElement(s);
+            Sample q = new Sample(samples, o);
+            data.addElement(q);
         }
     }
 

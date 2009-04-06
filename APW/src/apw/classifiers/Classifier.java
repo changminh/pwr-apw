@@ -49,7 +49,10 @@ public abstract class Classifier implements Serializable {
     public abstract double[] classifySample(Sample s);
 
     public abstract void addSamples(Samples s) throws UnsupportedOperationException;
+
     public abstract void addSample(Sample s) throws UnsupportedOperationException;
+
     public abstract void rebuild();
+
     public abstract Classifier copy();
 }
