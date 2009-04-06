@@ -34,6 +34,8 @@
 package apw.core;
 
 import apw.core.util.SampleListAdapter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -96,7 +98,7 @@ public class Sample extends SampleListAdapter {
 
     public Object[] toArray() {
         if (arrayBuffer == null || viewObsolete) {
-            constructViewArray();
+            arrayBuffer = constructViewArray();
             viewObsolete = false;
         }
         return arrayBuffer;
@@ -119,16 +121,17 @@ public class Sample extends SampleListAdapter {
         if (size == 0)
             return "[]";
 
-        StringBuilder sb = new StringBuilder();
-        sb.append('[');
-        Object e;
-        for (int id = 0;; id++) {
-            e = get(id);
-            sb.append(e);
-            if (id == size - 1)
-                return sb.append(']').toString();
-            sb.append(", ");
-        }
+        return Arrays.toString(toArray());
+//        StringBuilder sb = new StringBuilder();
+//        sb.append('[');
+//        Object e;
+//        for (int id = 0;; id++) {
+//            e = get(id);
+//            sb.append(e);
+//            if (id == size - 1)
+//                return sb.append(']').toString();
+//            sb.append(", ");
+//        }
     }
 
     @Override
@@ -138,11 +141,28 @@ public class Sample extends SampleListAdapter {
         return old;
     }
 
-    private void constructViewArray() {
-        int newSize = samples.classAttributeIndex >= 0 ?
-            size - 1 : size;
-        Object[] array = new Object[newSize];
+    /**
+     * Constructs an Array of attribute values coinsinting only of selected
+     * and non-class attributes.
+     *
+     * @return view array
+     */
+    private Object[] constructViewArray() {
+        ArrayList<Object> a = new ArrayList<Object>();
         for (int i = 0; i < size; i++)
-            array[i] = get(i);
+            if (samples.classAttributeIndex != i && samples.selected[i])
+                a.add(get(i));
+        return a.toArray();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Object classAttribute() {
+        int i = samples.classAttributeIndex;
+        if (i >= 0 && i < size)
+            return get(samples.classAttributeIndex);
+        return null;
     }
 }

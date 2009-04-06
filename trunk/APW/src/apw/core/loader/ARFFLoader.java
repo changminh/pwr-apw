@@ -189,6 +189,7 @@ public class ARFFLoader {
         try {
             File f = new File("data/iris.arff");
             ARFFLoader l = new ARFFLoader(f);
+            Samples s = l.getSamples();
             System.out.println("No: " + l.getSamples().size());
             System.out.println("Samples:\n" + l.getSamples().toString());
         } catch (ParseException ex) {

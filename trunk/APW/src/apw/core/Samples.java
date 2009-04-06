@@ -55,7 +55,7 @@ public class Samples implements List<Sample> {
             ((Sample) data.get(i)).viewObsolete = true;
     }
     int classAttributeIndex;
-    private boolean selected[];
+    boolean selected[];
 
     public void setClassAttributeIndex(int index) {
         if (index == classAttributeIndex)
