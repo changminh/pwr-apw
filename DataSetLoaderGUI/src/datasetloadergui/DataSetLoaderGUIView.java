@@ -34,7 +34,7 @@ public class DataSetLoaderGUIView extends FrameView {
         initComponents();
         ARFFLoader loader;
         try {
-            loader = new ARFFLoader(new File("data\\segment-test.arff"));
+            loader = new ARFFLoader(new File("data\\iris.arff"));
             jTable1.setModel(loader.getSamples().getTableModel());
             SamplesUtils.setUpTableEditors(jTable1, loader.getSamples());
 
@@ -147,6 +147,8 @@ public class DataSetLoaderGUIView extends FrameView {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        jTable1.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_NEXT_COLUMN);
+        jTable1.setFillsViewportHeight(true);
         jTable1.setName("jTable1"); // NOI18N
         jScrollPane1.setViewportView(jTable1);
 
