@@ -4,7 +4,7 @@
  *  Redistribution  and use in source  and binary  forms,  with or
  *  without modification,  are permitted provided that the follow-
  *  ing conditions are met:
- *
+ * 
  *   • Redistributions of source code  must retain the above copy-
  *     right  notice, this list  of conditions and  the  following
  *     disclaimer.
@@ -16,7 +16,7 @@
  *     nor the names of its contributors may be used to endorse or
  *     promote products derived from this  software without speci-
  *     fic prior  written permission.
- *
+ * 
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRI-
  *  BUTORS "AS IS" AND ANY  EXPRESS OR IMPLIED WARRANTIES, INCLUD-
  *  ING, BUT NOT  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTA-
@@ -31,65 +31,25 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.core;
+package apw.core.util;
 
-import java.text.ParseException;
+import java.util.Iterator;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public abstract class Attribute {
+public class EmptyIterator<E> implements Iterator<E> {
 
-    protected String name;
-    private Samples samples;
-
-    public Samples getSamples() {
-        return samples;
+    public boolean hasNext() {
+        return false;
     }
 
-    public void setSamples(Samples samples) {
-        this.samples = samples;
+    public void remove() {
+        throw new UnsupportedOperationException("Not supported.");
     }
 
-    public static Attribute createAttribute(String name, String type)
-            throws ParseException {
-        type = type.trim();
-        if (type.startsWith("{") && type.endsWith("}")) {
-            type = type.substring(1, type.length() - 1);
-            Nominal nominal = new Nominal(type);
-            nominal.setName(name);
-            return nominal;
-        }
-        type = type.toLowerCase();
-        if (type.startsWith("real") ||
-                type.startsWith("numeric") ||
-                type.startsWith("integer")) {
-            Numeric n = new Numeric();
-            n.setName(name);
-            return n;
-        }
+    public E next() {
         return null;
-
     }
-
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public abstract Object getInterpretation(Object o);
-
-    public abstract Object getRepresentation(Object o);
-
-    public abstract Object getRepresentation(String s);
 }

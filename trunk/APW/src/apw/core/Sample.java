@@ -34,7 +34,6 @@
 package apw.core;
 
 import apw.core.util.SampleListAdapter;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
@@ -43,15 +42,23 @@ import java.util.Iterator;
  */
 public class Sample extends SampleListAdapter {
 
-    ArrayList<Attribute> atts;
+    Samples samples;
+
+    public Samples getSamples() {
+        return samples;
+    }
+
+    public void setSamples(Samples samples) {
+        this.samples = samples;
+    }
     Object[] vals;
     int size;
 
-    public Sample(ArrayList<Attribute> atts, Object[] values) {
-        if (atts.size() != values.length)
+    public Sample(Samples samples, Object[] values) {
+        if (samples.getAtts().size() != values.length)
             throw new IllegalArgumentException("Attributes and values must be of same size");
         this.vals = values;
-        this.atts = atts;
+        this.samples = samples;
         size = values.length;
     }
 
@@ -84,16 +91,20 @@ public class Sample extends SampleListAdapter {
             }
         };
     }
+    private Object[] arrayBuffer = null;
+    boolean viewObsolete = true;
 
     public Object[] toArray() {
-        Object[] array = new Object[size];
-        for (int i = 0; i < size; i++)
-            array[i] = get(i);
-        return array;
+        if (arrayBuffer == null || viewObsolete) {
+            constructViewArray();
+            viewObsolete = false;
+        }
+        return arrayBuffer;
+
     }
 
     public Object get(int i) {
-        return atts.get(i).getInterpretation(vals[i]);
+        return samples.getAtts().get(i).getInterpretation(vals[i]);
     }
 
     public int indexOf(Object o) {
@@ -122,8 +133,16 @@ public class Sample extends SampleListAdapter {
 
     @Override
     public Object set(int index, Object element) {
-        Object old = atts.get(index).getInterpretation(element);
-        vals[index] = atts.get(index).getRepresentation(element);
+        Object old = samples.getAtts().get(index).getInterpretation(element);
+        vals[index] = samples.getAtts().get(index).getRepresentation(element);
         return old;
+    }
+
+    private void constructViewArray() {
+        int newSize = samples.classAttributeIndex >= 0 ?
+            size - 1 : size;
+        Object[] array = new Object[newSize];
+        for (int i = 0; i < size; i++)
+            array[i] = get(i);
     }
 }
