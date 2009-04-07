@@ -50,6 +50,7 @@ public class Nominal extends Attribute {
     private Map<Double, String> dts = new HashMap<Double, String>();
     private Map<String, Double> std = new HashMap<String, Double>();
     private Double[] doubleKeyBuffer;
+    private String[] stringKeyBuffer;
 
     public Nominal(String values) throws ParseException {
         String[] v = values.split(",");
@@ -65,7 +66,11 @@ public class Nominal extends Attribute {
         return std.keySet();
     }
 
-    public Double[] getSortedKeys() {
+    /**
+     * The method name reads as follows: "get sorted representation keys".
+     * @return lazy created Double [] array
+     */
+    public Double[] getSortedRKeys() {
         if (doubleKeyBuffer == null) {
             Set<Double> keys = dts.keySet();
             List<Double> list = new ArrayList();
@@ -74,6 +79,21 @@ public class Nominal extends Attribute {
             doubleKeyBuffer = keys.toArray(new Double[]{});
         }
         return doubleKeyBuffer;
+    }
+
+    /**
+     * The method name reads as follows: "get sorted interpretation keys".
+     * @return lazy created String [] array
+     */
+    public String[] getSortedIKeys() {
+        if (stringKeyBuffer == null) {
+            Set<String> keys = std.keySet();
+            List<String> list = new ArrayList();
+            list.addAll(keys);
+            Collections.sort(list);
+            stringKeyBuffer = keys.toArray(new String[]{});
+        }
+        return stringKeyBuffer;
     }
 
     @Override
