@@ -33,9 +33,11 @@
  */
 package apw.core;
 
-import java.lang.reflect.Array;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,6 +49,7 @@ public class Nominal extends Attribute {
 
     private Map<Double, String> dts = new HashMap<Double, String>();
     private Map<String, Double> std = new HashMap<String, Double>();
+    private Double[] doubleKeyBuffer;
 
     public Nominal(String values) throws ParseException {
         String[] v = values.split(",");
@@ -60,6 +63,17 @@ public class Nominal extends Attribute {
 
     public Set<String> getKeys() {
         return std.keySet();
+    }
+
+    public Double[] getSortedKeys() {
+        if (doubleKeyBuffer == null) {
+            Set<Double> keys = dts.keySet();
+            List<Double> list = new ArrayList();
+            list.addAll(keys);
+            Collections.sort(list);
+            doubleKeyBuffer = keys.toArray(new Double[]{});
+        }
+        return doubleKeyBuffer;
     }
 
     @Override
