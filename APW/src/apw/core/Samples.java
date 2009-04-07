@@ -72,6 +72,12 @@ public class Samples implements List<Sample> {
     public boolean isSelected(int index) {
         return selected[index];
     }
+
+    public Attribute getClassAttribute() {
+        if (classAttributeIndex < 0 || classAttributeIndex > atts.size())
+            throw new IllegalStateException("Class not set.");
+        return atts.get(classAttributeIndex);
+    }
     // END   View attributes ****************************
 
     public Samples(ArrayList<Attribute> atts) {
