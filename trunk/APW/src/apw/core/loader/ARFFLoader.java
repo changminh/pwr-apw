@@ -45,6 +45,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -124,7 +125,7 @@ public class ARFFLoader {
         }
         k = k.substring(i).trim();
         atts.add(Attribute.createAttribute(attName, k));
-        System.out.println("attname =" + attName + "; rest =" + k + ";");
+        //System.out.println("attname =" + attName + "; rest =" + k + ";");
 
     }
 
@@ -146,18 +147,48 @@ public class ARFFLoader {
             parseAttribute(k);
         }
         samples = new Samples(atts);
-        System.out.println(atts.toString());
+        // System.out.println(atts.toString());
     }
+    private static final char delimeter = ',';
+    private static final char stringQualifier = '\'';
+    private static final char nullQualifier = '?';
 
     private void readData() throws ParseException, IOException {
         String l, t[];
-        Object o[];
+        // Object o[];
+        List<Object> o = new ArrayList<Object>();
+        StringBuilder s;
+        char ch;
+        int i;
         while ((l = nextLine()) != null) {
-            t = l.split(",");
-            o = new Object[t.length];
-            for (int i = 0; i < t.length; i++)
-                o[i] = atts.get(i).getRepresentation(t[i].trim());
-            Sample q = new Sample(samples, o);
+            i = 0;
+            s = new StringBuilder();
+            o = new ArrayList<Object>();
+            for (int c = 0; c < l.length(); c++) {
+                ch = l.charAt(c);
+                if (ch == delimeter) {
+                    // zero length string ... damn, let's assume it's
+                    // a missing value
+                    if (s.length() == 0)
+                        o.add(null);
+                    else
+                        // get string, trim it, turn to representation
+                        // and finally add to list
+                        o.add(atts.get(i).getRepresentation(s.toString().trim()));
+                    s = new StringBuilder();
+                    i++;
+                } else if (ch == stringQualifier)
+                    while ((ch = l.charAt(++c)) != stringQualifier) {
+                        s.append(ch);
+                    }
+                else if (ch == nullQualifier)
+                    // empty, what will be treated like null
+                    s = new StringBuilder();
+                else
+                    s.append(ch);
+            }
+            o.add(atts.get(i).getRepresentation(s.toString().trim()));
+            Sample q = new Sample(samples, o.toArray());
             data.addElement(q);
         }
     }
@@ -187,7 +218,7 @@ public class ARFFLoader {
 
     public static void main(String args[]) {
         try {
-            File f = new File("data/iris.arff");
+            File f = new File("data/shuttle2.arff");
             ARFFLoader l = new ARFFLoader(f);
             Samples s = l.getSamples();
             System.out.println("No: " + l.getSamples().size());

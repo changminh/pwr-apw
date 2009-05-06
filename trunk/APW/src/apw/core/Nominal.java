@@ -71,14 +71,12 @@ public class Nominal extends Attribute {
      * @return lazy created Double [] array
      */
     public Double[] getSortedRKeys() {
-        if (doubleKeyBuffer == null) {
-            Set<Double> keys = dts.keySet();
-            List<Double> list = new ArrayList();
-            list.addAll(keys);
-            Collections.sort(list);
-            doubleKeyBuffer = keys.toArray(new Double[]{});
+        String [] s = getSortedIKeys();
+        Double [] d = new Double[s.length];
+        for (int i = 0; i < s.length; i++) {
+            d[i] = std.get(s[i]);
         }
-        return doubleKeyBuffer;
+        return d;
     }
 
     /**
@@ -103,11 +101,15 @@ public class Nominal extends Attribute {
 
     @Override
     public Object getInterpretation(Object o) {
+        if (o == null)
+            return null;
         return dts.get(o);
     }
 
     @Override
     public Object getRepresentation(Object o) {
+        if (o == null)
+            return null;
         if (o instanceof String)
             return std.get((String) o);
         else
