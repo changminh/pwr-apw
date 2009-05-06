@@ -35,7 +35,6 @@ package apw.core;
 
 import apw.core.util.SampleListAdapter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -121,17 +120,17 @@ public class Sample extends SampleListAdapter {
         if (size == 0)
             return "[]";
 
-        return Arrays.toString(toArray());
-//        StringBuilder sb = new StringBuilder();
-//        sb.append('[');
-//        Object e;
-//        for (int id = 0;; id++) {
-//            e = get(id);
-//            sb.append(e);
-//            if (id == size - 1)
-//                return sb.append(']').toString();
-//            sb.append(", ");
-//        }
+//        return Arrays.toString(toArray());
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        Object e;
+        for (int id = 0;; id++) {
+            e = get(id);
+            sb.append(e);
+            if (id == size - 1)
+                return sb.append(']').toString();
+            sb.append(", ");
+        }
     }
 
     @Override
@@ -159,10 +158,21 @@ public class Sample extends SampleListAdapter {
      *
      * @return
      */
-    public Object classAttribute() {
+    public Object classAttributeInt() {
         int i = samples.classAttributeIndex;
         if (i >= 0 && i < size)
             return get(samples.classAttributeIndex);
+        return null;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Object classAttributeRepr() {
+        int i = samples.classAttributeIndex;
+        if (i >= 0 && i < size)
+            return vals[i];
         return null;
     }
 }

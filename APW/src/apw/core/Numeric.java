@@ -56,6 +56,7 @@ public class Numeric extends Attribute {
 
     @Override
     public Object getRepresentation(String s) {
+        if(s==null) return null;
         return Double.valueOf(s);
     }
 }

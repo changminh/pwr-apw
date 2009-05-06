@@ -33,10 +33,12 @@
  */
 package apw.core;
 
+import apw.classifiers.Classifier;
 import apw.core.util.ArrayIterator;
 import apw.core.util.EmptyIterator;
 import apw.core.util.FastVector;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -48,6 +50,17 @@ import javax.swing.table.AbstractTableModel;
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
 public class Samples implements List<Sample> {
+
+    private int getMaxIndex(double[] o) {
+        int i = 0;
+        double d = o[0];
+        for (int j = 0; j < o.length; j++)
+            if (d < o[j]) {
+                d = o[j];
+                i = j;
+            }
+        return i;
+    }
 
     // BEGIN View attributes ****************************
     private void notifySamplesOfViewChange() {
@@ -341,4 +354,33 @@ public class Samples implements List<Sample> {
             s.set(columnIndex, aValue);
         }
     };
+
+    public double getCorrectClassificationRate(Classifier c) {
+        if (classAttributeIndex < 0 || classAttributeIndex > atts.size())
+            throw new IllegalStateException("Class not set.");
+        int correct = 0, all = size();
+        Double[] keys = ((Nominal) getClassAttribute()).getSortedRKeys();
+        Double x;
+        double last = 0;
+        double threshold = 0.005d;
+        int i = 0;
+        for (Sample s : this) {
+            double[] o = c.classifySample(s);
+            int m = getMaxIndex(o);
+            x = (Double) s.classAttributeRepr();
+            if (keys[m].equals(x))
+                correct++;
+
+
+            double ratio = (double) i / (double) all;
+            if (ratio - last > threshold) {
+                System.out.println("" + i++ + "   " +
+                        ((double) ((int) (ratio * 10000))) / 100.0d + "%");
+                last = ratio;
+            }
+            i++;
+        }
+        System.out.println("correct=" + correct + " all=" + all);
+        return ((double) correct) / ((double) all);
+    }
 }
