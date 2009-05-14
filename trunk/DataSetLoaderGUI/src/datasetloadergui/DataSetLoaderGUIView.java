@@ -34,7 +34,7 @@ public class DataSetLoaderGUIView extends FrameView {
         initComponents();
         ARFFLoader loader;
         try {
-            loader = new ARFFLoader(new File("data\\iris.arff"));
+            loader = new ARFFLoader(new File("data\\weather.nominal.arff"));
             jTable1.setModel(loader.getSamples().getTableModel());
             SamplesUtils.setUpTableEditors(jTable1, loader.getSamples());
 
