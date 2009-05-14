@@ -38,7 +38,6 @@ import apw.core.util.ArrayIterator;
 import apw.core.util.EmptyIterator;
 import apw.core.util.FastVector;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -51,6 +50,11 @@ import javax.swing.table.AbstractTableModel;
  */
 public class Samples implements List<Sample> {
 
+    private String getDiffTime(long startime) {
+        long now = System.nanoTime() - startime;
+        return nanoTimeToString(now);
+    }
+
     private int getMaxIndex(double[] o) {
         int i = 0;
         double d = o[0];
@@ -60,6 +64,27 @@ public class Samples implements List<Sample> {
                 i = j;
             }
         return i;
+    }
+
+    private String nanoTimeToString(long f) {
+        //System.out.println("diff " + now);
+        long hrs = f / (1000000000L * 3600);
+        long min = (f) / (1000000000L * 60) - hrs * 60;
+        long sec = (f - hrs - min) / (1000000000L) - hrs * 3600 - min * 60;
+        StringBuilder sb = new StringBuilder();
+        if (sec > 0) {
+            sb.append(sec);
+            sb.append("s");
+        }
+        if (min > 0) {
+            sb.insert(0, "min ");
+            sb.insert(0, min);
+        }
+        if (hrs > 0) {
+            sb.insert(0, "h ");
+            sb.insert(0, hrs);
+        }
+        return sb.toString();
     }
 
     // BEGIN View attributes ****************************
@@ -361,6 +386,8 @@ public class Samples implements List<Sample> {
         int correct = 0, all = size();
         Double[] keys = ((Nominal) getClassAttribute()).getSortedRKeys();
         Double x;
+        long startime = System.nanoTime();
+        String elapsed = getDiffTime(startime);
         double last = 0;
         double threshold = 0.005d;
         int i = 0;
@@ -374,13 +401,15 @@ public class Samples implements List<Sample> {
 
             double ratio = (double) i / (double) all;
             if (ratio - last > threshold) {
+                long diff = System.nanoTime() - startime;
+                long eta = (long) (diff / ratio);
                 System.out.println("" + i++ + "   " +
-                        ((double) ((int) (ratio * 10000))) / 100.0d + "%");
+                        ((double) ((int) (ratio * 10000))) / 100.0d + "%" + " time left " + nanoTimeToString(eta));
                 last = ratio;
             }
             i++;
         }
-        System.out.println("correct=" + correct + " all=" + all);
+        System.out.println("correct=" + correct + " all=" + all + " elapsed " + getDiffTime(startime));
         return ((double) correct) / ((double) all);
     }
 }

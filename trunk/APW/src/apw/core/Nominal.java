@@ -36,10 +36,10 @@ package apw.core;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  *
@@ -47,8 +47,8 @@ import java.util.Set;
  */
 public class Nominal extends Attribute {
 
-    private Map<Double, String> dts = new HashMap<Double, String>();
-    private Map<String, Double> std = new HashMap<String, Double>();
+    private Map<Double, String> dts = new TreeMap<Double, String>();
+    private Map<String, Double> std = new TreeMap<String, Double>();
     private Double[] doubleKeyBuffer;
     private String[] stringKeyBuffer;
 
@@ -110,8 +110,10 @@ public class Nominal extends Attribute {
     public Object getRepresentation(Object o) {
         if (o == null)
             return null;
-        if (o instanceof String)
-            return std.get((String) o);
+        if (o instanceof String) {
+            //System.out.println("got " + o + " returning " + std.get(o) + " has it " + std.containsKey(o));
+            System.out.println(std.toString());
+            return std.get((String) o);}
         else
             throw new IllegalArgumentException("o must be String");
     }
