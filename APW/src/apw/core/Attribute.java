@@ -44,6 +44,8 @@ public abstract class Attribute {
     protected String name;
     private Samples samples;
 
+    public abstract boolean isNominal();
+    
     public Samples getSamples() {
         return samples;
     }

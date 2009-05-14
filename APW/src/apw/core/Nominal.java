@@ -36,11 +36,10 @@ package apw.core;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  *
@@ -48,8 +47,8 @@ import java.util.Set;
  */
 public class Nominal extends Attribute {
 
-    private Map<Double, String> dts = new Hashtable<Double, String>();
-    private Map<String, Double> std = new Hashtable<String, Double>();
+    private Map<Double, String> dts = new TreeMap<Double, String>();
+    private Map<String, Double> std = new TreeMap<String, Double>();
     private Double[] doubleKeyBuffer;
     private String[] stringKeyBuffer;
 
@@ -58,11 +57,24 @@ public class Nominal extends Attribute {
         if (v.length == 0)
             throw new ParseException("", 0);
         for (int i = 0; i < v.length; i++) {
-            v[i] = v[i].trim();
-            std.put(v[i], Double.valueOf(i));
-            dts.put(Double.valueOf(i), v[i]);
+            std.put(v[i].trim(), Double.valueOf(i));
+            dts.put(Double.valueOf(i), v[i].trim());
         }
     }
+    
+    public ArrayList<Double> getDoubleRepresentation(String val)// by K.P.
+    {
+    	String[] keys = getSortedIKeys();
+    	ArrayList<Double> result = new ArrayList<Double>(keys.length);
+    	for (int i = 0; i < keys.length; i++) {
+			if(keys[i].equals(val))
+				result.add(1.0);
+			else
+				result.add(0.0);
+		}
+    	return result;
+    }
+    
 
     public Set<String> getKeys() {
         return std.keySet();
@@ -73,14 +85,12 @@ public class Nominal extends Attribute {
      * @return lazy created Double [] array
      */
     public Double[] getSortedRKeys() {
-        if (doubleKeyBuffer == null) {
-            String[] s = getSortedIKeys();
-            doubleKeyBuffer = new Double[s.length];
-            for (int i = 0; i < s.length; i++)
-                doubleKeyBuffer[i] = std.get(s[i]);
-            return doubleKeyBuffer;
+        String [] s = getSortedIKeys();
+        Double [] d = new Double[s.length];
+        for (int i = 0; i < s.length; i++) {
+            d[i] = std.get(s[i]);
         }
-        return doubleKeyBuffer;
+        return d;
     }
 
     /**
@@ -115,9 +125,10 @@ public class Nominal extends Attribute {
         if (o == null)
             return null;
         if (o instanceof String) {
-            String s = (String) o;
-            return std.get(s);
-        } else
+            //System.out.println("got " + o + " returning " + std.get(o) + " has it " + std.containsKey(o));
+            //System.out.println(std.toString());
+            return std.get((String) o);}
+        else
             throw new IllegalArgumentException("o must be String");
     }
 
@@ -125,4 +136,9 @@ public class Nominal extends Attribute {
     public Object getRepresentation(String s) {
         return getRepresentation((Object) s);
     }
+
+	@Override
+	public boolean isNominal() {
+		return true;
+	}
 }

@@ -59,4 +59,9 @@ public class Numeric extends Attribute {
         if(s==null) return null;
         return Double.valueOf(s);
     }
+
+	@Override
+	public boolean isNominal() {
+		return false;
+	}
 }
