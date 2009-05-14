@@ -124,8 +124,8 @@ public class ARFFLoader {
             attName = k.substring(0, i);
         }
         k = k.substring(i).trim();
-        atts.add(Attribute.createAttribute(attName, k));
-        //System.out.println("attname =" + attName + "; rest =" + k + ";");
+        atts.add(Attribute.createAttribute(attName, k.trim()));
+    //System.out.println("attname =" + attName + "; rest =" + k + ";");
 
     }
 
@@ -147,7 +147,7 @@ public class ARFFLoader {
             parseAttribute(k);
         }
         samples = new Samples(atts);
-         System.out.println(atts.toString());
+    // System.out.println(atts.toString());
     }
     private static final char delimeter = ',';
     private static final char stringQualifier = '\'';
@@ -172,13 +172,7 @@ public class ARFFLoader {
                     if (s.length() == 0)
                         o.add(null);
                     else
-                        // get string, trim it, turn to representation
-                        // and finally add to list
-                    {
                         o.add(atts.get(i).getRepresentation(s.toString().trim()));
-                        System.out.print("recognized " + s.toString());
-                        System.out.println("  added " + atts.get(i).getRepresentation(s.toString().trim()));
-                    }
                     s = new StringBuilder();
                     i++;
                 } else if (ch == stringQualifier)

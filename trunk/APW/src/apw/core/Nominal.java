@@ -36,10 +36,11 @@ package apw.core;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 /**
  *
@@ -47,8 +48,8 @@ import java.util.TreeMap;
  */
 public class Nominal extends Attribute {
 
-    private Map<Double, String> dts = new TreeMap<Double, String>();
-    private Map<String, Double> std = new TreeMap<String, Double>();
+    private Map<Double, String> dts = new Hashtable<Double, String>();
+    private Map<String, Double> std = new Hashtable<String, Double>();
     private Double[] doubleKeyBuffer;
     private String[] stringKeyBuffer;
 
@@ -57,6 +58,7 @@ public class Nominal extends Attribute {
         if (v.length == 0)
             throw new ParseException("", 0);
         for (int i = 0; i < v.length; i++) {
+            v[i] = v[i].trim();
             std.put(v[i], Double.valueOf(i));
             dts.put(Double.valueOf(i), v[i]);
         }
@@ -71,12 +73,14 @@ public class Nominal extends Attribute {
      * @return lazy created Double [] array
      */
     public Double[] getSortedRKeys() {
-        String [] s = getSortedIKeys();
-        Double [] d = new Double[s.length];
-        for (int i = 0; i < s.length; i++) {
-            d[i] = std.get(s[i]);
+        if (doubleKeyBuffer == null) {
+            String[] s = getSortedIKeys();
+            doubleKeyBuffer = new Double[s.length];
+            for (int i = 0; i < s.length; i++)
+                doubleKeyBuffer[i] = std.get(s[i]);
+            return doubleKeyBuffer;
         }
-        return d;
+        return doubleKeyBuffer;
     }
 
     /**
@@ -111,10 +115,9 @@ public class Nominal extends Attribute {
         if (o == null)
             return null;
         if (o instanceof String) {
-            //System.out.println("got " + o + " returning " + std.get(o) + " has it " + std.containsKey(o));
-            System.out.println(std.toString());
-            return std.get((String) o);}
-        else
+            String s = (String) o;
+            return std.get(s);
+        } else
             throw new IllegalArgumentException("o must be String");
     }
 
