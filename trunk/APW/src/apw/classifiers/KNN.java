@@ -72,8 +72,8 @@ public class KNN extends Classifier {
     }
 
     private void init() {
-        max = new double[toAdd.get(0).toArray().length];
-        min = new double[toAdd.get(0).toArray().length];
+        max = new double[toAdd.get(0).toDoubleArray().length];
+        min = new double[toAdd.get(0).toDoubleArray().length];
         Arrays.fill(max, -Double.MAX_VALUE);
         Arrays.fill(min, Double.MAX_VALUE);
         rebuild();
@@ -84,10 +84,10 @@ public class KNN extends Classifier {
         while (!toAdd.isEmpty()) {
             Sample s = toAdd.pop();
             samples.add(s);
-            Object[] vals = s.toArray();
+            double[] vals = s.toDoubleArray();
             for (int i = 0; i < vals.length; i++) {
-                max[i] = Math.max(max[i], (Double) vals[i]);
-                min[i] = Math.min(min[i], (Double) vals[i]);
+                max[i] = Math.max(max[i], vals[i]);
+                min[i] = Math.min(min[i], vals[i]);
             }
         }
 
@@ -106,7 +106,7 @@ public class KNN extends Classifier {
     @Override
     public double[] classifySample(Sample s) {
         LinkedList<KNNSortableSample> bests = new LinkedList<KNNSortableSample>();
-        Object[] vals = s.toArray();
+        double[] vals = s.toDoubleArray();
         double[] dvals = new double[vals.length];
         for (int i = 0; i < vals.length; i++)
             if (max[i] == min[1])
@@ -156,13 +156,13 @@ public class KNN extends Classifier {
 
     private double dif(Sample s, double[] vals) {
         double result = 0;
-        Object[] svals = s.toArray();
+        double[] svals = s.toDoubleArray();
         double[] dvals = new double[svals.length];
         for (int i = 0; i < vals.length; i++)
             if (max[i] == min[1])
                 dvals[i] = 0;
             else
-                dvals[i] = ((Double) svals[i] - min[i]) / (max[i] - min[i]);
+                dvals[i] = (svals[i] - min[i]) / (max[i] - min[i]);
         for (int i = 0; i < vals.length; i++)
             result += Math.abs(dvals[i] - vals[i]);
         return result;
@@ -176,28 +176,30 @@ public class KNN extends Classifier {
 
     public static void main(String[] args) {
         // TODO to be removed
-        File f = new File("data/shuttle.arff");
+//        File f = new File("data/shuttle.arff");
+        File f = new File("data/weather.arff");
         try {
             System.out.println("Loading data.");
             ARFFLoader l = new ARFFLoader(f);
             Samples s = l.getSamples();
+            
             Random r = new Random(System.nanoTime());
-//            LinkedList<Sample> test = new LinkedList<Sample>();
-//            for (int i = 0; i < 20; i++)
-//                test.add(s.remove(r.nextInt(s.size())));
+            LinkedList<Sample> test = new LinkedList<Sample>();
+            for (int i = 0; i < Math.min(20,s.size()/2); i++)
+                test.add(s.remove(r.nextInt(s.size())));
 //
             System.out.println("Dataset size: " + s.size() + ". Building classifier.");
-            KNN myKNN = new KNN(s, 3);
+            KNN myKNN = new KNN(s, 5);
 //
-//            for (Sample sample : test) {
-//                System.out.println("class " + Arrays.toString(myKNN.classifySample(sample)));
-//                System.out.println();
-//                System.out.println("And the correct answer is: " + sample.classAttributeInt());
-//                System.out.println();
-//            }
+            for (Sample sample : test) {
+                System.out.println("class: " + myKNN.selectClass(myKNN.classifySample(sample)));
+                //System.out.println();
+                System.out.println("And the correct answer is: " + sample.classAttributeInt());
+                //System.out.println();
+            }
 
-            System.out.println("Testing classification rate.");
-            System.out.println("Classification rate " + s.getCorrectClassificationRate(myKNN));
+            //System.out.println("Testing classification rate.");
+            //System.out.println("Classification rate " + s.getCorrectClassificationRate(myKNN));
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -205,5 +207,21 @@ public class KNN extends Classifier {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+    
+    public Object selectClass(double[] darr)
+    {
+    	int best = 0;
+    	double vbest = 0.0;
+    	for (int i = 0; i < darr.length; i++) {
+			if(vbest<darr[i])
+			{
+				vbest = darr[i];
+				best = i;
+		}
+    }	
+        String[] keys = ((Nominal) samples_desc.getClassAttribute()).getSortedIKeys();
+
+    	return keys[best];
     }
 }
