@@ -62,7 +62,7 @@ public class Nominal extends Attribute {
         }
     }
     
-    public ArrayList<Double> getDoubleRepresentation(String val)// by K.P.
+    public ArrayList<Double> getDoubleRepresentation(Object val)// by K.P.
     {
     	String[] keys = getSortedIKeys();
     	ArrayList<Double> result = new ArrayList<Double>(keys.length);

@@ -176,7 +176,7 @@ public class Sample extends SampleListAdapter {
             	if(samples.getAtts().get(i).isNominal())
             	{
             		Nominal n = (Nominal)samples.getAtts().get(i);
-            		a.addAll(n.getDoubleRepresentation(get(i).toString()));
+            		a.addAll(n.getDoubleRepresentation(get(i)));
             		
             	}
             	else
@@ -185,8 +185,12 @@ public class Sample extends SampleListAdapter {
             	}
             }
         double[] result = new double[a.size()];
-        for (int i = 0; i < result.length; i++) {
-			result[i]=a.get(i);
+        for (int i = 0; i < result.length; i++) 
+        {
+        	if(a.get(i)==null)
+        		result[i]=0.0;
+        	else
+        		result[i]=a.get(i);
 		}
         return result;    	
     }
