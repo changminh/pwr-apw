@@ -90,6 +90,8 @@ public class ARFFLoader {
             line = in.readLine();
             lNo++;
         }
+        if(line!=null)
+        	line = line.replaceAll("'", "");
         return line;
     }
 

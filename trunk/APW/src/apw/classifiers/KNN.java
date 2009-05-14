@@ -17,6 +17,8 @@ import apw.core.loader.ARFFLoader;
 
 public class KNN extends Classifier {
 
+	private static final double DOUBLE_PRECISION = 0.00000000001;
+	
     private ArrayList<Attribute> attributes;
     private int k;
     private LinkedList<Sample> toAdd = new LinkedList<Sample>();
@@ -90,7 +92,7 @@ public class KNN extends Classifier {
                 min[i] = Math.min(min[i], vals[i]);
             }
         }
-
+        
     }
 
     @Override
@@ -109,7 +111,7 @@ public class KNN extends Classifier {
         double[] vals = s.toDoubleArray();
         double[] dvals = new double[vals.length];
         for (int i = 0; i < vals.length; i++)
-            if (max[i] == min[1])
+            if (max[i] - min[i]<=DOUBLE_PRECISION)
                 dvals[i] = 0;
             else
                 dvals[i] = ((Double) vals[i] - min[i]) / (max[i] - min[i]);
@@ -133,11 +135,11 @@ public class KNN extends Classifier {
         while (bests.size() != k) {
             bests.remove(0);
         }
-
-
+        
+        try
+        {
         String[] keys = ((Nominal) samples_desc.getClassAttribute()).getSortedIKeys();
         double[] result = new double[keys.length];
-
         for (KNNSortableSample knnss : bests) {
             String key = (String) knnss.getSample().get(attributes.indexOf(samples_desc.getClassAttribute()));
             for (int i = 0; i < result.length; i++)
@@ -151,20 +153,30 @@ public class KNN extends Classifier {
 //            System.out.println(keys[i] + " " + result[i]);
 
         return result;
+        }
+        catch(ClassCastException cce)
+        {
+        	System.err.println("In this classifier class type can not be Numeric");
+        	throw(cce);
+
+        }
+
 
     }
 
-    private double dif(Sample s, double[] vals) {
+    private double dif(Sample s, double[] vals) 
+    {
         double result = 0;
         double[] svals = s.toDoubleArray();
         double[] dvals = new double[svals.length];
         for (int i = 0; i < vals.length; i++)
-            if (max[i] == min[1])
+            if (max[i] - min[i]<=DOUBLE_PRECISION)
                 dvals[i] = 0;
             else
                 dvals[i] = (svals[i] - min[i]) / (max[i] - min[i]);
         for (int i = 0; i < vals.length; i++)
             result += Math.abs(dvals[i] - vals[i]);
+
         return result;
     }
 
@@ -176,8 +188,8 @@ public class KNN extends Classifier {
 
     public static void main(String[] args) {
         // TODO to be removed
-//        File f = new File("data/shuttle.arff");
-        File f = new File("data/weather.arff");
+//        File f = new File("data/weather.arff");
+        File f = new File("data/shuttle.arff");
         try {
             System.out.println("Loading data.");
             ARFFLoader l = new ARFFLoader(f);
@@ -185,18 +197,35 @@ public class KNN extends Classifier {
             
             Random r = new Random(System.nanoTime());
             LinkedList<Sample> test = new LinkedList<Sample>();
-            for (int i = 0; i < Math.min(20,s.size()/2); i++)
+            for (int i = 0; i < Math.min(s.size()/4,400); i++)
+            {
                 test.add(s.remove(r.nextInt(s.size())));
-//
+//            	test.add(s.get(r.nextInt(s.size())));
+            }
             System.out.println("Dataset size: " + s.size() + ". Building classifier.");
             KNN myKNN = new KNN(s, 5);
 //
+            
+            int ok = 0;
+           
             for (Sample sample : test) {
-                System.out.println("class: " + myKNN.selectClass(myKNN.classifySample(sample)));
+            	double[] probs;
+                Object result = myKNN.selectClass(probs = myKNN.classifySample(sample));
                 //System.out.println();
-                System.out.println("And the correct answer is: " + sample.classAttributeInt());
+                Object correct = sample.classAttributeInt();
                 //System.out.println();
+                
+                System.out.println("class: "+result.toString());
+                //System.out.println(Arrays.toString(probs));
+                //System.out.println(sample);
+                System.out.println("correct: "+correct);
+                
+                if(result.equals(correct)) ok++;
+            
+                
             }
+            	System.out.println("RATE:"+(ok*100/test.size())+"%");
+            
 
             //System.out.println("Testing classification rate.");
             //System.out.println("Classification rate " + s.getCorrectClassificationRate(myKNN));
