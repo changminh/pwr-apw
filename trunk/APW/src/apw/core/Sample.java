@@ -93,17 +93,30 @@ public class Sample extends SampleListAdapter {
         };
     }
     private Object[] arrayBuffer = null;
+    private double[] doubleBuffer = null;
     boolean viewObsolete = true;
 
     public Object[] toArray() {
         if (arrayBuffer == null || viewObsolete) {
             arrayBuffer = constructViewArray();
+            doubleBuffer = constructDoubleView();
             viewObsolete = false;
         }
         return arrayBuffer;
 
     }
 
+    public double[] toDoubleArray()
+    {
+        if (arrayBuffer == null || viewObsolete) {
+            arrayBuffer = constructViewArray();
+            doubleBuffer = constructDoubleView();
+            viewObsolete = false;
+        }
+        return doubleBuffer;
+    	
+    }
+    
     public Object get(int i) {
         return samples.getAtts().get(i).getInterpretation(vals[i]);
     }
@@ -152,6 +165,30 @@ public class Sample extends SampleListAdapter {
             if (samples.classAttributeIndex != i && samples.selected[i])
                 a.add(get(i));
         return a.toArray();
+    }
+    
+    private double[] constructDoubleView()// by K.P.
+    {
+        ArrayList<Double> a = new ArrayList<Double>(size*2);
+        for (int i = 0; i < size; i++)
+            if (samples.classAttributeIndex != i && samples.selected[i])
+            {
+            	if(samples.getAtts().get(i).isNominal())
+            	{
+            		Nominal n = (Nominal)samples.getAtts().get(i);
+            		a.addAll(n.getDoubleRepresentation(get(i).toString()));
+            		
+            	}
+            	else
+            	{
+            		a.add((Double)get(i));
+            	}
+            }
+        double[] result = new double[a.size()];
+        for (int i = 0; i < result.length; i++) {
+			result[i]=a.get(i);
+		}
+        return result;    	
     }
 
     /**
