@@ -1,18 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+package apw.augmentedLearning.gui;
 
-/*
- * SelectorForNominalCreatorPanel.java
- *
- * Created on 2009-04-29, 17:00:08
- */
-
-package apw.temp_nitric.smieci;
-
-import apw.augmentedLearning.gui.ComplexCreatorFrame;
-import apw.augmentedLearning.gui.SelectorCreatorPanel;
 import apw.augmentedLearning.controls.NominalValuesChooser;
 import apw.augmentedLearning.logic.Selector;
 import apw.augmentedLearning.logic.SelectorForNominal;
@@ -21,11 +8,20 @@ import java.util.HashSet;
 import javax.swing.ComboBoxModel;
 import javax.swing.event.ListDataListener;
 
+
+/*
+ * SFNom.java
+ *
+ * Created on 2009-05-14, 23:36:40
+ */
+
+
 /**
  *
  * @author Nitric
  */
 public class SelectorForNominalCreatorPanel extends SelectorCreatorPanel {
+
     private String attributesName = "Nieznana nazwa";
     private int attributesNumber;
     private int amountOfAllValues;
@@ -33,9 +29,11 @@ public class SelectorForNominalCreatorPanel extends SelectorCreatorPanel {
     private HashSet<String> allowedValues;
     private ComplexCreatorFrame parentFrame;
     
-    public SelectorForNominalCreatorPanel(
-            int attrId, String attrName, HashSet<String> values, ComplexCreatorFrame parent
-            ) {
+    public SelectorForNominalCreatorPanel() {
+        initComponents();
+    }
+
+    public SelectorForNominalCreatorPanel(int attrId, String attrName, HashSet<String> values, ComplexCreatorFrame parent) {
         this.attributesNumber = attrId;
         this.attributesName = attrName;
         this.values = values;
@@ -45,24 +43,9 @@ public class SelectorForNominalCreatorPanel extends SelectorCreatorPanel {
         initComponents();
     }
 
-    public Selector getSelector() {
-        if (allowedValues.size() == amountOfAllValues)
-            return SelectorForNominal.getSelUniversal(attributesNumber);
-        else
-            return SelectorForNominal.getSelSet(attributesNumber, false, allowedValues);
-    }
-
-    public SelectorForNominalCreatorPanel() {
-        initComponents();
-    }
-
-    public HashSet<String> getAllowedValues() {
-        return allowedValues;
-    }
-
     public void setAllowedValues(HashSet<String> allowedValues) {
         this.allowedValues = allowedValues;
-        NominalComboBoxModel2 cbm = new NominalComboBoxModel2();
+        NominalComboBoxModel cbm = new NominalComboBoxModel();
         cbm.setData(allowedValues);
         jcb_values.setModel(cbm);
     }
@@ -101,16 +84,23 @@ public class SelectorForNominalCreatorPanel extends SelectorCreatorPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jcb_negation = new javax.swing.JCheckBox();
         jl_name = new javax.swing.JLabel();
         jcb_values = new javax.swing.JComboBox(values.toArray());
         jb_modify = new javax.swing.JButton();
 
-        setPreferredSize(new java.awt.Dimension(686, 30));
+        jcb_negation.setText("Negacja");
+        jcb_negation.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jcb_negationActionPerformed(evt);
+            }
+        });
+        jcb_negation.setEnabled(false);
 
         jl_name.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jl_name.setText(attributesName);
 
-        jb_modify.setText("Modyfikuj listę");
+        jb_modify.setText("Modyfikuj");
         jb_modify.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jb_modifyActionPerformed(evt);
@@ -123,36 +113,54 @@ public class SelectorForNominalCreatorPanel extends SelectorCreatorPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jl_name, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jcb_values, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jb_modify, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(76, Short.MAX_VALUE))
+                .addComponent(jcb_negation)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jl_name, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jcb_values, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jb_modify, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(81, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(jcb_negation, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
+                .addComponent(jl_name)
                 .addComponent(jcb_values, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(jb_modify)
-                .addComponent(jl_name, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE))
+                .addComponent(jb_modify))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jcb_negationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcb_negationActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jcb_negationActionPerformed
+
     private void jb_modifyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_modifyActionPerformed
-        new NominalValuesChooser(parentFrame, null, values, attributesName).setVisible(true);
+        new NominalValuesChooser(parentFrame, this, values, attributesName).setVisible(true);
     }//GEN-LAST:event_jb_modifyActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jb_modify;
+    private javax.swing.JCheckBox jcb_negation;
     private javax.swing.JComboBox jcb_values;
     private javax.swing.JLabel jl_name;
     // End of variables declaration//GEN-END:variables
 
-}
+    @Override
+    public Selector getSelector() {
+        if (allowedValues.size() == amountOfAllValues)
+            return SelectorForNominal.getSelUniversal(attributesNumber);
+        else
+            return SelectorForNominal.getSelSet(attributesNumber, jcb_negation.isSelected(), allowedValues);
+    }
 
-class NominalComboBoxModel2 implements ComboBoxModel {
+    public HashSet<String> getAllowedValues() {
+        return allowedValues;
+    }
+}
+class NominalComboBoxModel implements ComboBoxModel {
     private ArrayList<String> data;
     private int selected;
 
