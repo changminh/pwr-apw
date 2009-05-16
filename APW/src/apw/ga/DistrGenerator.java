@@ -33,28 +33,33 @@
  */
 package apw.ga;
 
-import java.util.Arrays;
 import java.util.Random;
 
 /**
+ * Discrete probability distribution random number generator.
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
 public class DistrGenerator {
 
-    //long seed = 1234567L;
-    private Random r = new Random();
-    double[] d = new double[]{
-        0.5,
-        0.5d};
-    double[] s = new double[d.length];
+    private Random r;
+    private double[] d, s;
+    final double max;
 
-    public DistrGenerator() {
+    /**
+     * The distribution will be normalized.
+     * @param distribution
+     */
+    public DistrGenerator(double[] distribution) {
+        this.d = distribution;
+        this.s = new double[d.length];
+        this.r = new Random();
         double sum = 0;
         for (int i = 0; i < d.length; i++) {
             sum += d[i];
             s[i] = sum;
         }
+        max = sum;
     }
 
     /**
@@ -68,11 +73,13 @@ public class DistrGenerator {
      * @return
      */
     public int nextInt() {
-        double u = r.nextDouble();
+        double u = r.nextDouble() * max;
 
 
         int i = 0, k;
         int j = d.length - 1;
+
+        // binary search
         do {
             k = (i + j) / 2;
             if (u > s[k])
@@ -81,37 +88,5 @@ public class DistrGenerator {
                 j = k;
         } while (i < j);
         return i;
-    }
-
-    public static void main(String[] s) {
-        DistrGenerator dg = new DistrGenerator();
-
-        int[] t = new int[dg.d.length];
-        for (int i = 0; i < t.length; i++)
-            t[i] = 0;
-        int n;
-        for (n = 0; n < 100000000; n++)
-            t[dg.nextInt()]++;
-
-        System.out.println("instance no:     " + n);
-        System.out.println("instances:       " + Arrays.toString(t));
-
-        double[] p = new double[t.length];
-        for (int i = 0; i < p.length; i++)
-            p[i] = ((double) t[i]) / (double) n;
-        System.out.println("probabilities:   " + Arrays.toString(p));
-
-        for (int i = 0; i < p.length; i++)
-            p[i] = Math.abs(p[i] - dg.d[i]);
-        System.out.println("error:           " + Arrays.toString(p));
-
-        double sum = 0;
-        for (int i = 0; i < p.length; i++)
-            sum += p[i];
-        System.out.println("error summed:    " + sum);
-
-        double lastRun = 3.3480000000000835E-4d;
-        System.out.println("is ok?           " + (lastRun == sum));
-        System.out.println("*************************************************");
     }
 }
