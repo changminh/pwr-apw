@@ -11,6 +11,12 @@
 
 package apw.augmentedLearning.gui;
 
+import alice.tuprolog.InvalidTheoryException;
+import alice.tuprolog.Prolog;
+import alice.tuprolog.SolveInfo;
+import alice.tuprolog.Struct;
+import alice.tuprolog.Term;
+import alice.tuprolog.Theory;
 import apw.core.Samples;
 import apw.augmentedLearning.logic.Complex;
 import apw.augmentedLearning.logic.LoadingSamplesMain;
@@ -18,15 +24,15 @@ import apw.augmentedLearning.logic.DataFile;
 import apw.augmentedLearning.logic.Rule;
 import apw.augmentedLearning.logic.RuleTranslator;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.management.Query;
 import javax.swing.JOptionPane;
-import jpl.Compound;
-import jpl.Query;
-import jpl.Term;
+
 
 /**
  *
@@ -162,16 +168,25 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
         ArrayList<Term[]> convertedSamples = advisor.getConvertedTerms();
         int[] ruleResults = new int[rules.size()];
         Term[] terms;
-        apw.augmentedLearning.test.Util.wczytajPlik(new File("rules.pl"));
-        Compound compound;
+        Prolog prolog = new Prolog();
+        try {
+            prolog.setTheory(new Theory(new FileInputStream("rules.pl")));
+        }
+        catch (InvalidTheoryException ex) {
+            Logger.getLogger(LoadingSamples_Step3.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (Exception ex) {
+            Logger.getLogger(LoadingSamples_Step3.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Struct compound;
         Query q;
         for (int i = 0; i < convertedSamples.size(); i++) {
             terms = convertedSamples.get(i);
             for (int j = 0 ; j < rules.size(); j++) {
-                compound = new Compound(rules.get(j).getName(), terms);
-                System.out.print("krotka # " + (i + 1) + ": " + compound);
-                q = new Query(compound);
-                if (q.hasSolution()) {
+                compound = new Struct(rules.get(j).getName(), terms);
+                System.out.print("krotka #" + (i + 1) + ": " + compound);
+                SolveInfo solveInfo = prolog.solve(compound);
+                if (solveInfo.isSuccess()) {
                     System.out.println(" --> true");
                     ruleResults[j]++;
                 }

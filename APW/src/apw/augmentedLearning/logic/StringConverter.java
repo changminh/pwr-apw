@@ -16,8 +16,9 @@ public class StringConverter {
             sb.append(Character.toUpperCase(tokens[i].charAt(0)) + tokens[i].substring(1));
         }
         return sb.toString(); */
+        
         // AAAAaaaaaaaaa tam :P
-        return "'\"" + s + "\"'";
+        return "'" + s + "'";
     }
 
     public static String convertToVariable(String s) {

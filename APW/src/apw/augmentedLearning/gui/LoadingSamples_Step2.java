@@ -10,6 +10,8 @@
 package apw.augmentedLearning.gui;
 
 
+import alice.tuprolog.Term;
+import alice.tuprolog.Var;
 import apw.core.Attribute;
 import apw.core.Sample;
 import apw.core.Samples;
@@ -32,9 +34,6 @@ import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
-import jpl.Atom;
-import jpl.Term;
-import jpl.Variable;
 
 /**
  *
@@ -120,21 +119,21 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
             for (int i = 0; i < attributesCount; i++) {
                 if (record[i].equals(nullTag)) {
                     values[i] = null;
-                    terms[i] = new Variable("_");
+                    terms[i] = new Var("_");
                 }
                 else
                     switch(attributesTypes.get(i)) {
                         case INTEGER: 
                             values[i] = Integer.valueOf(record[i]);
-                            terms[i] = new jpl.Integer(Integer.parseInt(record[i]));
+                            terms[i] = new alice.tuprolog.Int(Integer.parseInt(record[i]));
                             break;
                         case REAL_NUMBER: 
                             values[i] = Double.valueOf(record[i]);
-                            terms[i] = new jpl.Float(Float.parseFloat(record[i]));
+                            terms[i] = new alice.tuprolog.Float(Float.parseFloat(record[i]));
                             break;
                         case NOMINAL:
                             values[i] = record[i];
-                            terms[i] = new Atom("\"" + record[i] + "\"");
+                            terms[i] = new alice.tuprolog.Struct(record[i]);
                             break;
                     }
             }
