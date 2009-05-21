@@ -16,42 +16,13 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="selectorForNominalCreatorPanel1" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="selectorForNominalCreatorPanel2" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="selectorForNominalCreatorPanel3" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="selectorForNominalCreatorPanel4" alignment="0" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="32767" attributes="0"/>
-          </Group>
+          <EmptySpace min="0" pref="400" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="selectorForNominalCreatorPanel1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="selectorForNominalCreatorPanel2" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="selectorForNominalCreatorPanel3" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="selectorForNominalCreatorPanel4" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
-          </Group>
+          <EmptySpace min="0" pref="300" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>
-  <SubComponents>
-    <Component class="apw.temp_nitric.smieci.SelectorForNominalCreatorPanel" name="selectorForNominalCreatorPanel1">
-    </Component>
-    <Component class="apw.temp_nitric.smieci.SelectorForNominalCreatorPanel" name="selectorForNominalCreatorPanel2">
-    </Component>
-    <Component class="apw.temp_nitric.smieci.SelectorForNominalCreatorPanel" name="selectorForNominalCreatorPanel3">
-    </Component>
-    <Component class="apw.temp_nitric.smieci.SelectorForNominalCreatorPanel" name="selectorForNominalCreatorPanel4">
-    </Component>
-  </SubComponents>
 </Form>

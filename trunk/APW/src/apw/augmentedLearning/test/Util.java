@@ -6,16 +6,16 @@
 package apw.augmentedLearning.test;
 
 import java.io.File;
-import jpl.Atom;
-import jpl.Query;
-import jpl.Term;
+//import jpl.Atom;
+//import jpl.Query;
+//import jpl.Term;
 
 /**
  *
  * @author Nitric
  */
 public class Util {
-    static {
+    /* static {
         System.out.print("Użycie biblioteki JPL w wersji: ");
         jpl.JPL.main(null);
     }
@@ -28,5 +28,5 @@ public class Util {
         System.out.println("Wczytywanie pliku: " + f.getName());
         new Query("consult", new Term[] {new Atom(sciezkaDoPliku(f))}).hasSolution();
         
-    }
+    } */
 }

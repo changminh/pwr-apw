@@ -8,8 +8,8 @@ package apw.augmentedLearning.test;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import jpl.Compound;
-import jpl.Query;
+//import jpl.Compound;
+//import jpl.Query;
 
 /**
  *
@@ -28,14 +28,14 @@ public class SecondTest {
     private static int[] statystyki = new int[nazwyHipotez.length];
 
     public static void main(String[] args) throws Exception {
-        Util.wczytajPlik((new File(SecondTest.class.getResource("liczby.pl").toURI())));
+        // Util.wczytajPlik((new File(SecondTest.class.getResource("liczby.pl").toURI())));
 
         // Wczytanie pliku z liczbami:
         File dane = new File(SecondTest.class.getResource("dane.txt").toURI());
         BufferedReader czytnik = new BufferedReader(new FileReader(dane));
         String linijka;
         String[] tokeny;
-        Query q = null;
+        /* Query q = null;
         int licznik = 0;
         jpl.Term[] liczby = new jpl.Integer[4];
         while ((linijka = czytnik.readLine()) != null && linijka.length() > 1) {
@@ -59,6 +59,6 @@ public class SecondTest {
         System.out.println("Wszystkich krotek: " + licznik);
         System.out.println("Liczba trafień dla hipotez: ");
         for (int i = 0; i < nazwyHipotez.length ; i++)
-            System.out.println(nazwyHipotez[i] + " -> " + statystyki[i]);
+            System.out.println(nazwyHipotez[i] + " -> " + statystyki[i]); */
     }
 }

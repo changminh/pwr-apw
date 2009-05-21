@@ -5,12 +5,12 @@
 
 package apw.augmentedLearning.logic;
 
+import alice.tuprolog.Term;
 import apw.core.Samples;
 import apw.augmentedLearning.gui.LoadingSamples_Step1;
 import apw.augmentedLearning.gui.LoadingSamples_Step3;
 import apw.augmentedLearning.gui.LoadingSamples_Step2;
 import java.util.ArrayList;
-import jpl.Term;
 
 /**
  *
