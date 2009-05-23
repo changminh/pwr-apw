@@ -44,6 +44,7 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
     private Rule tempRule;
     private ComplexCreatorFrame complexCreator;
     private boolean ifClauseComplete = false;
+    private String rulesFileName = "rules.pl";
 
     public void addComplex(Complex c, boolean ifClauseComplete, boolean finished) {
 
@@ -155,7 +156,7 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
             sb.append(new RuleTranslator(r, samples).prologRepresentation());
         }
         try {
-            FileWriter fw = new FileWriter(new File("rules.pl"));
+            FileWriter fw = new FileWriter(new File(rulesFileName));
             fw.append(sb.toString());
             fw.close();
         } catch (IOException ex) {
@@ -170,7 +171,7 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
         Term[] terms;
         Prolog prolog = new Prolog();
         try {
-            prolog.setTheory(new Theory(new FileInputStream("rules.pl")));
+            prolog.setTheory(new Theory(new FileInputStream(rulesFileName)));
         }
         catch (InvalidTheoryException ex) {
             Logger.getLogger(LoadingSamples_Step3.class.getName()).log(Level.SEVERE, null, ex);

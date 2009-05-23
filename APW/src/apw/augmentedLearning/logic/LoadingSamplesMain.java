@@ -10,7 +10,9 @@ import apw.core.Samples;
 import apw.augmentedLearning.gui.LoadingSamples_Step1;
 import apw.augmentedLearning.gui.LoadingSamples_Step3;
 import apw.augmentedLearning.gui.LoadingSamples_Step2;
+import apw.core.Sample;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  *
@@ -23,8 +25,11 @@ public class LoadingSamplesMain {
     private LoadingSamples_Step2 step2;
     private LoadingSamples_Step3 step3;
     private ArrayList<Rule> rules = new ArrayList<Rule>();
-    private Samples samples;
     private ArrayList<Term[]> terms = new ArrayList<Term[]>();
+    private HashMap<Integer, Double> minValues = new HashMap<Integer, Double>();
+    private HashMap<Integer, Double> maxValues = new HashMap<Integer, Double>();
+    private Samples samples;
+    private DataFile dataFile;
 
     public void setSamples(Samples samples) {
         this.samples = samples;
@@ -65,12 +70,42 @@ public class LoadingSamplesMain {
     }
 
     public void step2(DataFile dataFile) {
+        this.dataFile = dataFile;
         step2 = new LoadingSamples_Step2(dataFile, inst);
         step2.setVisible(true);
     }
 
-    public void step3(DataFile dataFile) {
+    public void step3() {
+        collectMinMaxValues();
         step3 = new LoadingSamples_Step3(dataFile, inst);
         step3.setVisible(true);
+    }
+
+    private void collectMinMaxValues() {
+        double min, max;
+        Sample s;
+        Double temp;
+        for (int i = 0; i < dataFile.getAttributesCount(); i++) {
+            if (dataFile.isNominalAttribute(i)) {
+                continue;
+            }
+            else {
+                s = samples.get(0);
+                min = (Double)s.get(i);
+                max = (Double)s.get(i);
+                for (int j = 1; j < samples.size(); j++) {
+                    s = samples.get(j);
+                    if ((temp = (Double)s.get(i)) < min)
+                        min = temp;
+                    else if (temp > max)
+                        max = temp;
+                }
+                minValues.put(i, min);
+                maxValues.put(i, max);
+            }
+        }
+        System.out.println("Minimalne i maksymalne wartości: ");
+        System.out.println("min: " + minValues);
+        System.out.println("max: " + maxValues);
     }
 }
