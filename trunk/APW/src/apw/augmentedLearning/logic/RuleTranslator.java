@@ -123,7 +123,7 @@ class ClauseTranslator {
         StringBuilder sb = new StringBuilder(complexName + "(");
         for (int i = 0; i < attributeCount; i++)
             if (!c.getSelector(i).isUniversal()) {
-                // First: remember, that attribute is important for the whole ifClause / thenClause
+                // First: store the information, that attribute is important for the whole clause
                 attributesForClause.add(i);
                 set.add(i);
                 sb.append(attributes.get(i).getName() + ", ");
@@ -200,25 +200,25 @@ class ClauseTranslator {
         switch (sel.type) {
             case ALL_VALUES:
                 return "true";
-            case BELONGS_INCLUDING:
-                sb.append("" + sel.getLowerLimit() + " =< " + name + ", ");
+            case BELONGS_RIGHT_INCLUDING:
+                sb.append("" + sel.getLowerLimit() + " < " + name + ", ");
                 sb.append(name + " =< " + sel.getUpperLimit());
                 break;
             case EQUAL:
                 sb.append(name + " =:= " + sel.getUpperLimit());
                 break;
-            case GREATER_OR_EQUAL:
+            /* case GREATER_OR_EQUAL:
                 sb.append(name + " >= " + sel.getLowerLimit());
-                break;
+                break; */
             case GREATER_THAN:
                 sb.append(name + " > " + sel.getLowerLimit());
                 break;
             case LOWER_OR_EQUAL:
                 sb.append(name + " =< " + sel.getUpperLimit());
                 break;
-            case LOWER_THAN:
+            /* case LOWER_THAN:
                 sb.append(name + " < " + sel.getUpperLimit());
-                break;
+                break; */
             case NONE_VALUE:
                 return "fail";
         }

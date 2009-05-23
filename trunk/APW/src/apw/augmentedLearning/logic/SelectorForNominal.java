@@ -17,13 +17,14 @@ public class SelectorForNominal extends Selector {
 
     protected SelectorForNominal(int attributeId, boolean isNegated, SelectorTypeForNominal type, HashSet<String> set) {
         this.attributeId = attributeId;
-        this.values = set;
         this.type = type;
         this.forNominalAttribute = true;
+        if (set != null)
+            this.values = set;
     }
 
-    public static SelectorForNominal getSelEmpty(int attributeId, boolean isNegated) {
-        return new SelectorForNominal(attributeId, isNegated, SelectorTypeForNominal.EMPTY, null);
+    public static SelectorForNominal getSelEmpty(int attributeId) {
+        return new SelectorForNominal(attributeId, false, SelectorTypeForNominal.EMPTY, null);
     }
 
     public static SelectorForNominal getSelUniversal(int attributeId) {
@@ -52,5 +53,14 @@ public class SelectorForNominal extends Selector {
 
     public boolean isUniversal() {
         return type == SelectorTypeForNominal.UNIVERSAL;
+    }
+
+    public boolean isEmpty() {
+        return type == SelectorTypeForNominal.EMPTY;
+    }
+
+    @Override
+    public Selector getNegation() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

@@ -56,10 +56,18 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
     private ArrayList<String> attributesNames = new ArrayList<String>();
     private ArrayList<HashSet<String>> nominalValues = new ArrayList<HashSet<String>>();
     private Samples samples;
+    private int classAttributeIndex = -1;
+    private int classAttributeColumIndex = 6;
 
 
     private String[] columnNames = new String[] {
-        "Numer atrybutu", "Nazwa atrybutu", "Krotka 1", "Krotka 2", "Krotka 3", "Typ atrybutu"
+        "Numer atrybutu", 
+        "Nazwa atrybutu",
+        "Krotka 1",
+        "Krotka 2",
+        "Krotka 3",
+        "Typ atrybutu",
+        "Atrybut klasy"
     };
 
     public LoadingSamples_Step2(DataFile format, LoadingSamplesMain advisor) {
@@ -150,10 +158,12 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
      * [1]: attribute name (editable)
      * [2], [3], [4]: attributes values of the three beginning records of data
      * [5]: attribute type (comboBox that enables to choose/correct the data type)
+     * [6]: class attribute (boolean, checkbox = editable)
      */
     private void postInitComponents() {
         jt_dataTable.getColumnModel().getColumn(5).setCellEditor(
                 new DefaultCellEditor(new JComboBox(AttributeTypes.values())));
+
     }
 
     public DataFile getDataFile() {
@@ -206,18 +216,24 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         Character separator = dataFile.getFractionalSeparator();
         // Prepares rest of table's data:
         for (int i = 0; i < dataFile.getAttributesCount(); i++) {
+            result[i][6] = new Boolean(false);
             c = tokens[i].charAt(0);                            // First letter of attribute's value
             result[i][0] = "" + (i + 1);                        // Id of attribute
             result[i][1] = "Atr_" + (i + 1);                    // Initial name of attribute
-            if (Character.isLetter(c))
-                result[i][5] = AttributeTypes.NOMINAL;
-            else if (Character.isDigit(c))
-                if (tokens[i].contains("" + separator))
+            try {
+                Integer.parseInt(tokens[i]);
+                // result[i][5] = AttributeTypes.INTEGER;
+                result[i][5] = AttributeTypes.REAL_NUMBER;
+            }
+            catch (NumberFormatException ex) {
+                try {
+                    Double.parseDouble(tokens[i]);
                     result[i][5] = AttributeTypes.REAL_NUMBER;
-                else
-                    result[i][5] = AttributeTypes.INTEGER;
-            else
-                result[i][5] = AttributeTypes.NOMINAL;
+                }
+                catch (NumberFormatException ex2) {
+                    result[i][5] = AttributeTypes.NOMINAL;
+                }
+            }
         }
         
         return result;
@@ -240,24 +256,41 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
             }
 
             @Override
+            public Class getColumnClass(int c) {
+                return getValueAt(0, c).getClass();
+            }
+
+            @Override
             public String getColumnName(int col) {
                 return columnNames[col];
             }
             
             @Override
             public boolean isCellEditable(int row, int col) { 
-                return (col == 1 || col == 5);
+                return (col == 1 || col == 5 || col == classAttributeColumIndex);
             }
 
             @Override
             public void setValueAt(Object value, int row, int col) {
-                if (col != 5)
+                if (col != 6)                           // Not the checkbox
                     data[row][col] = value;
                 else {
-                    data[row][col] = value;
+                    if ((Boolean) value) {
+                        if (classAttributeIndex != -1) {
+                            setValueAt(false, classAttributeIndex, classAttributeColumIndex);
+                        }
+                        fireTableCellUpdated(classAttributeIndex, classAttributeColumIndex);
+                        classAttributeIndex = row;
+                        data[row][classAttributeColumIndex] = true;
+                    }
+                    else {
+                        data[row][classAttributeColumIndex] = false;
+                        classAttributeIndex = -1;
+                    }
                 }
             }
         };
+        result.setValueAt(true, dataFile.getAttributesCount() - 1, classAttributeColumIndex);
         return result;
     }
 
@@ -329,10 +362,12 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
             if (type == AttributeTypes.NOMINAL)
                 nominals.add(i);
         }
-        dataFile.setAttributesNames(attributesNames);
         collectRecords();
         collectNominalValues();
-        advisor.step3(dataFile);
+        dataFile.setAttributesNames(attributesNames);
+        dataFile.setClassAttributeIndex(classAttributeIndex);
+        samples.setClassAttributeIndex(classAttributeIndex);
+        advisor.step3();
 }//GEN-LAST:event_jb_nextActionPerformed
 
     private void collectRecords() {

@@ -26,7 +26,7 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
     private LoadingSamples_Step3 parent = null;
 
     public ComplexCreatorFrame() {
-        myInitComponents();
+        myInitComponents(false);
     }
 
     public Complex getComplex() {
@@ -37,11 +37,11 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
         this.dataFile = dataFile;
         this.conclusionMode = conclusionMode;
         this.parent = parent;
-        myInitComponents();
+        myInitComponents(conclusionMode);
         setLocationRelativeTo(parent);
     }
 
-    private void myInitComponents() {
+    private void myInitComponents(boolean conclusionMode) {
         jsp_ccpScrollPane = new javax.swing.JScrollPane();
         complexCreatorPanel = dataFile != null ?
             new apw.augmentedLearning.gui.ComplexCreatorPanel(this, dataFile) : new apw.augmentedLearning.gui.ComplexCreatorPanel();
@@ -60,14 +60,16 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
 
         jl_title.setFont(new java.awt.Font("Tahoma", 1, 14));
         jl_title.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jl_title.setText("Wskaż dozwolone wartości atrybutów kompleksu:");
-
-        jb_nextComplex.setText("Następny kompleks");
         if (!conclusionMode) {
+            jb_nextComplex.setText("Następny kompleks");
             jb_ok.setText("Przejdź do części przesłankowej");
+            jl_title.setText("Wskaż dozwolone wartości atrybutów dla kompleksu:");
         }
-        else
+        else {
+            jb_nextComplex.setVisible(false);
             jb_ok.setText("Gotowe");
+            jl_title.setText("Wskaż klasę dla krotek pokrytych wprowadzoną regułą:");
+        }
         jb_ok.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jb_okActionPerformed(evt);

@@ -30,7 +30,6 @@ public class SelectorForNumberCreatorPanel extends SelectorCreatorPanel {
         this.attributesName = attributesName;
         this.attributesNumber = attributesNumber;
         initComponents();
-        // setControls(t, f, t, f);
         setControls(f, f, f, f);
         jl_operator.setText("");
         jl_attributeName.setText(attributesName);
@@ -40,42 +39,38 @@ public class SelectorForNumberCreatorPanel extends SelectorCreatorPanel {
         switch((SelectorTypeForNumbers)jcb_operator.getSelectedItem()) {
             case ALL_VALUES:
                 return SelectorForNumber.getUniversalSelector(attributesNumber);
-            case BELONGS_INCLUDING:
+            case BELONGS_RIGHT_INCLUDING:
                 return SelectorForNumber.getSelBelongs(
                             attributesNumber,
-                            jcb_negation.isSelected(),
                             parseDouble(jtf_lower.getText()),
                             parseDouble(jtf_upper.getText())
                        );
             case EQUAL:
                 return SelectorForNumber.getSelEQ(
                             attributesNumber,
-                            jcb_negation.isSelected(),
                             parseDouble(jtf_upper.getText())
                        );
-            case GREATER_OR_EQUAL:
+            /* case GREATER_OR_EQUAL:
                 return SelectorForNumber.getSelGE(
                             attributesNumber,
                             jcb_negation.isSelected(),
                             parseDouble(jtf_upper.getText())
-                       );
+                       ); */
             case GREATER_THAN:
                 return SelectorForNumber.getSelGT(
                             attributesNumber,
-                            jcb_negation.isSelected(),
                             parseDouble(jtf_upper.getText())
                        );
             case LOWER_OR_EQUAL:
                 return SelectorForNumber.getSelLE(
                             attributesNumber,
-                            jcb_negation.isSelected(),
                             parseDouble(jtf_upper.getText())
                        );
-            case LOWER_THAN:
+            /* case LOWER_THAN:
                 return SelectorForNumber.getSelLT(
                             attributesNumber,
                             jcb_negation.isSelected(),
-                            parseDouble(jtf_upper.getText()));
+                            parseDouble(jtf_upper.getText())); */
             case NONE_VALUE:
                 return SelectorForNumber.getEmptySelector(attributesNumber);
         }
@@ -151,31 +146,31 @@ public class SelectorForNumberCreatorPanel extends SelectorCreatorPanel {
                 setControls(f, f, f, f);
                 jl_operator.setText("");
                 break;
-            case BELONGS_INCLUDING:
+            case BELONGS_RIGHT_INCLUDING:
                 setControls(t, t, t, t);
-                jl_operator.setText("<= " + attributesName + " <=");
+                jl_operator.setText("< " + attributesName + " <=");
                 jcb_negation.setEnabled(t);
                 break;
             case EQUAL:
                 setControls(f, f, t, t);
                 jl_operator.setText(attributesName + " =");
                 break;
-            case GREATER_OR_EQUAL:
+            /* case GREATER_OR_EQUAL:
                 setControls(f, f, t, t);
                 jl_operator.setText(attributesName + ">= ");
-                break;
+                break; */
             case GREATER_THAN:
                 setControls(f, f, t, t);
-                jl_operator.setText(attributesName + ">");
+                jl_operator.setText(attributesName + " >");
                 break;
             case LOWER_OR_EQUAL:
                 setControls(f, f, t, t);
                 jl_operator.setText(attributesName + " <=");
                 break;
-            case LOWER_THAN:
+            /* case LOWER_THAN:
                 setControls(f, f, t, t);
                 jl_operator.setText(attributesName + " <");
-                break;
+                break; */
             case NONE_VALUE:
                 setControls(f, f, f, f);
                 jl_operator.setText("");

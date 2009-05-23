@@ -27,4 +27,6 @@ public abstract class Selector {
     }
 
     public abstract boolean isUniversal();
+    public abstract boolean isEmpty();
+    public abstract Selector getNegation();
 }

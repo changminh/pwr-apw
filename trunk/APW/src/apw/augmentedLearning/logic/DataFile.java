@@ -25,11 +25,30 @@ public class DataFile {
     private ArrayList<String[]> records = null;
     private Vector<Integer> nominals = new Vector<Integer>();
     private ArrayList<HashSet<String>> nominalValues = new ArrayList<HashSet<String>>();
+    private int classAttributeIndex = -1;
+
+    /**
+     * Allows to check whether the attribute with number 'id' is nominal (returns true) or numerical
+     * (returns false).
+     * @param id identity number of attribute
+     * @return true, if the attribute with specified id is nominal, false otherwise.
+     */
+    public boolean isNominalAttribute(int id) {
+        return nominals.contains(id);
+    }
 
     public ArrayList<HashSet<String>> getNominalValues() {
         return nominalValues;
     }
 
+    /**
+     * Returns set of nominal values of the attribute of particular id. The id is id of the attribute
+     * (in global meaning, e.g. if first nominal attribute is attribute number 3, then in fact
+     * 'getNominalValuesOfAttribute(0)' returns 'null', while 'getNominalValuesOfAttribute(3)' returns
+     * the values of the attribute number 3.
+     * @param id
+     * @return set of attribute's possible values
+     */
     public HashSet<String> getNominalValuesOfAttribute(int id) {
         if (nominals.contains(id))
             return nominalValues.get(nominals.indexOf(id));
@@ -111,5 +130,13 @@ public class DataFile {
 
     public void setMissingValueTag(String znacznikBrakuWartosci) {
         this.missingValueTag = znacznikBrakuWartosci;
+    }
+
+    public int getClassAttributeIndex() {
+        return classAttributeIndex;
+    }
+
+    public void setClassAttributeIndex(int classAttributeIndex) {
+        this.classAttributeIndex = classAttributeIndex;
     }
 }

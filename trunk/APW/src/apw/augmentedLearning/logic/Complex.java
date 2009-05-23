@@ -6,6 +6,7 @@
 package apw.augmentedLearning.logic;
 
 import java.util.HashMap;
+import static apw.augmentedLearning.logic.RelationBetweenSets.*;
 
 /**
  *
@@ -37,5 +38,74 @@ public class Complex {
         for (Selector sel : selectors.values())
             sb.append(sel + "\n");
         return sb.toString();
+    }
+
+    /**
+     *
+     * @param other
+     * @return -1, when complex is NOT more general than 'other';
+     * 0, when complexes cannot be compared (for explanation look inside method implementation)
+     * 1, when this complex IS more general than the 'other'.
+     */
+    public RelationBetweenSets isMoreGeneralThan(Complex other) {
+        Selector ts, os;                    // Selector for 'this', Selector for 'other'
+        boolean oneSelectorMoreGeneral = false;
+        boolean oneSelectorLessGeneral = false;
+        for (int i = 0; i < selectors.size(); i++) {
+            if (oneSelectorLessGeneral && oneSelectorMoreGeneral)
+                return NOT_COMPARABLE;
+            os = other.getSelector(i);
+            if ((ts = selectors.get(i)).isUniversal()) {
+                if (os.isUniversal())
+                    continue;
+                else
+                    oneSelectorMoreGeneral = true;
+            }
+            else {
+                if (os.isUniversal()) {
+                    oneSelectorLessGeneral = true;
+                    continue;
+                }
+                if (ts.forNominalAttribute) {
+                    if (!os.forNominalAttribute)
+                        throw new RuntimeException ("Incompatible selectors (id = " + i + ")");
+                    if (((SelectorForNominal)ts).values.containsAll(((SelectorForNominal)os).values)) {
+                        if (((SelectorForNominal)os).values.containsAll(((SelectorForNominal)ts).values))
+                            ;
+                        else
+                            oneSelectorMoreGeneral = true;
+                        continue;
+                    }
+                    else if (((SelectorForNominal)os).values.containsAll(((SelectorForNominal)ts).values)) {
+                        oneSelectorLessGeneral = true;
+                    }
+                    else
+                        return NOT_COMPARABLE;
+                }
+                else {
+                    switch (((SelectorForNumber)ts).isMoreGeneralThan((SelectorForNumber) os)) {
+                        case NOT_COMPARABLE: return NOT_COMPARABLE;
+                        case MORE_GENERAL:
+                            oneSelectorMoreGeneral = true;
+                            break;
+                        case LESS_GENERAL:
+                            oneSelectorLessGeneral = true;
+                        case EQUAL:
+                            continue;
+                    }
+                }
+            }
+        }
+        if (oneSelectorLessGeneral) {
+            if (oneSelectorMoreGeneral)
+                return NOT_COMPARABLE;
+            else
+                return LESS_GENERAL;
+        }
+        else
+            if (oneSelectorMoreGeneral)
+                return MORE_GENERAL;
+            else
+                return EQUAL;
     }
 }
