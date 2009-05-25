@@ -33,10 +33,15 @@
  */
 package apw.ga;
 
+import java.awt.Color;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFrame;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.math.plot.Plot2DPanel;
 
 /**
  *
@@ -46,7 +51,7 @@ public class DistrGeneratorTest {
 
     private static final double ALLOWED_ERROR = 0.01;
     private static final int SAMPLING_NO = 10000000;
-    double[] d = new double[]{
+    static double[] d = new double[]{
         0.01,
         0.05,
         0.10,
@@ -59,7 +64,7 @@ public class DistrGeneratorTest {
         0.02,
         0.19
     };
-    double[] d2 = new double[]{
+    static double[] d2 = new double[]{
         0.1,
         0.5,
         1,
