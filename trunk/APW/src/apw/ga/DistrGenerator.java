@@ -33,7 +33,8 @@
  */
 package apw.ga;
 
-import java.util.Random;
+import java.util.ArrayList;
+import org.math.plot.Plot2DPanel;
 
 /**
  * Discrete probability distribution random number generator.
@@ -42,21 +43,30 @@ import java.util.Random;
  */
 public class DistrGenerator {
 
-    private Random r;
-    private double[] d, s;
+    private double[] s;
     final double max;
 
     /**
      * The distribution will be normalized.
      * @param distribution
      */
-    public DistrGenerator(double[] distribution) {
-        this.d = distribution;
+    public DistrGenerator(double[] d) {
         this.s = new double[d.length];
-        this.r = new Random();
         double sum = 0;
         for (int i = 0; i < d.length; i++) {
             sum += d[i];
+            s[i] = sum;
+        }
+        max = sum;
+    }
+
+    DistrGenerator(ArrayList<double[]> d) {
+        this.s = new double[d.size()];
+        //this.r = new Random(System.nanoTime());
+        double sum = 0;
+        int last = d.get(0).length - 1;
+        for (int i = 0; i < d.size(); i++) {
+            sum += d.get(i)[last];
             s[i] = sum;
         }
         max = sum;
@@ -73,11 +83,10 @@ public class DistrGenerator {
      * @return
      */
     public int nextInt() {
-        double u = r.nextDouble() * max;
-
+        double u = Math.random() * max;
 
         int i = 0, k;
-        int j = d.length - 1;
+        int j = s.length - 1;
 
         // binary search
         do {

@@ -89,6 +89,10 @@ public class GeneticAlgorithm {
         Collections.sort(sortedByFitness, fitnessComparator);
     }
 
+    private double[][] crossOver(double[][] parents) {
+        return parents;
+    }
+
     private double fitness(double[] x) {
 
         // To jest chyba (!) paraboloida o środku w
@@ -117,7 +121,11 @@ public class GeneticAlgorithm {
         updateFitnessArray();
         createSortedPopulation();
 
+        
         double[][] parents = selectParentChromosomes();
+        double[][] offspring = crossOver(parents);
+        mutate(offspring);
+
     } /*
     1. [Start] Generate random population of n chromosomes (suitable solutions
     for the problem)
@@ -140,38 +148,20 @@ public class GeneticAlgorithm {
     public GeneticAlgorithm(Builder b) {
     }
 
+    private void mutate(double[][] offspring) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
     /**
-     * Selects two (unfortunately can be the same) parent chromosomes.
+     * Selects two parent chromosomes.
      * They are selected in order of precedence, that is by fitness;
-     * @return an array cf 2 parent chromosomes
+     * @return an array of 2 parent chromosomes
      */
     private double[][] selectParentChromosomes() {
         double[][] p = new double[2][];
-
-        double r = Math.random();
-        r = r * r;
-
-        // normalizing so that r is in range [0, chromosomes]
-        r *= chromosomes;
-
-        int i = (int) r;
-        if (i > chromosomes)
-            i = chromosomes;
-
-        p[0] = population[i];
-
-        r = Math.random();
-        r = r * r;
-
-        // normalizing so that r is in range [0, chromosomes]
-        r *= chromosomes;
-
-        i = (int) r;
-        if (i > chromosomes)
-            i = chromosomes;
-
-        p[1] = population[i];
-
+        SelectionPool sp = new SelectionPool(population);
+        p[0] = sp.poll();
+        p[1] = sp.poll();
         return p;
     }
 
