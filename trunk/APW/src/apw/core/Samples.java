@@ -121,7 +121,7 @@ public class Samples implements List<Sample> {
     public Samples(ArrayList<Attribute> atts) {
         this.atts = atts;
     }
-    FastVector data;
+    FastVector data = new FastVector();
     ArrayList<Attribute> atts;
     String name;
 
@@ -195,7 +195,7 @@ public class Samples implements List<Sample> {
     }
 
     @Override
-    @SuppressWarnings("unused")
+//    @SuppressWarnings("unused")
     public boolean add(Sample e) {
         try {
             data.addElement(e);
