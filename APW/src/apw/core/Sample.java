@@ -138,7 +138,7 @@ public class Sample extends SampleListAdapter {
         sb.append('[');
         Object e;
         for (int id = 0;; id++) {
-            e = get(id);
+            e = (Object)get(id);
             sb.append(e);
             if (id == size - 1)
                 return sb.append(']').toString();
