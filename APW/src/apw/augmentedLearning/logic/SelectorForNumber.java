@@ -14,6 +14,7 @@ public class SelectorForNumber extends Selector {
     protected SelectorTypeForNumbers type;
     protected double lowerLimit;
     protected double upperLimit;
+    protected double delta = 0.001;
     // TODO: Zabezpieczyć przed nieprawidłowymi zmianami!
     
     public double getLowerLimit() {
@@ -41,6 +42,8 @@ public class SelectorForNumber extends Selector {
     }
 
     protected SelectorForNumber(int attributeId, SelectorTypeForNumbers type, double lower, double upper) {
+        if (lower > upper)
+            throw new IllegalArgumentException("Fatal error: lower > upper... :/");
         this.type = type;
         this.attributeId = attributeId;
         this.lowerLimit = lower;
@@ -90,6 +93,10 @@ public class SelectorForNumber extends Selector {
     }
 
     public static SelectorForNumber getSelBelongs(int attributeId, double lowerLimit, double upperLimit) {
+        if (lowerLimit == Double.NEGATIVE_INFINITY || upperLimit == Double.POSITIVE_INFINITY)
+            throw new IllegalArgumentException(
+                    "Use other type of selector! (lower = " + lowerLimit + ", upper = " + upperLimit + ")"
+            );
         return new SelectorForNumber(
                 attributeId,
                 SelectorTypeForNumbers.BELONGS_RIGHT_INCLUDING,
@@ -130,7 +137,10 @@ public class SelectorForNumber extends Selector {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public RelationBetweenSets isMoreGeneralThan(SelectorForNumber o) {
+    public RelationBetweenSets isMoreGeneralThan(Selector other) {
+        if (other.isForNominalAttribute())
+            throw new IllegalArgumentException("Cannot intersect two different types of selectors!");
+        SelectorForNumber o = (SelectorForNumber) other;
         switch (type) {
             case ALL_VALUES: {                                                  // Whole 'branch' tested
                 if (o.isUniversal())
@@ -252,5 +262,128 @@ public class SelectorForNumber extends Selector {
             }
         }
         throw new RuntimeException("This should never happen!!!");
+    }
+
+    public SelectorForNumber[] divide(double divider) {
+        // result[0] -> left
+        // result[1] -> right
+        SelectorForNumber[] result = new SelectorForNumber[2];
+        switch(type) {
+            case ALL_VALUES: {
+                result[0] = getSelLE(attributeId, divider - delta);
+                result[1] = getSelGT(attributeId, divider);
+                break;
+            }
+            case BELONGS_RIGHT_INCLUDING: {
+                if (divider == lowerLimit) {
+                    result[0] = null;
+                    result[1] = this;
+                }
+                else {
+                    if (divider > lowerLimit) {
+                        if (divider == upperLimit) {
+                            result[0] = getSelBelongs(attributeId, lowerLimit, divider - delta);
+                            result[1] = null;
+                        }
+                        else if (divider > upperLimit) {
+                            result[0] = this;
+                            result[1] = null;
+                        }
+                        else {
+                            // lowerLimit < divider < upperLimit
+                            result[0] = getSelBelongs(attributeId, lowerLimit, divider - delta);
+                            result[1] = getSelBelongs(attributeId, divider, upperLimit);
+                        }
+                    }
+                    else {
+                        // divider < lowerLimit
+                        result[0] = null;
+                        result[1] = this;
+                    }
+                }
+                break;
+            }
+            case EQUAL: {
+                if (divider == lowerLimit)
+                    result[0] = this;
+                break;
+            }
+            case GREATER_THAN: {
+                if (divider == lowerLimit) {
+                    result[0] = null;
+                    result[1] = this;
+                }
+                else if (divider > lowerLimit) {
+                    result[0] = getSelBelongs(attributeId, lowerLimit, divider - delta);
+                    result[1] = getSelGT(attributeId, divider);
+                }
+                // else -> divider < lowerLimit, so there's no selector to return;
+                break;
+            }
+            case LOWER_OR_EQUAL: {
+                if (divider == upperLimit) {
+                    result[0] = getSelLE(attributeId, divider - delta);
+                    result[1] = null;
+                }
+                else if (divider < upperLimit) {
+                    result[0] = getSelLE(attributeId, divider - delta);
+                    result[1] = getSelBelongs(attributeId, divider, upperLimit);
+                } 
+                // else -> divider > lowerLimit, so there's no selector to return;
+                break;
+            }
+            case NONE_VALUE: { // Nothing to return.
+                break;
+            }
+        }
+        return result;
+    }
+
+    public boolean covers(Object o) {
+        Double value = (Double)o;
+        switch(type) {
+            case ALL_VALUES: return true;
+            case BELONGS_RIGHT_INCLUDING: return value > lowerLimit && value <= upperLimit;
+            case EQUAL: return value == lowerLimit;
+            case GREATER_THAN: return value > lowerLimit;
+            case LOWER_OR_EQUAL: return value <= upperLimit;
+            default: return false;
+        }
+    }
+
+    public Selector intersection(Selector other) {
+        if (other.isForNominalAttribute())
+            throw new IllegalArgumentException("Cannot intersect two different types of selectors!");
+        SelectorForNumber o = (SelectorForNumber) other;
+        RelationBetweenSets relation = isMoreGeneralThan(o);
+        switch(relation) {
+            case EQUAL: return this;
+            case LESS_GENERAL: return this;
+            case MORE_GENERAL: return o;
+        }
+        // If reached here it means, that selectors are not comparable - we must create new selector.
+        switch (type) {
+            case BELONGS_RIGHT_INCLUDING: {
+                if (upperLimit <= o.lowerLimit || lowerLimit >= o.upperLimit)
+                    return getEmptySelector(attributeId);
+                else {
+                    double lower = Math.max(lowerLimit, o.lowerLimit);
+                    double upper = Math.min(upperLimit, o.upperLimit);
+                    getSelBelongs(attributeId, lower, upper);
+                }
+            }
+            case EQUAL:
+                return getEmptySelector(attributeId);
+            case GREATER_THAN: {
+                return o.upperLimit > lowerLimit ?
+                    getSelBelongs(attributeId, lowerLimit, o.upperLimit) : getEmptySelector(attributeId);
+            }
+            case LOWER_OR_EQUAL: {
+                return o.lowerLimit < upperLimit ?
+                    getSelBelongs(attributeId, o.lowerLimit, upperLimit) : getEmptySelector(attributeId);
+            }
+            default:
+                throw new RuntimeException("This also can never happen!!1!!!!1!");
+        }
     }
 }

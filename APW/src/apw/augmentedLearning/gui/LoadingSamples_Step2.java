@@ -119,7 +119,9 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         String nullTag = dataFile.getMissingValueTag();
         int attributesCount = attributes.size();
         Object[] values;
+        Object[][] rawObject = new Object[records.size()][];
         Term[] terms;
+        int counter = 0;
         // TODO: Optimization...?
         for (String [] record : records) {
             values = new Object[attributesCount];
@@ -148,8 +150,10 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
             sample = new Sample(samples, values);
             samples.add(sample);
             advisor.addTerms(terms);
+            rawObject[counter++] = values;
         }
         advisor.setSamples(samples);
+        dataFile.setRawObjects(rawObject);
     }
 
     /**
@@ -212,12 +216,9 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
             }
         }
 
-        Character c;
-        Character separator = dataFile.getFractionalSeparator();
         // Prepares rest of table's data:
         for (int i = 0; i < dataFile.getAttributesCount(); i++) {
             result[i][6] = new Boolean(false);
-            c = tokens[i].charAt(0);                            // First letter of attribute's value
             result[i][0] = "" + (i + 1);                        // Id of attribute
             result[i][1] = "Atr_" + (i + 1);                    // Initial name of attribute
             try {
@@ -235,7 +236,6 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
                 }
             }
         }
-        
         return result;
     }
 

@@ -134,7 +134,7 @@
     </Component>
     <Component class="javax.swing.JTextField" name="jtf_filePath">
       <Properties>
-        <Property name="text" type="java.lang.String" value="C:\Documents and Settings\Nitric\My Documents\data\adult.data"/>
+        <Property name="text" type="java.lang.String" value="C:\Documents and Settings\Nitric\My Documents\data\iris.data"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="jb_browse">
@@ -164,8 +164,11 @@
     </Component>
     <Component class="javax.swing.JTextField" name="jtf_separator">
       <Properties>
-        <Property name="text" type="java.lang.String" value=", "/>
+        <Property name="text" type="java.lang.String" value=","/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jtf_separatorActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="jb_next">
       <Properties>
@@ -187,6 +190,11 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JSpinner" name="js_attributesCount">
+      <Properties>
+        <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="5" type="code"/>
+        </Property>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel8">
       <Properties>

@@ -7,6 +7,7 @@ package apw.augmentedLearning.logic;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Vector;
 
@@ -25,7 +26,10 @@ public class DataFile {
     private ArrayList<String[]> records = null;
     private Vector<Integer> nominals = new Vector<Integer>();
     private ArrayList<HashSet<String>> nominalValues = new ArrayList<HashSet<String>>();
+    private HashMap<Integer, Double> minValues = new HashMap<Integer, Double>();
+    private HashMap<Integer, Double> maxValues = new HashMap<Integer, Double>();
     private int classAttributeIndex = -1;
+    private Object[][] rawObjects;
 
     /**
      * Allows to check whether the attribute with number 'id' is nominal (returns true) or numerical
@@ -54,6 +58,14 @@ public class DataFile {
             return nominalValues.get(nominals.indexOf(id));
         else
             return null;
+    }
+
+    public void setMaxValues(HashMap<Integer, Double> maxValues) {
+        this.maxValues = maxValues;
+    }
+
+    public void setMinValues(HashMap<Integer, Double> minValues) {
+        this.minValues = minValues;
     }
 
     public void setNominalValues(ArrayList<HashSet<String>> nominalValues) {
@@ -138,5 +150,13 @@ public class DataFile {
 
     public void setClassAttributeIndex(int classAttributeIndex) {
         this.classAttributeIndex = classAttributeIndex;
+    }
+
+    public Object[][] getRawObjects() {
+        return rawObjects;
+    }
+
+    public void setRawObjects(Object[][] rawObjects) {
+        this.rawObjects = rawObjects;
     }
 }

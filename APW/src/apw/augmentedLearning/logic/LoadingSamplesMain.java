@@ -13,6 +13,7 @@ import apw.augmentedLearning.gui.LoadingSamples_Step2;
 import apw.core.Sample;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  *
@@ -26,6 +27,7 @@ public class LoadingSamplesMain {
     private LoadingSamples_Step3 step3;
     private ArrayList<Rule> rules = new ArrayList<Rule>();
     private ArrayList<Term[]> terms = new ArrayList<Term[]>();
+    private HashSet<Integer> termsAccessors = new HashSet<Integer>();
     private HashMap<Integer, Double> minValues = new HashMap<Integer, Double>();
     private HashMap<Integer, Double> maxValues = new HashMap<Integer, Double>();
     private Samples samples;
@@ -63,6 +65,14 @@ public class LoadingSamplesMain {
         return terms;
     }
 
+    public HashSet<Integer> getTermsAccessors() {
+        return termsAccessors;
+    }
+
+    public DataFile getDataFile() {
+        return dataFile;
+    }
+
     public static void main(String[] args) {
         inst = new LoadingSamplesMain();
         inst.step1 = new LoadingSamples_Step1(inst);
@@ -77,8 +87,18 @@ public class LoadingSamplesMain {
 
     public void step3() {
         collectMinMaxValues();
+        dataFile.setMinValues(minValues);
+        dataFile.setMaxValues(maxValues);
+        for (int i = 0; i < terms.size(); i++)
+            termsAccessors.add(i);
         step3 = new LoadingSamples_Step3(dataFile, inst);
         step3.setVisible(true);
+    }
+
+    public void step4() {
+        step3.dispose();
+        RuleAquisition aquisition = new RuleAquisition(this);
+        aquisition.doJob();
     }
 
     private void collectMinMaxValues() {
@@ -104,8 +124,5 @@ public class LoadingSamplesMain {
                 maxValues.put(i, max);
             }
         }
-        System.out.println("Minimalne i maksymalne wartości: ");
-        System.out.println("min: " + minValues);
-        System.out.println("max: " + maxValues);
     }
 }

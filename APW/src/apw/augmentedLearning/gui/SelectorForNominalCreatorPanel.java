@@ -151,7 +151,7 @@ public class SelectorForNominalCreatorPanel extends SelectorCreatorPanel {
     @Override
     public Selector getSelector() {
         if (allowedValues.size() == amountOfAllValues)
-            return SelectorForNominal.getSelUniversal(attributesNumber);
+            return SelectorForNominal.getSelUniversal(attributesNumber, values);
         else
             return SelectorForNominal.getSelSet(attributesNumber, jcb_negation.isSelected(), allowedValues);
     }

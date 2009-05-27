@@ -67,9 +67,9 @@ public class ComplexTest {
      */
     @Test
     public void testGenerality__Nominal_2() {
-        instance.addSelector(getSelUniversal(0));
-        instance.addSelector(getSelUniversal(1));
-        instance.addSelector(getSelUniversal(2));
+        instance.addSelector(getSelUniversal(0, sets[5]));
+        instance.addSelector(getSelUniversal(1, sets[5]));
+        instance.addSelector(getSelUniversal(2, sets[5]));
         other.addSelector(getSelSet(0, false, sets[4]));
         other.addSelector(getSelSet(1, false, sets[3]));
         other.addSelector(getSelSet(2, false, sets[0]));
@@ -83,8 +83,8 @@ public class ComplexTest {
     @Test
     public void testGenerality__Nominal_3() {
         instance.addSelector(getSelSet(0, false, sets[0]));
-        instance.addSelector(getSelUniversal(1));
-        instance.addSelector(getSelUniversal(2));
+        instance.addSelector(getSelUniversal(1, sets[5]));
+        instance.addSelector(getSelUniversal(2, sets[5]));
         other.addSelector(getSelSet(0, false, sets[4]));
         other.addSelector(getSelSet(1, false, sets[3]));
         other.addSelector(getSelSet(2, false, sets[0]));
@@ -99,11 +99,11 @@ public class ComplexTest {
     @Test
     public void testGenerality__Nominal_4() {
         instance.addSelector(getSelSet(0, false, sets[0]));
-        instance.addSelector(getSelUniversal(1));
-        instance.addSelector(getSelUniversal(2));
+        instance.addSelector(getSelUniversal(1, sets[5]));
+        instance.addSelector(getSelUniversal(2, sets[5]));
         other.addSelector(getSelSet(0, false, sets[4]));
         other.addSelector(getSelSet(1, false, sets[3]));
-        other.addSelector(getSelUniversal(2));
+        other.addSelector(getSelUniversal(2, sets[5]));
         assertEquals(MORE_GENERAL, instance.isMoreGeneralThan(other));
         assertEquals(LESS_GENERAL, other.isMoreGeneralThan(instance));
     }
@@ -115,7 +115,7 @@ public class ComplexTest {
     @Test
     public void testGenerality__Nominal_5() {
         instance.addSelector(getSelSet(0, false, sets[0]));
-        instance.addSelector(getSelUniversal(1));
+        instance.addSelector(getSelUniversal(1, sets[5]));
         instance.addSelector(getSelEmpty(2));
         other.addSelector(getSelSet(0, false, sets[4]));
         other.addSelector(getSelSet(1, false, sets[3]));
@@ -130,7 +130,7 @@ public class ComplexTest {
     @Test
     public void testGenerality__Nominal_6() {
         instance.addSelector(getSelSet(0, false, sets[0]));
-        instance.addSelector(getSelUniversal(1));
+        instance.addSelector(getSelUniversal(1, sets[5]));
         instance.addSelector(getSelSet(2, false, sets[3]));
         other.addSelector(getSelSet(0, false, sets[4]));
         other.addSelector(getSelSet(1, false, sets[3]));
@@ -145,9 +145,9 @@ public class ComplexTest {
      */
     @Test
     public void testGenerality__Nominal_7() {
-        instance.addSelector(getSelUniversal(0));
-        instance.addSelector(getSelUniversal(1));
-        instance.addSelector(getSelUniversal(2));
+        instance.addSelector(getSelUniversal(0, sets[5]));
+        instance.addSelector(getSelUniversal(1, sets[5]));
+        instance.addSelector(getSelUniversal(2, sets[5]));
         other.addSelector(getSelEmpty(0));
         other.addSelector(getSelEmpty(1));
         other.addSelector(getSelEmpty(2));
@@ -160,12 +160,12 @@ public class ComplexTest {
      */
     @Test
     public void testGenerality__Nominal_8() {
-        instance.addSelector(getSelUniversal(0));
-        instance.addSelector(getSelUniversal(1));
-        instance.addSelector(getSelUniversal(2));
-        other.addSelector(getSelUniversal(0));
-        other.addSelector(getSelUniversal(1));
-        other.addSelector(getSelUniversal(2));
+        instance.addSelector(getSelUniversal(0, sets[5]));
+        instance.addSelector(getSelUniversal(1, sets[5]));
+        instance.addSelector(getSelUniversal(2, sets[5]));
+        other.addSelector(getSelUniversal(0, sets[5]));
+        other.addSelector(getSelUniversal(1, sets[5]));
+        other.addSelector(getSelUniversal(2, sets[5]));
         assertEquals(EQUAL, instance.isMoreGeneralThan(other));
         assertEquals(EQUAL, other.isMoreGeneralThan(instance));
     }
@@ -209,14 +209,14 @@ public class ComplexTest {
     @Test
     public void testGenerality__Nominal_11() {
         instance.addSelector(getSelEmpty(0));
-        instance.addSelector(getSelUniversal(1));
+        instance.addSelector(getSelUniversal(1, sets[5]));
         instance.addSelector(getSelSet(2, false, sets[0]));
         instance.addSelector(getSelSet(3, false, sets[1]));
         instance.addSelector(getSelSet(4, false, sets[2]));
         instance.addSelector(getSelSet(5, false, sets[3]));
 
         other.addSelector(getSelEmpty(0));
-        other.addSelector(getSelUniversal(1));
+        other.addSelector(getSelUniversal(1, sets[5]));
         other.addSelector(getSelSet(2, false, sets[0]));
         other.addSelector(getSelSet(3, false, sets[1]));
         other.addSelector(getSelSet(4, false, sets[2]));
@@ -232,9 +232,9 @@ public class ComplexTest {
     public void testGenerality__Nominal_12() {
         instance.addSelector(getSelEmpty(0));
         instance.addSelector(getSelSet(1, false, sets[8]));
-        instance.addSelector(getSelUniversal(2));
+        instance.addSelector(getSelUniversal(2, sets[5]));
 
-        other.addSelector(getSelUniversal(0));
+        other.addSelector(getSelUniversal(0, sets[5]));
         other.addSelector(getSelSet(1, false, sets[8]));
         other.addSelector(getSelEmpty(2));
 
@@ -250,11 +250,11 @@ public class ComplexTest {
     public void testGenerality__Nominal_13() {
         instance.addSelector(getSelSet(0, false, sets[5]));
         instance.addSelector(getSelSet(1, false, sets[1]));
-        instance.addSelector(getSelUniversal(2));
+        instance.addSelector(getSelUniversal(2, sets[5]));
 
-        other.addSelector(getSelUniversal(0));
+        other.addSelector(getSelUniversal(0, sets[5]));
         other.addSelector(getSelSet(1, false, sets[3]));
-        other.addSelector(getSelUniversal(2));
+        other.addSelector(getSelUniversal(2, sets[5]));
 
         assertEquals(NOT_COMPARABLE, instance.isMoreGeneralThan(other));
         assertEquals(NOT_COMPARABLE, other.isMoreGeneralThan(instance));
@@ -268,11 +268,11 @@ public class ComplexTest {
     public void testGenerality__Nominal_14() {
         instance.addSelector(getSelSet(0, false, sets[5]));
         instance.addSelector(getSelSet(1, false, sets[3]));
-        instance.addSelector(getSelUniversal(2));
+        instance.addSelector(getSelUniversal(2, sets[5]));
 
         other.addSelector(getSelEmpty(0));
         other.addSelector(getSelSet(1, false, sets[1]));
-        other.addSelector(getSelUniversal(2));
+        other.addSelector(getSelUniversal(2, sets[5]));
 
         assertEquals(NOT_COMPARABLE, instance.isMoreGeneralThan(other));
         assertEquals(NOT_COMPARABLE, other.isMoreGeneralThan(instance));
@@ -284,14 +284,14 @@ public class ComplexTest {
     @Test
     public void testGenerality__Nominal_15() {
         instance.addSelector(getSelEmpty(0));
-        instance.addSelector(getSelUniversal(1));
+        instance.addSelector(getSelUniversal(1, sets[5]));
         instance.addSelector(getSelSet(2, false, sets[0]));
         instance.addSelector(getSelSet(3, false, sets[1]));
         instance.addSelector(getSelSet(4, false, sets[2]));
         instance.addSelector(getSelSet(5, false, sets[3]));
 
         other.addSelector(getSelSet(0, false, sets[0]));
-        other.addSelector(getSelUniversal(1));
+        other.addSelector(getSelUniversal(1, sets[5]));
         other.addSelector(getSelSet(2, false, sets[0]));
         other.addSelector(getSelSet(3, false, sets[1]));
         other.addSelector(getSelSet(4, false, sets[2]));
@@ -314,7 +314,7 @@ public class ComplexTest {
         instance.addSelector(getSelSet(5, false, sets[3]));
 
         other.addSelector(getSelEmpty(0));
-        other.addSelector(getSelUniversal(1));
+        other.addSelector(getSelUniversal(1, sets[5]));
         other.addSelector(getSelSet(2, false, sets[0]));
         other.addSelector(getSelSet(3, false, sets[1]));
         other.addSelector(getSelSet(4, false, sets[2]));
@@ -330,14 +330,14 @@ public class ComplexTest {
     @Test
     public void testGenerality__Nominal_17() {
         instance.addSelector(getSelSet(0, false, sets[0]));
-        instance.addSelector(getSelUniversal(1));
+        instance.addSelector(getSelUniversal(1, sets[5]));
         instance.addSelector(getSelSet(2, false, sets[0]));
         instance.addSelector(getSelSet(3, false, sets[1]));
         instance.addSelector(getSelSet(4, false, sets[2]));
         instance.addSelector(getSelSet(5, false, sets[3]));
 
         other.addSelector(getSelSet(0, false, sets[0]));
-        other.addSelector(getSelUniversal(1));
+        other.addSelector(getSelUniversal(1, sets[5]));
         other.addSelector(getSelSet(2, false, sets[5]));
         other.addSelector(getSelSet(3, false, sets[1]));
         other.addSelector(getSelSet(4, false, sets[2]));
@@ -353,14 +353,14 @@ public class ComplexTest {
     @Test
     public void testGenerality__Nominal_18() {
         instance.addSelector(getSelSet(0, false, sets[0]));
-        instance.addSelector(getSelUniversal(1));
+        instance.addSelector(getSelUniversal(1, sets[5]));
         instance.addSelector(getSelSet(2, false, sets[0]));
         instance.addSelector(getSelSet(3, false, sets[1]));
         instance.addSelector(getSelSet(4, false, sets[5]));
         instance.addSelector(getSelSet(5, false, sets[0]));
 
         other.addSelector(getSelSet(0, false, sets[0]));
-        other.addSelector(getSelUniversal(1));
+        other.addSelector(getSelUniversal(1, sets[5]));
         other.addSelector(getSelSet(2, false, sets[0]));
         other.addSelector(getSelSet(3, false, sets[1]));
         other.addSelector(getSelSet(4, false, sets[0]));
@@ -396,10 +396,7 @@ public class ComplexTest {
 
         assertEquals(MORE_GENERAL, instance.isMoreGeneralThan(other));
     }
-
-    /**
-     *
-     */
+    
     @Test
     public void testGenerality__Number_2() {
         instance.addSelector(getSelBelongs(0, -100, 100));
@@ -414,10 +411,6 @@ public class ComplexTest {
         assertEquals(LESS_GENERAL, other.isMoreGeneralThan(instance));
     }
 
-
-    /**
-     *
-     */
     @Test
     public void testGenerality__Number_3() {
         instance.addSelector(getSelBelongs(0, -100, 100));

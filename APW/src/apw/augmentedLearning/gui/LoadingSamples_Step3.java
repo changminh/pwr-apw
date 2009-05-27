@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.management.Query;
 import javax.swing.JOptionPane;
 
 
@@ -45,6 +44,7 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
     private ComplexCreatorFrame complexCreator;
     private boolean ifClauseComplete = false;
     private String rulesFileName = "rules.pl";
+    private ArrayList<Integer> missclassifiedSamples = new ArrayList<Integer>();
 
     public void addComplex(Complex c, boolean ifClauseComplete, boolean finished) {
 
@@ -55,9 +55,7 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
         this.ifClauseComplete = ifClauseComplete;
         complexCreator.dispose();
         if (finished) {
-            advisor.addRule(tempRule);
-            // TODO: Oczywiście wywalić...
-            new RuleTranslator(tempRule, advisor.getSamples()).prologRepresentation();
+            checkRule(tempRule);
             return;
         }
         complexCreator = new ComplexCreatorFrame(file, ifClauseComplete, this);
@@ -138,12 +136,12 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
 
     private void jb_newRuleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_newRuleActionPerformed
         String nazwaReguly = JOptionPane.showInputDialog(
-                                this, "Podaj nazwę reguły (bez polskich liter, z malej litery)",
+                                this, "Podaj nazwę reguły (bez polskich liter, z małej litery)",
                                 "regula_nr_" + (advisor.getRules().size() + 1)
                              );
         if (nazwaReguly == null)
             return;
-        tempRule = new Rule(nazwaReguly);
+        tempRule = new Rule(nazwaReguly, advisor.getSamples());
         ifClauseComplete = false;
         complexCreator = new ComplexCreatorFrame(file, ifClauseComplete, this);
         complexCreator.setVisible(true);
@@ -165,6 +163,49 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
         checkRules(advisor.getRules());
 }//GEN-LAST:event_jb_nextActionPerformed
 
+    private void checkRule(Rule rule) {
+        int coveredSamples = 0;
+        int missclassified = 0;
+        Prolog prolog = new Prolog();
+        RuleTranslator translator = new RuleTranslator(rule, advisor.getSamples());
+        try {
+            prolog.setTheory(new Theory(translator.prologRepresentation()));
+        } catch (InvalidTheoryException ex) {
+            Logger.getLogger(LoadingSamples_Step3.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Struct query;
+        SolveInfo info;
+        int counter = 0;
+        ArrayList<Term[]> convertedTerms = advisor.getConvertedTerms();
+        Term[] terms;
+        for (Integer i : advisor.getTermsAccessors()) {
+            terms = convertedTerms.get(i);
+            query = new Struct(rule.getName() + RuleTranslator.ifClausePostfix, terms);
+            info = prolog.solve(query);
+            // System.out.println("zapytanie = " + query);
+            // System.out.println("krotka #" + ++counter + ": " + info.isSuccess());
+            if (info.isSuccess()) {
+                coveredSamples++;
+                query = new Struct(rule.getName() + RuleTranslator.thenClausePostfix, terms);
+                info = prolog.solve(query);
+                if (!info.isSuccess()) {
+                    missclassified++;
+                    missclassifiedSamples.add(i);
+                }
+            }
+            counter++;
+        }
+        System.out.println("Pokrytych krotek = " + coveredSamples);
+        System.out.println("Błędnie sklasyfikowanych = " + missclassified + " / " + counter);
+        if (missclassified > 0) {
+            MissclassificationInfoFrame infoFrame = new MissclassificationInfoFrame(this, missclassified);
+            infoFrame.setVisible(true);
+        }
+        else {
+            advisor.addRule(tempRule);
+        }
+    }
+
     private void checkRules(ArrayList<Rule> rules) {
         ArrayList<Term[]> convertedSamples = advisor.getConvertedTerms();
         int[] ruleResults = new int[rules.size()];
@@ -180,7 +221,6 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
             Logger.getLogger(LoadingSamples_Step3.class.getName()).log(Level.SEVERE, null, ex);
         }
         Struct compound;
-        Query q;
         for (int i = 0; i < convertedSamples.size(); i++) {
             terms = convertedSamples.get(i);
             for (int j = 0 ; j < rules.size(); j++) {
@@ -199,10 +239,29 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
             System.out.println("Poprawność reguły " + rules.get(i).getName() +
                     ": " + ruleResults[i] + " / " + advisor.getConvertedTerms().size());
         }
+        advisor.step4();
     }
-    /**
-    * @param args the command line arguments
-    */
+
+    private void deleteIncorrectSamples() {
+        for (Integer i : missclassifiedSamples)
+            advisor.getTermsAccessors().remove(i);
+        missclassifiedSamples.clear();
+        // checkRule(tempRule);                                    // TODO: Delete in da future ;D
+        advisor.addRule(tempRule);
+        tempRule = null;
+    }
+
+    private void deleteTempRule() {
+        tempRule = null;
+    }
+
+    public void action(int action) {
+        switch(action) {
+            case 1: deleteIncorrectSamples(); break;
+            case 4: deleteTempRule(); break;
+        }
+    }
+    
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
