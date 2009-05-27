@@ -41,7 +41,7 @@ public class FileChoosingAndFormatDeterminingPanel extends javax.swing.JPanel {
     public FileChoosingAndFormatDeterminingPanel() {
         initComponents();
         js_attributesCount.setModel(new SpinnerNumberModel(0, 0, 100, 1));
-        js_attributesCount.setValue(15);
+        js_attributesCount.setValue(5);
     }
 
     /** This method is called from within the constructor to
@@ -78,7 +78,7 @@ public class FileChoosingAndFormatDeterminingPanel extends javax.swing.JPanel {
 
         jLabel2.setText("Plik:");
 
-        jtf_filePath.setText("C:\\Documents and Settings\\Nitric\\My Documents\\data\\adult.data");
+        jtf_filePath.setText("C:\\Documents and Settings\\Nitric\\My Documents\\data\\iris.data");
 
         jb_browse.setText("Przeglądaj");
         jb_browse.addActionListener(new java.awt.event.ActionListener() {
@@ -95,7 +95,12 @@ public class FileChoosingAndFormatDeterminingPanel extends javax.swing.JPanel {
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel4.setText("Separator wartości atrybutów:");
 
-        jtf_separator.setText(", ");
+        jtf_separator.setText(",");
+        jtf_separator.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jtf_separatorActionPerformed(evt);
+            }
+        });
 
         jb_next.setText("Dalej...");
         jb_next.addActionListener(new java.awt.event.ActionListener() {
@@ -108,6 +113,8 @@ public class FileChoosingAndFormatDeterminingPanel extends javax.swing.JPanel {
         jLabel7.setText("Znacznik nieznanej wartości:");
 
         jtf_nullValueTag.setText("?");
+
+        js_attributesCount.setValue(5);
 
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel8.setText("Ilość atrybutów:");
@@ -255,6 +262,10 @@ public class FileChoosingAndFormatDeterminingPanel extends javax.swing.JPanel {
     private void jrb_dotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jrb_dotActionPerformed
         dataFile.setFractionalSeparator('.');
 }//GEN-LAST:event_jrb_dotActionPerformed
+
+    private void jtf_separatorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jtf_separatorActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jtf_separatorActionPerformed
 
     private void checkFileFormat() throws ParseException {
         try {

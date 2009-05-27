@@ -29,4 +29,7 @@ public abstract class Selector {
     public abstract boolean isUniversal();
     public abstract boolean isEmpty();
     public abstract Selector getNegation();
+    public abstract RelationBetweenSets isMoreGeneralThan(Selector other);
+    public abstract Selector intersection(Selector other);
+    public abstract boolean covers(Object o);
 }

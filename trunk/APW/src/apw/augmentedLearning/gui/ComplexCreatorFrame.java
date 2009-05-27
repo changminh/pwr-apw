@@ -108,7 +108,6 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
                     .addComponent(jb_nextComplex))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-
         pack();
     }
 

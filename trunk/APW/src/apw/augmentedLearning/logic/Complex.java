@@ -8,6 +8,7 @@ package apw.augmentedLearning.logic;
 import java.util.HashMap;
 import static apw.augmentedLearning.logic.RelationBetweenSets.*;
 
+
 /**
  *
  * @author Nitric
@@ -23,13 +24,34 @@ public class Complex {
     public void addSelector(Selector selector) {
         int i = selector.getAttributeId();
         if (selectors.containsKey(selector.getAttributeId()))
-            throw new IllegalArgumentException("Complex already contains selector for attribute #" + i + "!");
+            throw new IllegalArgumentException
+                    ("Complex already contains selector for attribute #" + i + ", use 'alterSelector()'.");
         else
             selectors.put(i, selector);
     }
 
+    public boolean alterSelector(Selector selector) {
+        boolean result = selectors.containsKey(selector.getAttributeId());
+        selectors.put(selector.getAttributeId(), selector);
+        return result;
+    }
+
     public Selector getSelector(int attributeNumber) {
         return selectors.get(attributeNumber);
+    }
+
+    public boolean covers(Object[] values) {
+        // System.out.println("this = " + this);
+        /* for (Object o : values)
+            System.out.print(o + " "); */
+        for (int i = 0; i < selectors.size(); i++) {
+            if (!selectors.get(i).covers(values[i])) {
+                // System.out.println(" ==> nie pokrywam");
+                return false;
+            }
+        }
+        // System.out.println(" ==> pokrywam");
+        return true;
     }
 
     @Override
@@ -42,10 +64,8 @@ public class Complex {
 
     /**
      *
-     * @param other
-     * @return -1, when complex is NOT more general than 'other';
-     * 0, when complexes cannot be compared (for explanation look inside method implementation)
-     * 1, when this complex IS more general than the 'other'.
+     * @param other Complex to be compared with instance
+     * @return one of the RelationBetweenSets values
      */
     public RelationBetweenSets isMoreGeneralThan(Complex other) {
         Selector ts, os;                    // Selector for 'this', Selector for 'other'
@@ -66,33 +86,11 @@ public class Complex {
                     oneSelectorLessGeneral = true;
                     continue;
                 }
-                if (ts.forNominalAttribute) {
-                    if (!os.forNominalAttribute)
-                        throw new RuntimeException ("Incompatible selectors (id = " + i + ")");
-                    if (((SelectorForNominal)ts).values.containsAll(((SelectorForNominal)os).values)) {
-                        if (((SelectorForNominal)os).values.containsAll(((SelectorForNominal)ts).values))
-                            ;
-                        else
-                            oneSelectorMoreGeneral = true;
-                        continue;
-                    }
-                    else if (((SelectorForNominal)os).values.containsAll(((SelectorForNominal)ts).values)) {
-                        oneSelectorLessGeneral = true;
-                    }
-                    else
-                        return NOT_COMPARABLE;
-                }
-                else {
-                    switch (((SelectorForNumber)ts).isMoreGeneralThan((SelectorForNumber) os)) {
+                switch (ts.isMoreGeneralThan(os)) {
                         case NOT_COMPARABLE: return NOT_COMPARABLE;
-                        case MORE_GENERAL:
-                            oneSelectorMoreGeneral = true;
-                            break;
-                        case LESS_GENERAL:
-                            oneSelectorLessGeneral = true;
-                        case EQUAL:
-                            continue;
-                    }
+                        case MORE_GENERAL: oneSelectorMoreGeneral = true; break;
+                        case LESS_GENERAL: oneSelectorLessGeneral = true; break;
+                        case EQUAL: continue;
                 }
             }
         }
@@ -107,5 +105,13 @@ public class Complex {
                 return MORE_GENERAL;
             else
                 return EQUAL;
+    }
+
+    public Complex intersection(Complex other) {
+        Complex result = new Complex();
+        for (int i = 0; i < selectors.size(); i++) {
+            result.addSelector(getSelector(i).intersection(other.getSelector(i)));
+        }
+        return result;
     }
 }
