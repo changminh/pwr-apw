@@ -190,7 +190,11 @@ public class KNN extends Classifier {
         // TODO to be removed
 //        File f = new File("data/weather.arff");
         File f = new File("data/shuttle.arff");
-        try {
+//        File f = new File("data/iris.arff");
+//        File f = new File("data/soybean.arff");
+//        File f = new File("data/labor.arff");
+
+    	try {
             System.out.println("Loading data.");
             ARFFLoader l = new ARFFLoader(f);
             Samples s = l.getSamples();
@@ -219,7 +223,7 @@ public class KNN extends Classifier {
                 //System.out.println(Arrays.toString(probs));
                 //System.out.println(sample);
                 System.out.println("correct: "+correct);
-                
+                System.out.println();
                 if(result.equals(correct)) ok++;
             
                 
