@@ -52,8 +52,9 @@ import libsvm.*;
 
 /**
  *
- * @author przemo
+ * @author Przemek Woś
  */
+
 public class SVMClassifier extends Classifier {
 
     protected Samples samples = null;
