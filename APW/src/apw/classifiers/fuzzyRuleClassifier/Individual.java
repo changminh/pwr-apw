@@ -10,8 +10,8 @@
  *     disclaimer.
  *   • Redistributions  in binary  form must  reproduce the  above
  *     copyright notice, this list of conditions and the following
- *     disclaimer  in  the  documentation and / or other materials
- *     provided with the distribution.
+ *     disclaimer in the  documentation and/or other mate provided
+ *     with the distribution.
  *   • Neither  the name of the  Wrocław University of  Technology
  *     nor the names of its contributors may be used to endorse or
  *     promote products derived from this  software without speci-
@@ -31,38 +31,15 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.core;
 
 /**
  *
- * @author Greg Matoga <greg dot matoga at gmail dot com>
+ * @author przemo
  */
 
-public class Numeric extends Attribute {
+package apw.classifiers.fuzzyRuleClassifier;
 
-    @Override
-    public String toString() {
-        return name + ":Real";
-    }
 
-    @Override
-    public Object getInterpretation(Object o) {
-        return o;
-    }
-
-    @Override
-    public Object getRepresentation(Object o) {
-        return o;
-    }
-
-    @Override
-    public Object getRepresentation(String s) {
-        if(s==null) return null;
-        return Double.valueOf(s);
-    }
-
-	@Override
-	public boolean isNominal() {
-		return false;
-	}
+public class Individual {
+    public Individual(){}
 }
