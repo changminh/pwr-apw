@@ -134,7 +134,13 @@ public class FuzzyRuleClassifier extends apw.classifiers.RuleClassifier {
     }
 
     public String[] getOptions() {
-        return this.options.clone();
+        String[] _options = new String[options.length];
+
+        for(int i = 0; i < _options.length;i++){
+            _options[i] = new String(options[i]);
+        }
+
+        return _options;
     }
 
     public Samples normalize(Samples nSamples) {
@@ -178,11 +184,12 @@ public class FuzzyRuleClassifier extends apw.classifiers.RuleClassifier {
     private double atof(String str) {
         return Double.valueOf(str).doubleValue();
     }
+
     /*
     private int atoi(String str) {
     return Double.valueOf(str).intValue();
     }
-     */
+    */
 
     public String getInfo() {
         return "Fuzzy Rule Classifier for APW Project, made by Przemek Woś...";
