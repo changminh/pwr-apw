@@ -24,13 +24,14 @@ import libsvm.*;
  */
 public class SVMClassifier extends Classifier {
 
-    private apw.core.Samples samples = null;
+    protected Samples samples = null;
     protected svm_parameter param;  // LibSVM oprions
     protected int normalize;        // normalize input data
     protected svm_problem prob;     // LibSVM Problem
     protected svm_model model;      // LibSVM Model
     protected String error_msg;
     protected String[] options = null;
+    protected boolean debug = false;
 
     private static class Utils {
 
@@ -53,7 +54,7 @@ public class SVMClassifier extends Classifier {
                         if (options[i].equals("-" + flag)) {
                             return i;
                         }
-                        // did we reach "--"?
+                        // did we reach "--"
                         if (options[i].charAt(1) == '-') {
                             return -1;
                         }
@@ -120,12 +121,12 @@ public class SVMClassifier extends Classifier {
     }
 
     @Override
-    public void addSamples(Samples s) throws UnsupportedOperationException {
+    public void addSamples(Samples s)  {
         samples.addAll(s);
     }
 
     @Override
-    public void addSample(Sample s) throws UnsupportedOperationException {
+    public void addSample(Sample s) {
         samples.add(s);
     }
 
@@ -133,7 +134,7 @@ public class SVMClassifier extends Classifier {
     public void rebuild() {
         try {
             // throw new UnsupportedOperationException("Not supported yet.");
-            setOptions(options);
+           // setOptions(options);
             buildClassifier();
 
         } catch (Exception ex) {
@@ -324,23 +325,23 @@ public class SVMClassifier extends Classifier {
      * @param instance
      * @return
      */
-    protected String samplesToSparse(Sample instance) {
+    protected String samplesToSparse(Sample sample) {
         String line = new String();
 
-        int c = (int) Double.parseDouble(instance.classAttributeRepr().toString());
+        int c = (int) Double.parseDouble(sample.classAttributeRepr().toString());
 
         if (c == 0) {
             c = -1;
         }
 
         line = c + " ";
-        for (int j = 1; j < instance.size(); j++) {
-            int tmpI = (int) Double.parseDouble(instance.classAttributeRepr().toString());
+        for (int j = 1; j < sample.size(); j++) {
+            int tmpI = (int) Double.parseDouble(sample.classAttributeRepr().toString());
             if (j - 1 == tmpI) {
                 continue;
             }
 
-            double value = Double.parseDouble(instance.get(j - 1).toString());
+            double value = Double.parseDouble(sample.get(j - 1).toString());
 
             if (value != 0.0) {
                 line += " " + j + ":" + value;
@@ -365,9 +366,9 @@ public class SVMClassifier extends Classifier {
         return sparse;
     }
 
-    public boolean getDebug() {
-        return false;
-    }
+    public boolean getDebug() {return debug;}
+    
+    public void setDebug(boolean _debug){debug = _debug;}
 
     private double atof(String str) {
         return Double.valueOf(str).doubleValue();
@@ -436,19 +437,21 @@ public class SVMClassifier extends Classifier {
     }
 
     public void buildClassifier() {
+       // Samples _samples = new Samples(samples);
+        Samples _samples = this.samples;
 
         if (normalize == 1) {
             if (getDebug()) {
                 System.err.println("Normalizing...");
             }
-            samples = this.normalize(samples);
+            _samples = normalize(samples);
         }
 
         if (getDebug()) {
             System.err.println("Converting to libsvm format...");
         }
 
-        Vector sparseData = dataToSparse(samples);
+        Vector sparseData = dataToSparse(_samples);
         Vector vy = new Vector();
         Vector vx = new Vector();
         int max_index = 0;
@@ -482,6 +485,7 @@ public class SVMClassifier extends Classifier {
         for (int i = 0; i < prob.l; i++) {
             prob.x[i] = (svm_node[]) vx.elementAt(i);
         }
+
         prob.y = new double[prob.l];
         for (int i = 0; i < prob.l; i++) {
             prob.y[i] = atof((String) vy.elementAt(i));
@@ -501,6 +505,7 @@ public class SVMClassifier extends Classifier {
         if (getDebug()) {
             System.err.println("Training model");
         }
+        
         try {
             model = svm.svm_train(prob, param);
         } catch (Exception e) {
@@ -520,7 +525,7 @@ public class SVMClassifier extends Classifier {
                 new String("-i"), //
                 //---------------
                 new String("-S"), // WLSVM options
-                new String("0"), // Classification problem
+                new String("0"),  // Classification problem
                 new String("-K"), // RBF kernel
                 new String("2"),
                 new String("-G"), // gamma
@@ -535,11 +540,11 @@ public class SVMClassifier extends Classifier {
 
             SVMClassifier svm = new SVMClassifier("c:/svm/data/iris.arff");
             svm.setOptions(ops);
+            svm.setDebug(true);
             svm.buildClassifier();
 
             double[] data = svm.classifySample(svm.getSample(0));
             System.out.println(svm.interprate(data));
-
 
         } catch (IOException ex) {
             Logger.getLogger(SVMClassifier.class.getName()).log(Level.SEVERE, null, ex);
