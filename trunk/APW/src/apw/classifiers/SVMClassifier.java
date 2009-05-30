@@ -131,7 +131,14 @@ public class SVMClassifier extends Classifier {
 
     @Override
     public void rebuild() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        try {
+            // throw new UnsupportedOperationException("Not supported yet.");
+            setOptions(options);
+            buildClassifier();
+
+        } catch (Exception ex) {
+            Logger.getLogger(SVMClassifier.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -335,7 +342,7 @@ public class SVMClassifier extends Classifier {
 
             double value = Double.parseDouble(instance.get(j - 1).toString());
 
-            if (value != 0) {
+            if (value != 0.0) {
                 line += " " + j + ":" + value;
             }
         }
@@ -371,7 +378,7 @@ public class SVMClassifier extends Classifier {
     }
 
     @Override
-   // @SuppressWarnings("empty-statement")
+    // @SuppressWarnings("empty-statement")
     public double[] classifySample(Sample s) {
 
         if (s == null) {
@@ -389,7 +396,6 @@ public class SVMClassifier extends Classifier {
 
                 StringTokenizer st = new StringTokenizer(line, " \t\n\r\f:");
 
-                //vy.addElement(st.nextToken());
                 int m = st.countTokens() / 2;
                 x = new svm_node[m];
                 for (int j = 0; j < m; j++) {
@@ -399,42 +405,35 @@ public class SVMClassifier extends Classifier {
                 }
             }
 
-            double result = svm.svm_predict(model, x);
-
-            return (new double[]{result});
+            return new double[]{svm.svm_predict(model, x)};
         }
-        /*
-        else {
-            if (samples.get(0).size() - 1 == s.size()) {
-                svm_node[] x = null;
+        return null;
 
-                for (int d = 0; d < sparseData.size(); d++) {
-                    String line = (String) sparseData.get(d);
+    }
 
-                    StringTokenizer st = new StringTokenizer(line, " \t\n\r\f:");
+    public String interprate(double[] data) {
+        String result = null;
 
-                    //vy.addElement(st.nextToken());
-                    int m = st.countTokens() / 2;
-                    x = new svm_node[m];
-                    for (int j = 0; j < m; j++) {
-                        x[j] = new svm_node();
-                        x[j].index = atoi(st.nextToken());
-                        x[j].value = atof(st.nextToken());
-                    }
-                }
+        for (Sample s : samples) {
+            String str = this.samplesToSparse(s);
+            String _str;
 
-                double result = svm.svm_predict(model, x);
+            int index = str.indexOf(' ', 0);
+            
+            _str = str.substring(0, index);
 
+            if (Double.valueOf(_str).doubleValue() == data[0]) {
+                result = s.get(s.size()-1).toString();
+                return result;
             }
         }
-        */
-        return null;
+
+        return result;
     }
 
-    public Sample getSample(int index){
+    public Sample getSample(int index) {
         return samples.get(index);
     }
-
 
     public void buildClassifier() {
 
@@ -538,8 +537,10 @@ public class SVMClassifier extends Classifier {
             svm.setOptions(ops);
             svm.buildClassifier();
 
-            System.out.println(svm.classifySample(svm.getSample(0))[0]);
-            
+            double[] data = svm.classifySample(svm.getSample(0));
+            System.out.println(svm.interprate(data));
+
+
         } catch (IOException ex) {
             Logger.getLogger(SVMClassifier.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ParseException ex) {
