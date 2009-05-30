@@ -39,7 +39,6 @@
 
 package apw.classifiers.fuzzyRuleClassifier;
 
-
-public class Individual {
+class Individual {
     public Individual(){}
 }
