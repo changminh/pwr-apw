@@ -48,19 +48,22 @@ import java.util.logging.Logger;
 
 /*
  *
- * @author przemo
+ * @author Przemek Woś
  */
+
 public class FuzzyRuleClassifier extends apw.classifiers.RuleClassifier {
 
     protected Samples samples = null;
     protected Individual[] individual = null;
     protected String[] rules = null;
+    protected String[] options;
     protected final int defaultNumber = 1000;
 
     public FuzzyRuleClassifier(Samples S) {
         super(S);
         samples = S;
         individual = new Individual[defaultNumber];
+        options = new String[]{};
     }
 
     public FuzzyRuleClassifier(File input) throws IOException, ParseException {
@@ -119,9 +122,11 @@ public class FuzzyRuleClassifier extends apw.classifiers.RuleClassifier {
     @Override
     public String[] getRules() {
         String[] _rules = new String[rules.length];
+
         for (int i = 0; i < _rules.length; i++) {
             _rules[i] = new String(rules[i]);
         }
+        
         return _rules;
     }
 
@@ -129,7 +134,7 @@ public class FuzzyRuleClassifier extends apw.classifiers.RuleClassifier {
     }
 
     public String[] getOptions() {
-        return null;
+        return this.options.clone();
     }
 
     public Samples normalize(Samples nSamples) {
