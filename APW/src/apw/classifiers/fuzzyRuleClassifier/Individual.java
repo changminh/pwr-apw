@@ -41,4 +41,8 @@ package apw.classifiers.fuzzyRuleClassifier;
 
 class Individual {
     public Individual(){}
+    public Individual(Individual individual) {
+        //throw new UnsupportedOperationException("Not yet implemented");
+    }
+    
 }
