@@ -31,9 +31,7 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-
 package apw.classifiers.fuzzyRuleClassifier;
-
 
 import apw.classifiers.Classifier;
 import apw.core.Sample;
@@ -45,21 +43,24 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
- /*
+/*
  *
  * @author przemo
  */
+public class FuzzyRuleClassifier extends apw.classifiers.RuleClassifier {
 
-public class FuzzyRuleClassifier extends apw.classifiers.RuleClassifier{
-    
     protected Samples samples = null;
-    protected Individual[] individual=null;
+    protected Individual[] individual = null;
     protected String[] rules = null;
+    protected final int defaultNumber = 1000;
 
-    public FuzzyRuleClassifier(Samples S){
+    public FuzzyRuleClassifier(Samples S) {
         super(S);
-        this.samples = S;
+        samples = S;
+        individual = new Individual[defaultNumber];
     }
 
     public FuzzyRuleClassifier(File input) throws IOException, ParseException {
@@ -69,7 +70,7 @@ public class FuzzyRuleClassifier extends apw.classifiers.RuleClassifier{
     public FuzzyRuleClassifier(InputStream input) throws IOException, ParseException {
         this(new ARFFLoader(input).getSamples());
     }
-    
+
     public FuzzyRuleClassifier(String source) throws IOException, ParseException {
         this(new File(source));
     }
@@ -91,28 +92,45 @@ public class FuzzyRuleClassifier extends apw.classifiers.RuleClassifier{
 
     @Override
     public void rebuild() {
-        //throw new UnsupportedOperationException("Not supported yet.");
+        buildClassifier();
     }
 
     @Override
     public Classifier copy() {
-       FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier(samples);
-       
-       /*
-            Tutaj kopiujemy osobniki i reguly, po to by uniknąć dlugiego uczenia od nowa
-       */
-       
-       return fuzzy;
+        FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier(samples);
+        fuzzy.setOptions(this.getOptions());
+        fuzzy.setIndividuals(this.getIndivdualSet());
+        fuzzy.rules = this.getRules();
+        return fuzzy;
+    }
+
+    public Individual[] getIndivdualSet() {
+        Individual[] ind = new Individual[this.individual.length];
+        for (int i = 0; i < ind.length; i++) {
+            ind[i] = new Individual(this.individual[i]);
+        }
+        return ind;
+    }
+
+    public void setIndividuals(Individual[] i) {
+        individual = i;
     }
 
     @Override
     public String[] getRules() {
-        return rules.clone();
+        String[] _rules = new String[rules.length];
+        for (int i = 0; i < _rules.length; i++) {
+            _rules[i] = new String(rules[i]);
+        }
+        return _rules;
     }
 
-    public void setOptions(String[] ops){}
+    public void setOptions(String[] ops) {
+    }
 
-    public String[] getOptions(){return null;}
+    public String[] getOptions() {
+        return null;
+    }
 
     public Samples normalize(Samples nSamples) {
         double length;
@@ -144,8 +162,8 @@ public class FuzzyRuleClassifier extends apw.classifiers.RuleClassifier{
 
             list.add(obj);
 
-            Sample newSample = new Sample(new Samples(nSamples.getAtts()), list.toArray());
-            // System.err.println(newSample);
+            Samples _s = new Samples(nSamples.getAtts());
+            Sample newSample = new Sample(_s, list.toArray());
             _samples.add(newSample);
         }
 
@@ -155,10 +173,38 @@ public class FuzzyRuleClassifier extends apw.classifiers.RuleClassifier{
     private double atof(String str) {
         return Double.valueOf(str).doubleValue();
     }
-
+    /*
     private int atoi(String str) {
-        return Double.valueOf(str).intValue();
+    return Double.valueOf(str).intValue();
+    }
+     */
+
+    public String getInfo() {
+        return "Fuzzy Rule Classifier for APW Project, made by Przemek Woś...";
     }
 
-    public static void main(String[] arg){}
+    public void setNumberOfIndividuals(int number) {
+        individual = new Individual[number];
+    }
+
+    public int getNumberOfIndividuals() {
+        return (individual != null) ? individual.length : 0;
+    }
+
+    public void buildClassifier() {
+    }
+
+    public static void main(String[] arg) {
+        try {
+            FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("c:/svm/data/iris.arff");
+        //fuzzy.setNumberOfIndividuals(-1);
+
+
+        } catch (IOException ex) {
+            Logger.getLogger(FuzzyRuleClassifier.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
+            Logger.getLogger(FuzzyRuleClassifier.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
 }
