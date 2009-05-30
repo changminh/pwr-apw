@@ -10,8 +10,8 @@
  *     disclaimer.
  *   • Redistributions  in binary  form must  reproduce the  above
  *     copyright notice, this list of conditions and the following
- *     disclaimer  in  the  documentation and / or other materials
- *     provided with the distribution.
+ *     disclaimer in the  documentation and/or other mate provided
+ *     with the distribution.
  *   • Neither  the name of the  Wrocław University of  Technology
  *     nor the names of its contributors may be used to endorse or
  *     promote products derived from this  software without speci-
@@ -31,29 +31,19 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.ga;
 
-import java.util.Arrays;
+package apw.ga;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class NewMain {
-
+public interface Gene {
     /**
-     * @param args the command line arguments
+     * Encode a number k at position i.
+     * @param i index
+     * @param k a number to be encoded
      */
-    public static void main(String[] args) {
-        double[] x = new double[]{1};
-        double[] y = new double[]{2};
-        System.out.println("x=" + Arrays.toString(x));
-        System.out.println("y=" + Arrays.toString(y));
-
-        System.out.println("x=y");
-        x = y;
-        y[0] = 9;
-        System.out.println("x=" + Arrays.toString(x));
-        System.out.println("y=" + Arrays.toString(y));
-    }
+    public void encode(int i, int k) ;
+    public int decode(int i) ;
 }
