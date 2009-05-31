@@ -34,6 +34,7 @@
 package apw.classifiers.fuzzyRuleClassifier;
 
 import apw.classifiers.Classifier;
+import apw.classifiers.RuleClassifier;
 import apw.core.Sample;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
@@ -51,18 +52,22 @@ import java.util.logging.Logger;
  * @author Przemek Woś
  */
 
-public class FuzzyRuleClassifier extends apw.classifiers.RuleClassifier {
+public class FuzzyRuleClassifier extends RuleClassifier {
 
     protected Samples samples = null;
-    protected Individual[] individual = null;
-    protected String[] rules = null;
+    protected Genom[] genoms = null;
+    //protected String[] rules = null;
     protected String[] options;
     protected final int defaultNumber = 1000;
+    protected ArrayList<FuzzyRule> resultRules = new ArrayList<FuzzyRule>();
 
+
+
+    
     public FuzzyRuleClassifier(Samples S) {
         super(S);
         samples = S;
-        individual = new Individual[defaultNumber];
+        genoms = new Genom[defaultNumber];
         options = new String[]{};
     }
 
@@ -102,35 +107,47 @@ public class FuzzyRuleClassifier extends apw.classifiers.RuleClassifier {
     public Classifier copy() {
         FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier(samples);
         fuzzy.setOptions(this.getOptions());
-        fuzzy.setIndividuals(this.getIndivdualSet());
-        fuzzy.rules = this.getRules();
+        fuzzy.setGenoms(this.getGenomSet());
+        fuzzy.resultRules = this.getResultRules();
         return fuzzy;
     }
 
-    public Individual[] getIndivdualSet() {
-        Individual[] ind = new Individual[this.individual.length];
+    public Genom[] getGenomSet() {
+        Genom[] ind = new Genom[this.genoms.length];
         for (int i = 0; i < ind.length; i++) {
-            ind[i] = new Individual(this.individual[i]);
+            ind[i] = new Genom(this.genoms[i]);
         }
         return ind;
     }
 
-    public void setIndividuals(Individual[] i) {
-        individual = i;
+    public void setGenoms(Genom[] _genoms) {
+        System.arraycopy(_genoms, 0, genoms, 0, _genoms.length);
     }
+
+    public ArrayList<FuzzyRule> getResultRules(){
+        ArrayList<FuzzyRule> result = new ArrayList<FuzzyRule>();
+
+        for( FuzzyRule _rule : this.resultRules){
+            result.add(new FuzzyRule(_rule));
+        }
+        
+        return result;
+    }
+
 
     @Override
     public String[] getRules() {
-        String[] _rules = new String[rules.length];
+        String[] _rules = new String[resultRules.size()];
 
-        for (int i = 0; i < _rules.length; i++) {
-            _rules[i] = new String(rules[i]);
+        for (int i = 0; i < resultRules.size(); i++) {
+            _rules[i] = resultRules.get(i).toString();
         }
         
         return _rules;
     }
 
     public void setOptions(String[] ops) {
+        throw new UnsupportedOperationException("Not yet Implemented");
     }
 
     public String[] getOptions() {
@@ -182,7 +199,7 @@ public class FuzzyRuleClassifier extends apw.classifiers.RuleClassifier {
     }
 
     private double atof(String str) {
-        return Double.valueOf(str).doubleValue();
+        return Double.parseDouble(str);
     }
 
     /*
@@ -195,15 +212,16 @@ public class FuzzyRuleClassifier extends apw.classifiers.RuleClassifier {
         return "Fuzzy Rule Classifier for APW Project, made by Przemek Woś...";
     }
 
-    public void setNumberOfIndividuals(int number) {
-        individual = new Individual[number];
+    public void setNumberOfGenoms(int number) {
+        genoms = new Genom[number];
     }
 
-    public int getNumberOfIndividuals() {
-        return (individual != null) ? individual.length : 0;
+    public int getNumberOfGenoms() {
+        return (genoms != null) ? genoms.length : 0;
     }
 
     public void buildClassifier() {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     public static void main(String[] arg) {
