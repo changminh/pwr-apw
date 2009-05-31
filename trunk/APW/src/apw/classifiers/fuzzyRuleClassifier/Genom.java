@@ -34,15 +34,35 @@
 
 /**
  *
- * @author przemo
+ * @author Przemek Woś
  */
 
 package apw.classifiers.fuzzyRuleClassifier;
 
-class Individual {
-    public Individual(){}
-    public Individual(Individual individual) {
-        //throw new UnsupportedOperationException("Not yet implemented");
+final class Genom {
+    private FuzzyRule rule = new FuzzyRule();
+    
+    public Genom(){}
+
+    public Genom(Genom gene) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    public Genom crossWith(Genom gene){
+        throw new UnsupportedOperationException("Not yet implemented");
     }
     
+    public Genom mutate(){
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    public FuzzyRule getRule(){
+        return new FuzzyRule(rule);
+    }
+
+    @Override
+    public Genom clone(){
+        return new Genom(this);
+    }
+   
 }
