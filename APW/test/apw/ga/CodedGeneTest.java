@@ -36,7 +36,7 @@ package apw.ga;
 import java.util.Random;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import static apw.ga.CodedGene.*;
+import static apw.ga.GeneticAlgorithm.*;
 
 /**
  *
@@ -46,11 +46,13 @@ public class CodedGeneTest {
 
     public CodedGeneTest() {
     }
-    // CodedGene c = new CodedGene(5);
-    CodedGene c = CodedGene.builder().
+    // GeneticAlgorithm c = new GeneticAlgorithm(5);
+    GeneticAlgorithm c = GeneticAlgorithm.builder().
             gene(5, true).
             gene(5, true).
             build();
+
+    GeneticAlgorithm.Chromosome bs = c.p[0];
 
     @Test
     public void test() {
@@ -66,27 +68,29 @@ public class CodedGeneTest {
     @Test
     public void testGrayEncodingWIP2() {
         for (int i = 0; i <= 31; i++) {
-            c.encodeShifted(i, true, 0, 5);
-            assertEquals(i, c.decodeShifted(true, 0, 5));
+            c.encode(bs.b, i, true, 0, 5);
+            assertEquals(i, c.decode(bs.b, true, 0, 5));
         }
     }
 
     @Test
     public void builderTest() {
-        CodedGene cd = CodedGene.builder().
+        GeneticAlgorithm cd = GeneticAlgorithm.builder().
                 gene(7, true).
                 gene(5, true).
                 gene(5, true).
+                populationSize(1).
                 build();
+        GeneticAlgorithm.Chromosome b = cd.p[0];
 
         for (int i = 0; i <= 31; i++) {
-            cd.encode(i, 0);
-            cd.encode(i, 1);
-            cd.encode(i, 2);
+            cd.encode(b, i, 0);
+            cd.encode(b, i, 1);
+            cd.encode(b, i, 2);
 
-            assertEquals(i, cd.decodeInt(0));
-            assertEquals(i, cd.decodeInt(1));
-            assertEquals(i, cd.decodeInt(2));
+            assertEquals(i, cd.decodeInt(b, 0));
+            assertEquals(i, cd.decodeInt(b, 1));
+            assertEquals(i, cd.decodeInt(b, 2));
         }
     }
 
@@ -94,27 +98,27 @@ public class CodedGeneTest {
     public void testSimulatedRealUsage() {
         int bits = 30;
         int limit = 1 << bits;
-        CodedGene cd = CodedGene.builder().
+        GeneticAlgorithm cd = GeneticAlgorithm.builder().
                 gene(1, false).
                 gene(bits, true).
                 build();
         Random r = new Random(System.currentTimeMillis());
         int l = 0, b = 0, i;
-        cd.encode(b, 0);
-        cd.encode(l, 1);
+        cd.encode(bs, b, 0);
+        cd.encode(bs, l, 1);
         for (i = 0; i < 1000; i++) {
             // change gray coded signed number
             if (r.nextBoolean()) {
                 l = r.nextInt(limit);
-                cd.encode(l, 1);
+                cd.encode(bs, l, 1);
             }
             // change nominal value
             if (r.nextBoolean()) {
                 b = r.nextInt(2);
-                cd.encode(b, 0);
+                cd.encode(bs, b, 0);
             }
-            assertEquals(l, cd.decodeInt(1));
-            assertEquals(b, cd.decodeInt(0));
+            assertEquals(l, cd.decodeInt(bs, 1));
+            assertEquals(b, cd.decodeInt(bs, 0));
         }
         System.out.println("Properly simulated " + i +
                 " changes (on " + bits + " bits).");
@@ -127,24 +131,24 @@ public class CodedGeneTest {
         int bits = 2;
         double delta = 25d;
         double maxError = 0;
-        CodedGene cd = CodedGene.builder().
+        GeneticAlgorithm cd = GeneticAlgorithm.builder().
                 gene(bits, true).
                 range(minValue, maxValue).
                 build();
         Random r = new Random(System.currentTimeMillis());
         double l = 0, dif = 0;
         int i;
-        cd.encode(l, 0);
+        cd.encode(bs, l, 0);
         for (i = 0; i < 1000; i++) {
             // change gray coded signed number
             if (r.nextBoolean()) {
                 l = r.nextDouble() * maxValue;
-                cd.encode(l, 0);
+                cd.encode(bs, l, 0);
             }
-            cd.decodeDouble(0);
-            dif = l - cd.decodeDouble(0);
+            cd.decodeDouble(bs, 0);
+            dif = l - cd.decodeDouble(bs, 0);
             if (maxError < dif) maxError = dif;
-            assertEquals(l, cd.decodeDouble(0), delta);
+            assertEquals(l, cd.decodeDouble(bs, 0), delta);
         }
         System.out.println("Properly simulated double " + i +
                 " changes (on " + bits + " bits) with delta=" + delta +
