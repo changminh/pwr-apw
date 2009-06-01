@@ -34,7 +34,6 @@
 package apw.ga;
 
 import java.util.ArrayList;
-import org.math.plot.Plot2DPanel;
 
 /**
  * Discrete probability distribution random number generator.
@@ -55,6 +54,16 @@ public class DistrGenerator {
         double sum = 0;
         for (int i = 0; i < d.length; i++) {
             sum += d[i];
+            s[i] = sum;
+        }
+        max = sum;
+    }
+
+    DistrGenerator(GeneticAlgorithm.Chromosome[] c) {
+        this.s = new double[c.length];
+        double sum = 0;
+        for (int i = 0; i < c.length; i++) {
+            sum += c[i].f;
             s[i] = sum;
         }
         max = sum;
