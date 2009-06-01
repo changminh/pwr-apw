@@ -66,10 +66,10 @@ public class FormerGeneticAlgorithm {
     List<double[]> sortedByFitness;
     double minF, maxF;
 
-    public static void main(String args[]) {
-        FormerGeneticAlgorithm ga = new FormerGeneticAlgorithm();
-        ga.evolve();
-    }
+//    public static void main(String args[]) {
+//        FormerGeneticAlgorithm ga = new FormerGeneticAlgorithm();
+//        ga.evolve();
+//    }
 
     /**
      * Compares fitness values so that they can be sorted

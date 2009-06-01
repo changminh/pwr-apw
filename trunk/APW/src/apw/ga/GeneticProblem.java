@@ -31,8 +31,11 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-
 package apw.ga;
+
+import java.util.ArrayList;
+import javax.swing.JFrame;
+import org.math.plot.Plot2DPanel;
 
 /**
  *
@@ -40,4 +43,57 @@ package apw.ga;
  */
 public class GeneticProblem {
 
+    static ArrayList<Double> fitts = new ArrayList();
+
+    public static void main(String args[]) {
+        GeneticAlgorithm ga = GeneticAlgorithm.builder().
+                crossoverProb(0.4d).
+                mutationProb(0.01d).
+                populationSize(10).
+                gene(20, true).
+                range(-1, 1).
+                gene(20, true).
+                range(-1, 1).
+                build();
+
+        ga.setFitnessFunction(new FitnessFunction() {
+
+            public double evalFitness(Object[] args) {
+                Double x = (Double) args[0], y = (Double) args[1];
+                double fit = 2 - x * x - y * y;
+                return fit / 2;
+            }
+        });
+        ga.setFittestCallback(new GeneticAlgorithm.FittestCallback() {
+
+            public void fittest(double f) {
+                fitts.add(f);
+            }
+        });
+        ga.evolve(40);
+        //System.exit(0);
+        // create your PlotPanel (you can use it as a JPanel)
+        Plot2DPanel plot = new Plot2DPanel();
+
+        // define the legend position
+        plot.addLegend("SOUTH");
+
+        // add a line plot to the PlotPanel
+        plot.addLinePlot("Fittest value", convert(fitts.toArray(new Double[]{})));
+
+        // put the PlotPanel in a JFrame like a JPanel
+        JFrame frame = new JFrame("a plot panel");
+        frame.setSize(600, 600);
+        frame.setContentPane(plot);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+
+    }
+
+    public static double[] convert(Double[] c) {
+        double[] d = new double[c.length];
+        for (int i = 0; i < d.length; i++)
+            d[i] = c[i];
+        return d;
+    }
 }

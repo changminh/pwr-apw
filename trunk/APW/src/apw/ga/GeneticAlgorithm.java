@@ -334,6 +334,16 @@ final class GeneticAlgorithm {
         this.ff = ff;
     }
 
+    public interface FittestCallback {
+
+        public void fittest(double f);
+    };
+    FittestCallback fc;
+
+    public void setFittestCallback(FittestCallback fc) {
+        this.fc = fc;
+    }
+
     public void evolve(int generations) { /*
         1.   [Start] Generate random population of n chromosomes (suitable solutions for the problem)
         2. [Fitness] Evaluate the fitness f(x) of each chromosome x in the population
@@ -350,19 +360,36 @@ final class GeneticAlgorithm {
         // declare parent populations.
 
         Chromosome mother, father;
-        Chromosome[] t = new Chromosome[populationSize], tc;
+        Chromosome[] tc;
+        t = new Chromosome[populationSize];
         Random r = new Random();
 
 
         for (int i = 0; i < generations; i++) {
+            int start = 0;
             // evaluate fitness foreach chromosome
-            for (Chromosome c : Arrays.asList(p))
+            double maxF = Double.MIN_VALUE;
+            Chromosome fittest = null;
+            for (Chromosome c : Arrays.asList(p)) {
+
                 c.updateFitness();
+                if (c.f > maxF) {
+                    maxF = c.f;
+                    fittest = c;
+
+                }
+            }
+            fc.fittest(maxF);
+            if(fittest!=null) {
+                start = 1;
+                t[0] = new Chromosome((BitSet) fittest.b.clone());
+            }
+
 
             // with fitness info we can initiate selection mechanism
             DistrGenerator dg = new DistrGenerator(p);
 
-            int k = 0;
+            int k = start;
             BitSet c1, c2, tmp;
             while (k < t.length) {
                 // next lines are equal to roulette based selection
@@ -395,11 +422,11 @@ final class GeneticAlgorithm {
                 // ALARM: Redundant object creation, could be implemented
                 // with object reuse
                 t[k++] = new Chromosome(c1);
-                if (i < t.length) t[k++] = new Chromosome(c2);
+                if (k < t.length) t[k++] = new Chromosome(c2);
             }
 
             // wow this one is pretty concise!
-            for (Chromosome c : Arrays.asList(t))
+            for (Chromosome c : Arrays.asList(t).subList(1, t.length))
                 for (int j = 0; j < bits; j++)
                     if (r.nextDouble() <= mutationProb)
                         c.b.flip(j);
