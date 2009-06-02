@@ -33,48 +33,23 @@
  */
 package apw.ga;
 
-import static apw.ga.PlotUtils.*;
-
 /**
- * Minimal self-explanatory example of GeneticAlgorithm.
+ *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class GeneticProblem {
+public class FitnessFunctions {
 
-    public static void main(String args[]) {
-        // intermiediate result collector
-        DefaultGACallback dc = new DefaultGACallback();
-
-        // fitness function definition
-        FitnessFunction ff = new FitnessFunction() {
+    /**
+     * use on range [-1.4, 1.4]
+     * minimum at (0, 0)
+     */
+    public static FitnessFunction oneDimFivePeaks() {
+        return new FitnessFunction() {
 
             public double evalFitness(Object[] args) {
-                Double x = (Double) args[0];    // see 1st geneInteger definition
-                Double y = (Double) args[1];    // ... and 2nd for details
-                double fit = 2 - x * x - y * y; // 1 - (x^2 + y^2)/2 
-                return fit / 2;
+                double x = (Double) args[0];
+                return 2 - (x * x) - Math.sin((x - Math.PI / 4) * 10);
             }
         };
-
-        GeneticAlgorithm. /** Simple GA solution:
-                /**Begin genotype definition          */
-                defineGenotype().
-                numeric(2, true, -1, 1).        // define 2 numeric genes Gray
-                numeric(2, true, -1, 1).        // coded on 2 bits in range (-1,1)
-                endDefinition().                // GA definition end
-                /** Genotype defined, proceed to       */
-                /** GA simulation parameter definition */
-                fitnessFunction(ff).            // use defined fitness function
-                fittestCallback(dc).            // collect intermediate values
-                crossoverProb(0.9d).            // crossover probability
-                mutationProb(0.1d).             // mutation probability
-                populationSize(10).             // population size
-                /* Simulation defined, now evolve      */
-                evolve(40);                     // evolve 40 generations
-
-        // Open frames presenting GA run
-        plotFitnessFunction(ff, -1, 1);
-        presentPlot(dc);
-
     }
 }
