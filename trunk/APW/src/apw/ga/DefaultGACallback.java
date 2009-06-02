@@ -31,46 +31,33 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
+
 package apw.ga;
 
-import static apw.ga.PlotUtils.*;
+import java.util.ArrayList;
 
 /**
- * Minimal self-explanatory example of GeneticAlgorithm.
+ *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class GeneticProblem {
+public class DefaultGACallback implements GeneticAlgorithm.FittestCallback {
+    ArrayList<Double> fittest = new ArrayList();
+    ArrayList<Double> meanFit = new ArrayList();
 
-    public static void main(String args[]) {
-        // intermiediate result collector
-        DefaultGACallback dc = new DefaultGACallback();
 
-        // fitness function definition
-        FitnessFunction ff = new FitnessFunction() {
-
-            public double evalFitness(Object[] args) {
-                Double x = (Double) args[0];
-                Double y = (Double) args[1];
-                double fit = 2 - x * x - y * y;
-                return fit / 2;
-            }
-        };
-
-        GeneticAlgorithm.builder().
-                crossoverProb(0.9d).            // crossover probability
-                mutationProb(0.01d).            // mutation probability
-                populationSize(10).             // population size
-                gene(2, true).                  // define 1st gene Gray coded...
-                range(-1, 1).                   //  using 2 bits in range [-1,1]
-                gene(2, true).                  // define 2nd gene
-                range(-1, 1).                   //  in range [-1, 1]
-                build().                        // End of GA definition
-                setFitnessFunction(ff).         // use defined fitness function
-                setFittestCallback(dc).         // collect intermiediate values
-                evolve(40);                     // evolve 40 generations
-
-        // Open frames presenting GA run
-        plotFitnessFunction(ff, -1, 1);
-        presentPlot(dc);
+    public void fittest(double f, double m) {
+        fittest.add(f);
+        meanFit.add(m);
     }
+
+    public ArrayList<Double> getFittest() {
+        return fittest;
+    }
+
+    public ArrayList<Double> getMeanFit() {
+        return meanFit;
+    }
+
+    
+
 }
