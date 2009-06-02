@@ -28,10 +28,19 @@ public class LoadingSamplesMain {
     private ArrayList<Rule> rules = new ArrayList<Rule>();
     private ArrayList<Term[]> terms = new ArrayList<Term[]>();
     private HashSet<Integer> termsAccessors = new HashSet<Integer>();
+    private HashSet<Integer> bannedSamples = new HashSet<Integer>();
     private HashMap<Integer, Double> minValues = new HashMap<Integer, Double>();
     private HashMap<Integer, Double> maxValues = new HashMap<Integer, Double>();
     private Samples samples;
     private DataFile dataFile;
+
+    public HashSet<Integer> getBannedSamples() {
+        return bannedSamples;
+    }
+
+    public void setBannedSamples(HashSet<Integer> bannedSamples) {
+        this.bannedSamples = bannedSamples;
+    }
 
     public void setSamples(Samples samples) {
         this.samples = samples;

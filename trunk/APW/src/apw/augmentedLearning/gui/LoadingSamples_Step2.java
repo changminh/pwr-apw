@@ -25,7 +25,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,8 +44,7 @@ import javax.swing.table.TableModel;
 public class LoadingSamples_Step2 extends javax.swing.JFrame {
 
     /* TODO: Maybe it would be not so bad idea if we declared public final static fields (in 'Attribute'
-     * class), that contain this values?
-     */
+     * class), that contain this values? */
     private static final String real = "real";
     private static final String integer = "integer";
 
@@ -55,10 +56,14 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
     private ArrayList<Attribute> attributes = new ArrayList<Attribute>();
     private ArrayList<String> attributesNames = new ArrayList<String>();
     private ArrayList<HashSet<String>> nominalValues = new ArrayList<HashSet<String>>();
+    private Object[][] rawObjects;
     private Samples samples;
     private int classAttributeIndex = -1;
     private int classAttributeColumIndex = 6;
-
+    private int attributesCount;
+    private HashMap<Integer, ArrayList<Integer>> conflictingSamples = new HashMap<Integer, ArrayList<Integer>>();
+    private boolean hasToWait = false;
+    private String interceptor;
 
     private String[] columnNames = new String[] {
         "Numer atrybutu", 
@@ -77,6 +82,7 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         setLocationRelativeTo(advisor.getStep1());
         advisor.getStep1().dispose();
         postInitComponents();
+        attributesCount = dataFile.getAttributesCount();
     }
 
     private void createAttributes() {
@@ -117,9 +123,8 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         samples.setData(new FastVector());
         Sample sample = null;
         String nullTag = dataFile.getMissingValueTag();
-        int attributesCount = attributes.size();
         Object[] values;
-        Object[][] rawObject = new Object[records.size()][];
+        rawObjects = new Object[records.size()][];
         Term[] terms;
         int counter = 0;
         // TODO: Optimization...?
@@ -150,10 +155,11 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
             sample = new Sample(samples, values);
             samples.add(sample);
             advisor.addTerms(terms);
-            rawObject[counter++] = values;
+            rawObjects[counter++] = values;
         }
         advisor.setSamples(samples);
-        dataFile.setRawObjects(rawObject);
+        dataFile.setRawObjects(rawObjects);
+        new Worker().start();
     }
 
     /**
@@ -367,7 +373,6 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         dataFile.setAttributesNames(attributesNames);
         dataFile.setClassAttributeIndex(classAttributeIndex);
         samples.setClassAttributeIndex(classAttributeIndex);
-        advisor.step3();
 }//GEN-LAST:event_jb_nextActionPerformed
 
     private void collectRecords() {
@@ -433,6 +438,90 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         });
     }
 
+    private synchronized void checkForConflictingSamples() {
+        final HashSet<Integer> accessorsToRemove = new HashSet<Integer>();
+        ArrayList<Integer> temp = null;
+        boolean foundOtherValue = false;
+        int attributeId = -1;
+        // For all samples not checked yet:
+        outer:
+        for (Integer current = 0; current < rawObjects.length - 1; current++) {
+            temp = null;
+            // If sample is considered to be conflicting with some other, we can skip it:
+            if (accessorsToRemove.contains(current))
+                continue outer;
+            // Else, check all following samples, that aren't yet considered to be conflicting.
+            Object[] sample = rawObjects[current];
+            inner:
+            for (Integer sampleId = current + 1; sampleId < rawObjects.length; sampleId++) {
+                // Again: if sample is considered to be conflicting with some other, skip it.
+                if (accessorsToRemove.contains(sampleId))
+                    continue inner;
+                foundOtherValue = false;
+                for (int attId = 0; attId < attributesCount; attId++) {
+                    if (!sample[attId].equals(rawObjects[sampleId][attId]))
+                        if (!foundOtherValue) {
+                            foundOtherValue = true;
+                            attributeId = attId;
+                        }
+                        else continue inner;
+                }
+                if (foundOtherValue && attributeId == classAttributeIndex) {
+                    accessorsToRemove.add(sampleId);
+                    if (temp == null) {
+                        temp = new ArrayList<Integer>();
+                        temp.add(current);
+                    }
+                    temp.add(sampleId);
+                    conflictingSamples.put(current, temp);
+                }
+            }
+        }
+        Iterator<Integer> iter = conflictingSamples.keySet().iterator();
+        Integer i;
+        ArrayList<String> categories;
+        String s;
+        // Foreach 'cluster' of conflicting samples:
+        while (iter.hasNext()) {
+            categories = new ArrayList<String>();
+            i = iter.next();
+            System.err.print("Konflikt:");
+            temp = conflictingSamples.get(i);
+            // Collect possible categories that the samples from clusters are claimed to belong:
+            for (Integer j : temp) {
+                System.err.print(" " + (j + 1));
+                if (!categories.contains(s = (String) rawObjects[j][classAttributeIndex]))
+                    categories.add(s);
+            }
+            // Display window...
+            System.err.println("");
+            new ConflictsResolvingFrame(
+                    rawObjects[i], categories.toArray(new String[] {}), samples, classAttributeIndex, this
+            ).setVisible(true);
+            // ... and wait for the expert's answer!
+            hasToWait = true;
+            try {
+                while (hasToWait)
+                    this.wait();
+            } catch (InterruptedException e) { System.out.println("Przerwano oczekiwanie"); }
+            rawObjects[i][classAttributeIndex] = interceptor;
+        }
+        new Thread() {
+            @Override
+            public void run() {
+                advisor.step3();
+                advisor.getTermsAccessors().removeAll(accessorsToRemove);
+                advisor.setBannedSamples(accessorsToRemove);
+            }
+        }.start();
+    }
+
+    public synchronized void setValue(String s) {
+        interceptor = s;
+        hasToWait = false;
+        this.notify();
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jb_next;
     private javax.swing.JLabel jl_wprowadzNazwyAtrybutow;
@@ -440,4 +529,10 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
     private javax.swing.JTable jt_dataTable;
     // End of variables declaration//GEN-END:variables
 
+    class Worker extends Thread {
+        @Override
+        public void run() {
+            checkForConflictingSamples();
+        }
+    }
 }

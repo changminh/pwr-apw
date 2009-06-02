@@ -182,8 +182,6 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
             terms = convertedTerms.get(i);
             query = new Struct(rule.getName() + RuleTranslator.ifClausePostfix, terms);
             info = prolog.solve(query);
-            // System.out.println("zapytanie = " + query);
-            // System.out.println("krotka #" + ++counter + ": " + info.isSuccess());
             if (info.isSuccess()) {
                 coveredSamples++;
                 query = new Struct(rule.getName() + RuleTranslator.thenClausePostfix, terms);
@@ -246,7 +244,6 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
         for (Integer i : missclassifiedSamples)
             advisor.getTermsAccessors().remove(i);
         missclassifiedSamples.clear();
-        // checkRule(tempRule);                                    // TODO: Delete in da future ;D
         advisor.addRule(tempRule);
         tempRule = null;
     }
