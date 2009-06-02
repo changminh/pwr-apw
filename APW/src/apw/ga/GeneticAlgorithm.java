@@ -330,18 +330,20 @@ final class GeneticAlgorithm {
     }
     FitnessFunction ff;
 
-    public void setFitnessFunction(FitnessFunction ff) {
+    public GeneticAlgorithm setFitnessFunction(FitnessFunction ff) {
         this.ff = ff;
+        return this;
     }
 
     public interface FittestCallback {
 
-        public void fittest(double f);
+        public void fittest(double f, double m);
     };
     FittestCallback fc;
 
-    public void setFittestCallback(FittestCallback fc) {
+    public GeneticAlgorithm setFittestCallback(FittestCallback fc) {
         this.fc = fc;
+        return this;
     }
 
     public void evolve(int generations) { /*
@@ -368,18 +370,19 @@ final class GeneticAlgorithm {
         for (int i = 0; i < generations; i++) {
             int start = 0;
             // evaluate fitness foreach chromosome
-            double maxF = Double.MIN_VALUE;
+            double maxF = Double.MIN_VALUE, sum = 0;
             Chromosome fittest = null;
             for (Chromosome c : Arrays.asList(p)) {
 
                 c.updateFitness();
+                sum+=c.f;
                 if (c.f > maxF) {
                     maxF = c.f;
                     fittest = c;
 
                 }
             }
-            fc.fittest(maxF);
+            fc.fittest(maxF, sum / p.length);
             if(fittest!=null) {
                 start = 1;
                 t[0] = new Chromosome((BitSet) fittest.b.clone());
