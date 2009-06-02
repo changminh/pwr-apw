@@ -30,6 +30,8 @@ public class RuleAquisition {
     private static final String rulePrefix = "rule_";
     private int found = 0;
     private ProgressIndicator progress;
+    private ArrayList<Integer> validSamples = new ArrayList<Integer>();
+    private HashSet<Integer> bannedSamples;
 
     public RuleAquisition(LoadingSamplesMain advisor) {
         this.advisor = advisor;
@@ -38,6 +40,7 @@ public class RuleAquisition {
         attributesCount = dataFile.getAttributesCount();
         classAttrId = dataFile.getClassAttributeIndex();
         rawData = dataFile.getRawObjects();
+        bannedSamples = advisor.getBannedSamples();
     }
 
     public void doJob() {
@@ -50,7 +53,6 @@ public class RuleAquisition {
         }).start();
     }
 
-
     /**
      * Knowledge Augmented AQ Algorithm
      */
@@ -58,6 +60,9 @@ public class RuleAquisition {
         // Remove samples, which are covered by the rules inserted by the expert:
         Rule tempRule;
         int count = 0;
+        for (int i = 0; i < rawData.length; i++)
+            if (!bannedSamples.contains(i))
+                validSamples.add(i);
         System.out.println("Przed usuwaniem przykładów pokrytych przez reguły eksperta.");
         System.out.println("Przykładów = " + accessors.size());
         for (Rule rule : advisor.getRules()) {
@@ -139,7 +144,7 @@ public class RuleAquisition {
         System.out.println("Wylosowane ziarno pozytywne: " + currentPositiveSeedCategory);
         /* Since current $star is universal complex, we need to determine which samples belongs
          * to class other than $positiveSeed. */
-        for (int i = 0 ; i < rawData.length; i++) {
+        for (Integer i : validSamples) {
         // for (Integer i : accessors) {
             if (!((String) rawData[i][classAttrId]).equals(currentPositiveSeedCategory))
                 negativeSeeds.add(i);
@@ -250,7 +255,7 @@ public class RuleAquisition {
         }
         System.out.println("Znalezionych kompleksów: " + result.size());
         if (result.isEmpty())
-            System.out.println("O w mordę, mamy problem z danymi... :/");
+            System.out.println("O w mordę jeża, mamy problem z danymi... :/");
         return result;
     }
 
@@ -317,7 +322,6 @@ public class RuleAquisition {
     */
 
     private void removeUncoveredNegativeSeeds() {
-        // translateComplexes(star);
         outer:
         for (Integer i : negativeSeeds) {
             for (Complex c : star) {
@@ -336,7 +340,6 @@ public class RuleAquisition {
     }
 
     private void removeWeakComplexes() {
-        // translateComplexes(star);
         double[] notes = new double[star.size()];
         int[] positiveSamplesCovered = new int[star.size()];
         int[] negativeSamplesNotCovered = new int[star.size()];
@@ -363,20 +366,6 @@ public class RuleAquisition {
                     }
                     else {
                         fail[complexId]++;
-//                        if (negativeSeeds.size() < 0) {
-//                            System.out.println("-------------------------------------------");
-//                            System.out.println("Complex:");
-//                            System.out.println(star.get(complexId));
-//                            System.out.println("Przykład:");
-//                            for (Object o : currentSample) {
-//                                System.out.print(" " + o);
-//                            }
-//                            System.out.println("\nReguła:");
-//                            System.out.println(translatedComplexes[complexId]);
-//                            System.out.println("Wywołanie:");
-//                            System.out.println(new Struct(complexNamePrefix + complexId, currentSample));
-//                            System.out.println("-------------------------------------------");
-//                        }
                     }
                 }
                 else if (!theSameClass) {
@@ -430,10 +419,10 @@ public class RuleAquisition {
     private void finalComplexCheck(Complex c) {
         // System.out.println("Finall complex check");
         // System.out.println(c);
-        for (Object[] sample : rawData) {
+        for (int i : validSamples) {
             // System.out.print(sample[classAttrId] + " =?= " + currentPositiveSeedCategory);
-            if (c.covers(sample)) {
-                if (!sample[classAttrId].equals(currentPositiveSeedCategory)) {
+            if (c.covers(rawData[i])) {
+                if (!rawData[i][classAttrId].equals(currentPositiveSeedCategory)) {
                     System.out.println("Ale gafa... :(");
                     System.exit(-1);
                 }
