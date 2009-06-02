@@ -40,6 +40,40 @@ import java.util.Iterator;
 import java.util.Random;
 
 /**
+ * <p>Simple Genetic Algorithm implementation. The GA handles
+ * binary coded numbers (both real and integer) and a fitness
+ * function of any numer of arguments. </p>
+ *
+ * <p>This class cannot be directly instantiated - use
+ * {@link GeneticAlgorithm#defineGenotype() } method to obtain
+ * factory builder. Then call <code>endDefinition()</code> to
+ * get an instance of GeneticAlgorithm.</p>
+ *
+ * <p>Example use:
+ * <pre>
+ * Double [] solution = 
+ * GeneticAlgorithm.
+ *   defineGenotype().          // Begin genotype definition
+ *     numeric(2, true, -1, 1). // define 2 numeric genes Gray
+ *     numeric(2, true, -1, 1). // coded on 2 bits in range (-1,1)
+ *   endDefinition().           // genotype definition end
+ *   // Genotype defined, proceed to
+ *   // GA simulation parameter definition
+ *   fitnessFunction(ff).       // use defined fitness function
+ *   fittestCallback(dc).       // collect intermediate values
+ *   crossoverProb(0.9d).       // crossover probability
+ *   mutationProb(0.1d).        // mutation probability
+ *   populationSize(10).        // population size
+ *   // Simulation defined, now evolve
+ *               evolve(40);    // evolve 40 generations
+ * </pre>
+ * </p>
+ *
+ * <p>The factory builder pattern was used to help defining all GA
+ * parameters in a simple, concise and self explanatory way.
+ * Additionally this design ensured that GeneticAlgorithm instance
+ * is always properly defined. The factory will prevent instantiation
+ * and throw exceptions if GA parameters are not properly defined.</p>
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
@@ -56,21 +90,21 @@ final class GeneticAlgorithm {
     Double[] min, max;
 
     /**
-     * Enocdes a number from range [min, max]
+     * Enocdes a number from numeric [min, max]
      *
      * @param c chromosome
      * @param d number to encode
-     * @param i gene number
+     * @param i geneInteger number
      */
     public void encode(Chromosome c, double d, int i) {
-        // normalize to range [0, 1]
+        // normalize to numeric [0, 1]
         d -= min[i];
         d /= max[i];
 
         // Max no of bits
         int m = 1 << len[i];
 
-        // now the value goes in range [0, max no of bits]
+        // now the value goes in numeric [0, max no of bits]
         int n = (int) (m * d);
 
         encode(c.b, n, Gray[i], pos[i], len[i]);
@@ -81,28 +115,28 @@ final class GeneticAlgorithm {
      *
      * @param c chromosome
      * @param n number to be encoded
-     * @param i gene index
+     * @param i geneInteger index
      */
     public void encode(Chromosome c, int n, int i) {
         encode(c.b, n, Gray[i], pos[i], len[i]);
     }
 
     /**
-     * Decode gene with index <code>i</code>
+     * Decode geneInteger with index <code>i</code>
      *
      * @param n number to be encoded
-     * @param i gene index
+     * @param i geneInteger index
      */
     public int decodeInt(Chromosome c, int i) {
         return decode(c.b, Gray[i], pos[i], len[i]);
     }
 
     /**
-     * Decode gene with index <code>i</code>
+     * Decode geneInteger with index <code>i</code>
      *
      * @param b a bitset - chromosome
      * @param n number to be encoded
-     * @param i gene index
+     * @param i geneInteger index
      */
     public double decodeDouble(Chromosome c, int i) {
         int n = decode(c.b, Gray[i], pos[i], len[i]);
@@ -201,8 +235,8 @@ final class GeneticAlgorithm {
     public GeneticAlgorithm() {
     }
 
-    public static final TestBuilder builder() {
-        return new TestBuilder();
+    public static final GenotypeBuilder defineGenotype() {
+        return new GenotypeBuilder();
     }
 
     public Iterator<Chromosome> iterator() {
@@ -222,13 +256,13 @@ final class GeneticAlgorithm {
         return cr;
     }
 
-    public static class TestBuilder {
+    public static class GenotypeBuilder {
 
-        public static final int DEFAULT_POPULATION_SIZE = 10;
+        public static final int DEFAULT_POPULATION_SIZE = 20;
         public static final double DEFAULT_MUTATION_PROB = 0.01d;
-        public static final double DEFAULT_CROSSOVER_PROB = 0.4d;
+        public static final double DEFAULT_CROSSOVER_PROB = 0.9d;
 
-        public TestBuilder() {
+        public GenotypeBuilder() {
         }
         private int populationSize = DEFAULT_POPULATION_SIZE;
         private double mutationProb = DEFAULT_MUTATION_PROB;
@@ -239,12 +273,19 @@ final class GeneticAlgorithm {
         ArrayList<Integer> len = new ArrayList();
         ArrayList<Double> min = new ArrayList();
         ArrayList<Double> max = new ArrayList();
-        // build helper values
+        // endDefinition helper values
         int no = 0;
         /** not what you think */
         int cum = 0;
 
-        public GeneticAlgorithm build() {
+        /**
+         * Ends genotype definitions and returns properly defined and ready to
+         * run {@link GeneticAlgorithm}.
+         * @return configured GeneticAlgorithm
+         */
+        public GeneticAlgorithm endDefinition() {
+            if (no < 1)
+                throw new IllegalStateException("Genotype not defined.");
             GeneticAlgorithm c = new GeneticAlgorithm();
             c.Gray = new boolean[no];
             c.pos = new int[no];
@@ -254,7 +295,7 @@ final class GeneticAlgorithm {
             c.crossoverProb = crossoverProb;
             c.mutationProb = mutationProb;
 
-            // build population array
+            // endDefinition population array
             c.populationSize = populationSize;
             c.p = c.makeRandomPopulation();
             // initialize chromosome information
@@ -278,14 +319,15 @@ final class GeneticAlgorithm {
         }
 
         /**
-         * Use this builder method to define a gene to code integer value.
-         * Use decode(int
+         * Adds gene to genotype definition. Decoded value will be of type
+         * <code>Integer</code>. Parameters are used to define number
+         * of bits used and wheter or not use Gray coding.
          * 
-         * @param bits
-         * @param Gray
-         * @return
+         * @param bits no of bits, determines gene length AND max value
+         * @param Gray use Gray coding
+         * @return GenotypeBuilder for chain calls
          */
-        public TestBuilder gene(int bits, boolean Gray) {
+        public GenotypeBuilder integer(int bits, boolean Gray) {
             if (bits < 1) exc("One bit is minimum");
             grays.add(Gray);
             pos.add(cum);
@@ -297,28 +339,27 @@ final class GeneticAlgorithm {
             return this;
         }
 
-        public TestBuilder range(double minimum, double maximum) {
+        /**
+         * Adds gene to genotype definition. Decoded value will be of type
+         * <code>Double</code>. Parameters are used to define range, number
+         * of bits used and wheter or not use Gray coding.
+         *
+         * @param bits how many bits are used to store coded gene
+         * @param Gray use Gray coding
+         * @param minimum minimum possible coded value
+         * @param maximum maximum possible coded value
+         * @return GenotypeBuiler for chain calls
+         */
+        public GenotypeBuilder numeric(int bits, boolean Gray, double minimum, double maximum) {
             if (minimum > maximum) exc("Minimum greater than maximum.");
-            min.set(no - 1, minimum);
-            max.set(no - 1, maximum);
-            return this;
-        }
-
-        public TestBuilder populationSize(int size) {
-            if (size < 1) exc("Population must have at least one individual");
-            populationSize = size;
-            return this;
-        }
-
-        public TestBuilder mutationProb(double prob) {
-            if (prob < 0 || prob > 1) exc("Probability outside of <0,1> range");
-            mutationProb = prob;
-            return this;
-        }
-
-        public TestBuilder crossoverProb(double prob) {
-            if (prob < 0 || prob > 1) exc("Probability outside of <0,1> range");
-            crossoverProb = prob;
+            if (bits < 1) exc("One bit is minimum");
+            grays.add(Gray);
+            pos.add(cum);
+            len.add(bits);
+            min.add(minimum);
+            max.add(maximum);
+            cum += bits;
+            no++;
             return this;
         }
     }
@@ -330,7 +371,7 @@ final class GeneticAlgorithm {
     }
     FitnessFunction ff;
 
-    public GeneticAlgorithm setFitnessFunction(FitnessFunction ff) {
+    public GeneticAlgorithm fitnessFunction(FitnessFunction ff) {
         this.ff = ff;
         return this;
     }
@@ -341,12 +382,12 @@ final class GeneticAlgorithm {
     };
     FittestCallback fc;
 
-    public GeneticAlgorithm setFittestCallback(FittestCallback fc) {
+    public GeneticAlgorithm fittestCallback(FittestCallback fc) {
         this.fc = fc;
         return this;
     }
 
-    public void evolve(int generations) { /*
+    public Object[] evolve(int generations) { /*
         1.   [Start] Generate random population of n chromosomes (suitable solutions for the problem)
         2. [Fitness] Evaluate the fitness f(x) of each chromosome x in the population
         3. [New population] Create a new population by repeating following steps until the new population is complete
@@ -365,25 +406,26 @@ final class GeneticAlgorithm {
         Chromosome[] tc;
         t = new Chromosome[populationSize];
         Random r = new Random();
+        Chromosome fittest = null;
 
 
         for (int i = 0; i < generations; i++) {
             int start = 0;
             // evaluate fitness foreach chromosome
             double maxF = Double.MIN_VALUE, sum = 0;
-            Chromosome fittest = null;
+            fittest = null;
             for (Chromosome c : Arrays.asList(p)) {
 
                 c.updateFitness();
-                sum+=c.f;
+                sum += c.f;
                 if (c.f > maxF) {
                     maxF = c.f;
                     fittest = c;
 
                 }
             }
-            fc.fittest(maxF, sum / p.length);
-            if(fittest!=null) {
+            if (fc != null) fc.fittest(maxF, sum / p.length);
+            if (fittest != null) {
                 start = 1;
                 t[0] = new Chromosome((BitSet) fittest.b.clone());
             }
@@ -429,7 +471,8 @@ final class GeneticAlgorithm {
             }
 
             // wow this one is pretty concise!
-            for (Chromosome c : Arrays.asList(t).subList(1, t.length))
+            for (Chromosome c : Arrays.asList(t).
+                    subList(1, t.length))
                 for (int j = 0; j < bits; j++)
                     if (r.nextDouble() <= mutationProb)
                         c.b.flip(j);
@@ -439,7 +482,7 @@ final class GeneticAlgorithm {
             p = t;
             t = tc;
         }
-
+        return fittest.decode();
     }
 
     private Chromosome select(DistrGenerator dg) {
@@ -460,6 +503,14 @@ final class GeneticAlgorithm {
             return Double.compare(f, o.f);
         }
 
+        private Object[] decode() {
+            Object[] args = new Object[pos.length];
+            for (int i = 0;
+                    i < args.length; i++)
+                args[i] = min[i] == null ? decodeInt(this, i) : decodeDouble(this, i);
+            return args;
+        }
+
         private void updateFitness() {
             Object[] args = new Object[pos.length];
             for (int i = 0;
@@ -468,7 +519,25 @@ final class GeneticAlgorithm {
             f = ff.evalFitness(args);
         }
     }
-    // Boilerplate begins here
+    // PARAMETERS
+
+    public GeneticAlgorithm populationSize(int size) {
+        if (size < 1) exc("Population must have at least one individual");
+        populationSize = size;
+        return this;
+    }
+
+    public GeneticAlgorithm mutationProb(double prob) {
+        if (prob < 0 || prob > 1) exc("Probability outside of <0,1> range");
+        mutationProb = prob;
+        return this;
+    }
+
+    public GeneticAlgorithm crossoverProb(double prob) {
+        if (prob < 0 || prob > 1) exc("Probability outside of <0,1> range");
+        crossoverProb = prob;
+        return this;
+    }
 
     // Just an utility class
 }
