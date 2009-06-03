@@ -31,38 +31,93 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
+package apw.classifiers.fuzzyRuleClassifier;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 /**
  *
- * @author Przemek Woś
+ * @author przemo
  */
+public class Genom {
 
-package apw.classifiers.fuzzyRuleClassifier;
+    private ArrayList<FuzzyRule> rules = new ArrayList<FuzzyRule>();
+    private ArrayList<FuzzySet[]> sets = new ArrayList<FuzzySet[]>();
+    private static int numberOfSets = 4;
 
-final class Genom {
-    private FuzzyRule rule = new FuzzyRule();
-    
+    private void setValues(int _rules, int _sets) {
+
+        Random random = new Random(System.currentTimeMillis());
+
+        for (int i = 0; i < _rules; i++) {
+            rules.add(new FuzzyRule());
+        }
+
+        for (int i = 0; i < _sets; i++) {
+            switch (random.nextInt(3)) {
+                case 0:{
+                        TriangleSet[] _set = new TriangleSet[numberOfSets];
+                        
+                        _set[0].setRight(_set[1]);
+
+                        for(int j=1;j<_set.length - 1;j++){
+                            _set[j].setLeft (_set[j-1]);
+                            _set[j].setRight(_set[j+1]);
+                        }
+
+                        _set[_set.length-1].setLeft(_set[_set.length-2]);
+
+                        sets.add(_set);
+                    }break;
+                case 1:{
+                         TrapeziumSet[] _set = new TrapeziumSet[numberOfSets];
+                        
+                        _set[0].setRight(_set[1]);
+
+                        for(int j=1;j<_set.length - 1;j++){
+                            _set[j].setLeft (_set[j-1]);
+                            _set[j].setRight(_set[j+1]);
+                        }
+
+                        _set[_set.length-1].setLeft(_set[_set.length-2]);
+
+                        sets.add(_set);
+                    } break;
+                case 2:{
+                        sets.add(new GaussFuzzySet[numberOfSets]);
+                    }break;
+                    
+            }
+        }
+
+    }
+
     public Genom(){}
-
-    public Genom(Genom gene) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public Genom(int _rules, int _sets) {
+        this.setValues(_rules, _sets);
     }
 
-    public Genom crossWith(Genom gene){
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-    
-    public Genom mutate(){
-        throw new UnsupportedOperationException("Not yet implemented");
+    public Genom(Genom _genom) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public FuzzyRule getRule(){
-        return new FuzzyRule(rule);
+    Genom mutate() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    Genom crossWith(Genom _genom) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Genom clone(){
-        return new Genom(this);
+    public String toString() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-   
+
+    public static void setNumOfSets(int num){
+        numberOfSets = num;
+    }
+    public static int getNumOfSets(){return numberOfSets;}
+
 }
