@@ -56,14 +56,10 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
     protected Samples samples = null;
     protected Genom[] genoms = null;
-    //protected String[] rules = null;
     protected String[] options;
     protected final int defaultNumber = 1000;
     protected ArrayList<FuzzyRule> resultRules = new ArrayList<FuzzyRule>();
 
-
-
-    
     public FuzzyRuleClassifier(Samples S) {
         super(S);
         samples = S;
@@ -113,7 +109,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     }
 
     public Genom[] getGenomSet() {
-        Genom[] ind = new Genom[this.genoms.length];
+     Genom[] ind = new Genom[this.genoms.length];
         for (int i = 0; i < ind.length; i++) {
             ind[i] = new Genom(this.genoms[i]);
         }
@@ -225,9 +221,9 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     }
 
     public static void main(String[] arg) {
+
         try {
-            FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("c:/svm/data/iris.arff");
-        //fuzzy.setNumberOfIndividuals(-1);
+            FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("d:/svm/data/iris.arff");
 
 
         } catch (IOException ex) {
