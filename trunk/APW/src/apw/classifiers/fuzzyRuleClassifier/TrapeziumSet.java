@@ -35,7 +35,7 @@ package apw.classifiers.fuzzyRuleClassifier;
 
 /**
  *
- * @author przemo
+ * @author  Przemek Woś
  */
 class TrapeziumSet extends  FuzzySet{
 
@@ -47,6 +47,8 @@ class TrapeziumSet extends  FuzzySet{
          if((data != null) && (data.length > 1)){
             d1 = data[0];
             d2 = data[1];
+        }else{
+             System.err.println("Paramatr funkcji setParam równy null albo mniejszt rowny 1");
         }
     }
 
@@ -56,13 +58,47 @@ class TrapeziumSet extends  FuzzySet{
     }
 
     @Override
-    public double evaluate(double value) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public double evaluate(double x) {
+        if((x >= this.d1)&&(x <= this.d2)){
+            return 1.0;
+        }
+
+        double left_d=0;
+        double right_d=0;
+
+        if(this.left == null){
+            if(x <= this.d2){ return 1.0; }
+        }else{
+            left_d = left.getParams()[1];
+        }
+
+        if(this.right == null){
+            if(x >= this.d1){ return 1.0; }
+        }else{
+            right_d = right.getParams()[0];
+        }
+
+        if(x < d1){
+            if(left_d <= x){
+                return (x - left_d)/(d1 - left_d);
+            }
+        }else{
+            if(right_d >= x){
+                return (right_d - x)/(right_d - d2);
+            }
+        }
+
+        return 0.0;
     }
 
     @Override
     public TrapeziumSet clone() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        TrapeziumSet s = new TrapeziumSet();
+        s.d1 = this.d1;
+        s.d2 = this.d2;
+        s.left = this.left;
+        s.right = this.right;
+        return s;
     }
     
     public void setLeft(TrapeziumSet _left){

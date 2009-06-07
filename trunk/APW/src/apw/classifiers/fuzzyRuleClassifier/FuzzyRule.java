@@ -35,6 +35,7 @@
 package apw.classifiers.fuzzyRuleClassifier;
 
 import apw.core.Sample;
+import java.util.ArrayList;
 
 /**
  *
@@ -42,26 +43,88 @@ import apw.core.Sample;
  */
 
 public class FuzzyRule {
-
-    /*
-        TODO: reprezentacja reguły....
-     */
-
-
-    public FuzzyRule(){
-        throw new UnsupportedOperationException("Not yet Implemented");
+    private boolean isActive=true;
+    private Pair<Boolean,Integer>[] condition=null;
+    private String conclusion=null;
+    private ArrayList<FuzzySet[]> sets = null; //referncja do list zbiorow rozmytch w genomie,
+                                               //do ktorego nalezy regula
+    private double and(double a, double b){
+        return (a < b)?a:b;
     }
-    
+
+    public void mutate(){
+
+    }
+
+
+    public FuzzyRule(){}
+
+
+
+
     public FuzzyRule(FuzzyRule rule){
-        throw new UnsupportedOperationException("Not yet Implemented");
+       this(rule.condition, rule.conclusion,rule.sets);
+       this.isActive = rule.isActive;
     }
 
-    public boolean classiify(Sample s){
-        throw new UnsupportedOperationException("Not yet Implemented");
+    public FuzzyRule(Pair<Boolean,Integer>[] _condition, String con, ArrayList<FuzzySet[]> a){
+        this.conclusion = new String(con);
+        
+        Pair<Boolean, Integer>[] cond = new Pair[_condition.length];
+
+        for(int i=0; i < _condition.length; i++){
+            Boolean b = new Boolean(_condition[i].getFirst());
+            Integer ii = new Integer(_condition[i].getSecond());
+            cond[i] = new Pair(b,ii);
+        }
+        
+        this.condition = cond;
+        this.sets  = a;
     }
 
+    public boolean getActive(){
+        return isActive;
+    }
+
+    public void setActive(boolean _act){this.isActive = _act;}
+
+    
+    public double classiify(Sample s){
+        double result = 0;
+
+        if(s.size() - 1 != condition.length){
+            System.err.println("Dlugosc probek nie odpowiednia w metodzie FuzzyRule::classify");
+        }
+
+
+        for(int i=0;i < condition.length; i++){
+            if(condition[i].getFirst().booleanValue() == true){
+
+                int index = condition[i].getSecond().intValue();
+
+                double x = Double.valueOf(s.get(i).toString()).doubleValue();
+
+                double value = sets.get(i)[index].evaluate(x);
+
+                result = and(result, value);
+            }
+        }
+        
+        return result;
+    }
+
+    @Override
     public String toString(){
         throw new UnsupportedOperationException("Not yet Implemented");
     }
 
+    @Override
+    public FuzzyRule clone(){
+        return new FuzzyRule(this);
+    }
+
+    public ArrayList<FuzzySet[]> getSets(){return this.sets;}
+    public void setSets(ArrayList<FuzzySet[]> a){ this.sets = a;}
+
+    
 }
