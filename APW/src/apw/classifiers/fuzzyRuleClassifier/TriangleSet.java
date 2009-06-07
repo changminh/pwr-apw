@@ -49,6 +49,8 @@ class TriangleSet extends  FuzzySet {
     public void setParam(double... data) {
         if( data != null){
             this.dValue = data[0];
+        }else{
+            System.err.println("Paramatr funkcji setParam równy null");
         }
     }
 
@@ -79,7 +81,7 @@ class TriangleSet extends  FuzzySet {
                 return (x - left_d[0])/(dValue - left_d[0]);
             }
         }else{
-            if(right_d[0] >= x){
+            if(right_d[0] > x){
                 return (right_d[0] - x)/(right_d[0] - dValue);
             }
         }
@@ -89,7 +91,11 @@ class TriangleSet extends  FuzzySet {
 
     @Override
     public TriangleSet clone() {
-        return new TriangleSet();
+        TriangleSet s = new TriangleSet();
+        s.dValue = this.dValue;
+        s.left = this.left;
+        s.right = this.right;
+        return s;
     }
 
     public void setLeft(TriangleSet _left){

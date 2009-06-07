@@ -51,7 +51,6 @@ import java.util.logging.Logger;
  *
  * @author Przemek Woś
  */
-
 public class FuzzyRuleClassifier extends RuleClassifier {
 
     protected Samples samples = null;
@@ -60,6 +59,8 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     protected final int defaultNumber = 1000;
     protected ArrayList<FuzzyRule> resultRules = new ArrayList<FuzzyRule>();
 
+
+    //************************* constructors *********************************
     public FuzzyRuleClassifier(Samples S) {
         super(S);
         samples = S;
@@ -78,19 +79,20 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     public FuzzyRuleClassifier(String source) throws IOException, ParseException {
         this(new File(source));
     }
-
-    @Override
-    public double[] classifySample(Sample s) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    //************************ end ******************************************
 
     @Override
     public void addSamples(Samples s) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.samples.addAll(s);
     }
 
     @Override
     public void addSample(Sample s) throws UnsupportedOperationException {
+        this.samples.add(s);
+    }
+
+    @Override
+    public double[] classifySample(Sample s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -109,7 +111,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     }
 
     public Genom[] getGenomSet() {
-     Genom[] ind = new Genom[this.genoms.length];
+        Genom[] ind = new Genom[this.genoms.length];
         for (int i = 0; i < ind.length; i++) {
             ind[i] = new Genom(this.genoms[i]);
         }
@@ -120,16 +122,13 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         System.arraycopy(_genoms, 0, genoms, 0, _genoms.length);
     }
 
-    public ArrayList<FuzzyRule> getResultRules(){
+    public ArrayList<FuzzyRule> getResultRules() {
         ArrayList<FuzzyRule> result = new ArrayList<FuzzyRule>();
-
-        for( FuzzyRule _rule : this.resultRules){
+        for (FuzzyRule _rule : this.resultRules) {
             result.add(new FuzzyRule(_rule));
         }
-        
         return result;
     }
-
 
     @Override
     public String[] getRules() {
@@ -138,7 +137,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         for (int i = 0; i < resultRules.size(); i++) {
             _rules[i] = resultRules.get(i).toString();
         }
-        
+
         return _rules;
     }
 
@@ -149,7 +148,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     public String[] getOptions() {
         String[] _options = new String[options.length];
 
-        for(int i = 0; i < _options.length;i++){
+        for (int i = 0; i < _options.length; i++) {
             _options[i] = new String(options[i]);
         }
 
@@ -165,7 +164,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             int size = nSamples.get(i).size() - 1;
 
             for (int j = 0; j < size; j++) {
-                double data = atof(nSamples.get(i).get(j).toString());
+                double data = Double.parseDouble(nSamples.get(i).get(j).toString());
                 length += data * data;
             }
 
@@ -174,7 +173,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             List<Object> list = new ArrayList<Object>();
 
             for (int j = 0; j < size; j++) {
-                double data = atof(nSamples.get(i).get(j).toString());
+                double data = Double.parseDouble(nSamples.get(i).get(j).toString());
                 data /= length;
                 String str = Double.toString(data);
                 Object obj = nSamples.getAtts().get(j).getRepresentation(str);
@@ -194,16 +193,6 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         return _samples;
     }
 
-    private double atof(String str) {
-        return Double.parseDouble(str);
-    }
-
-    /*
-    private int atoi(String str) {
-    return Double.valueOf(str).intValue();
-    }
-    */
-
     public String getInfo() {
         return "Fuzzy Rule Classifier for APW Project, made by Przemek Woś...";
     }
@@ -217,6 +206,10 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     }
 
     public void buildClassifier() {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    public Genom[] makePapulation() {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 

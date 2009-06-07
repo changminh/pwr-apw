@@ -31,47 +31,24 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
+
 package apw.classifiers.fuzzyRuleClassifier;
 
 /**
  *
  * @author przemo
  */
+ public class Pair<T,R>{
+        private T _first;
+        private R _second;
 
-public class GaussFuzzySet extends FuzzySet{
-
-    private double dValue=0,
-                   sigma=0;
-
-
-    @Override
-    public void setParam(double... data) {
-        if((data != null) && (data.length > 1)){
-            dValue = data[0];
-            sigma  = data[1];
-        }else{
-             System.err.println("Paramatr funkcji setParam równy null albo mniejszt rowny 1");
+        public Pair(){}
+        public Pair(T f, R s){
+            this._first = f; this._second = s;
         }
+        public T getFirst(){return this._first;}
+        public R getSecond(){return this._second;}
+        public void setFirst(T _f){this._first = _f;}
+        public void setSecond(R _s){this._second = _s;}
     }
 
-    @Override
-    public double[] getParams() {
-        return new double[]{dValue,sigma};
-    }
-
-    @Override
-    public double evaluate(double x) {
-        return Math.exp(-0.5*(Math.pow(x - dValue, 2.0)/sigma));
-    }
-
-    @Override
-    public GaussFuzzySet clone() {
-        GaussFuzzySet s = new GaussFuzzySet();
-        s.dValue = this.dValue;
-        s.sigma = this.sigma;
-        return s;
-    }
-
-    
-
-}
