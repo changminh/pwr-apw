@@ -34,30 +34,47 @@
 package apw.classifiers.fuzzyRuleClassifier;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
+import java.util.Set;
 
 /**
  *
  * @author Przemek Woś
  */
-public class Genom {
+public class Genom implements Comparable<Genom> {
 
     private ArrayList<FuzzyRule> rules = new ArrayList<FuzzyRule>();
     private ArrayList<FuzzySet[]> sets = new ArrayList<FuzzySet[]>();
     private static int numberOfSets = 4;
 
-    public void setValues(int _rules, int _sets) {
+    public void setValues(int factor, int _sets, HashMap<String,Integer> classes) {
 
         Random random = new Random(System.currentTimeMillis());
+        Random rand2  = new Random(System.currentTimeMillis() + System.nanoTime() + 100);
+        
+        Object[] set = classes.keySet().toArray();
 
-        for (int i = 0; i < _rules; i++) {
-            rules.add(new FuzzyRule());
+        for(int i=0; i < set.length; i++){
+            for (int j = 0; j < factor; j++) {
+                Pair<Boolean,Integer>[] con = new Pair[_sets];
+
+                for(int c = 0; c < _sets; c++){
+                    con[c].setFirst(random.nextBoolean());
+                    con[c].setSecond(rand2.nextInt(_sets));
+                }
+
+                FuzzyRule r = new FuzzyRule(con, set[i].toString(), sets);
+                //r.repairRule();
+                rules.add(r);
+            }
         }
+       
 
         for (int i = 0; i < _sets; i++) {
             switch (random.nextInt(3)) {
                 case 0:
-                    {
+                     {
                         TriangleSet[] _set = new TriangleSet[numberOfSets];
 
                         _set[0].setRight(_set[1]);
@@ -73,13 +90,13 @@ public class Genom {
                     }
                     break;
                 case 1:
-                    {
+                     {
                         TrapeziumSet[] _set = new TrapeziumSet[numberOfSets];
 
                         _set[0].setRight(_set[1]);
 
                         for (int j = 1; j < _set.length - 1; j++) {
-                            _set[j].setLeft (_set[j - 1]);
+                            _set[j].setLeft(_set[j - 1]);
                             _set[j].setRight(_set[j + 1]);
                         }
 
@@ -89,20 +106,20 @@ public class Genom {
                     }
                     break;
                 case 2:
-                    {
+                     {
                         sets.add(new GaussFuzzySet[numberOfSets]);
                     }
                     break;
 
             }
         }
-
+        
+        this.repairGenom();
     }
 
-    public Genom() {}
 
-    public Genom(int _rules, int _sets) {
-        this.setValues(_rules, _sets);
+    public Genom(int f, int _sets, HashMap<String,Integer> classes) {
+        this.setValues(f, _sets, classes);
     }
 
     public Genom(Genom _genom) {
@@ -130,41 +147,41 @@ public class Genom {
 
         int count = 0;
 
-        for(int i = 0; i < this.rules.size(); i++){
-            if(rules.get(i).getActive()){
-                count++; break;
+        for (int i = 0; i < this.rules.size(); i++) {
+            if (rules.get(i).getActive()) {
+                count++;
+                break;
             }
         }
 
-        if(count == 0){
+        if (count == 0) {
             int index = new Random(System.currentTimeMillis()).nextInt(rules.size());
             rules.get(index).setActive(true);
         }
-        
-        for(int i = 0; i < this.sets.size(); i++){
+
+        for (int i = 0; i < this.sets.size(); i++) {
             count = 0;
             FuzzySet[] fs = this.sets.get(i);
 
-            for(FuzzySet s : fs){
-                if(s.getActive()){
+            for (FuzzySet s : fs) {
+                if (s.getActive()) {
                     count++;
                     break;
                 }
             }
 
-            if(count == 0){
-              int index = new Random(System.currentTimeMillis()).nextInt(fs.length);
-              fs[index].setActive(true);
+            if (count == 0) {
+                int index = new Random(System.currentTimeMillis()).nextInt(fs.length);
+                fs[index].setActive(true);
             }
         }
 
-       
+
     }
 
-    public double fitness(){
-       throw new UnsupportedOperationException("Not supported yet.");
+    public double fitness() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-
 
     Genom mutate() {
         Genom g = new Genom(this);
@@ -177,8 +194,8 @@ public class Genom {
             if (rand.nextBoolean()) {
                 rr.setActive(!rr.getActive());
             }
-            
-            if(rand.nextBoolean()){
+
+            if (rand.nextBoolean()) {
                 rr.mutate();
             }
         }
@@ -273,5 +290,11 @@ public class Genom {
 
     public static int getNumOfSets() {
         return numberOfSets;
+    }
+
+    public int compareTo(Genom o) {
+        double f1 =   fitness();
+        double f2 = o.fitness();
+        return (f1==f2)?0:((f1-f2>0)?1:-1);
     }
 }
