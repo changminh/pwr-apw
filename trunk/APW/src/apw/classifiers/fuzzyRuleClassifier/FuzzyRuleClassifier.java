@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -81,13 +82,39 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     }
     //************************ end ******************************************
 
+    private int howManyX(){
+       return(this.samples.get(0).size()-1);
+    }
+
+
+    private HashMap<String,Integer> howManyClasses(){
+
+        HashMap<String,Integer> data = new HashMap<String, Integer>();
+
+        for(int i = 0; i < this.samples.size();i++){
+            int size = samples.get(i).size();
+            String str = samples.get(i).get(size - 1).toString();
+
+            if(!data.containsKey(str)){
+                data.put(str, 0);
+            }else{
+                int value = data.get(str).intValue();
+                data.put(str, value + 1);
+            }
+            
+        }
+        
+        return data;
+    }
+
+
     @Override
-    public void addSamples(Samples s) throws UnsupportedOperationException {
+    public void addSamples(Samples s)  {
         this.samples.addAll(s);
     }
 
     @Override
-    public void addSample(Sample s) throws UnsupportedOperationException {
+    public void addSample(Sample s)  {
         this.samples.add(s);
     }
 
@@ -105,7 +132,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         }
 
         if(max != Double.MIN_VALUE){
-            
+            throw new UnsupportedOperationException("Not supported yet.");
         }
 
         return null;
@@ -232,7 +259,13 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     }
 
     public Genom[] makePapulation() {
-        throw new UnsupportedOperationException("Not yet implemented");
+        Genom[] gen = new Genom[this.defaultNumber];
+
+        for(int i=0; i < gen.length; i++){
+            gen[i] = new Genom(5,this.howManyX(),this.howManyClasses());
+        }
+
+        return gen;
     }
 
     public static void main(String[] arg) {
@@ -240,6 +273,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         try {
             FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("d:/svm/data/iris.arff");
 
+            System.out.println(fuzzy.howManyClasses());
 
         } catch (IOException ex) {
             Logger.getLogger(FuzzyRuleClassifier.class.getName()).log(Level.SEVERE, null, ex);

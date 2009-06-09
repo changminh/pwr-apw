@@ -53,8 +53,7 @@ public class FuzzyRule {
         return (a < b)?a:b;
     }
 
-
-    private void checkRule(){
+    public void repairRule(){
         int count=0;
         for(int i=0;i<condition.length; i++){
             if(condition[i].getFirst().booleanValue()){
@@ -80,16 +79,10 @@ public class FuzzyRule {
             }
         }
 
-        rule.checkRule();
+        rule.repairRule();
         
         return rule;
     }
-
-
-    public FuzzyRule(){}
-
-
-
 
     public FuzzyRule(FuzzyRule rule){
        this(rule.condition, rule.conclusion,rule.sets);
