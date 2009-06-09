@@ -53,20 +53,23 @@ import java.util.logging.Logger;
  * @author Przemek Woś
  */
 public class FuzzyRuleClassifier extends RuleClassifier {
-
     protected Samples samples = null;
     protected Genom[] genoms = null;
     protected String[] options;
     protected final int defaultNumber = 1000;
     protected ArrayList<FuzzyRule> resultRules = new ArrayList<FuzzyRule>();
-
+    protected HashMap<String, ArrayList<Integer>> learningSet = null;
+    protected HashMap<String, ArrayList<Integer>> testSet = null;
 
     //************************* constructors *********************************
     public FuzzyRuleClassifier(Samples S) {
         super(S);
-        samples = S;
+        samples = this.normalize(S);
         genoms = new Genom[defaultNumber];
         options = new String[]{};
+        HashMap<String, ArrayList<Integer>>[] tmp = this.partionData(0.2);
+        learningSet = tmp[0];
+        testSet = tmp[1];
     }
 
     public FuzzyRuleClassifier(File input) throws IOException, ParseException {
@@ -82,24 +85,62 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     }
     //************************ end ******************************************
 
-    private int howManyX(){
-       return(this.samples.get(0).size()-1);
+    private int howManyX() {
+        return (this.samples.get(0).size() - 1);
     }
 
+    private Object[] howManyClasses() {
+        HashMap<String, Integer> data = new HashMap<String, Integer>();
 
-    private HashMap<String,Integer> howManyClasses(){
-
-        HashMap<String,Integer> data = new HashMap<String, Integer>();
-
-        for(int i = 0; i < this.samples.size();i++){
+        for (int i = 0; i < this.samples.size(); i++) {
             int size = samples.get(i).size();
             String str = samples.get(i).get(size - 1).toString();
 
-            if(!data.containsKey(str)){
+            if (!data.containsKey(str)) {
                 data.put(str, 0);
-            }else{
+            } else {
                 int value = data.get(str).intValue();
                 data.put(str, value + 1);
+            }
+        }
+
+        return data.keySet().toArray();
+    }
+
+    private HashMap<String, ArrayList<Integer>>[] partionData(double procent) {
+
+        if((procent <= 0) && (procent >= 1.0)){
+            throw new RuntimeException("Parametr metody partionData posiada nie prawidłową wartość: " + procent);
+        }
+
+        HashMap<String, ArrayList<Integer>>[] data = new HashMap[2];
+
+        data[0] = new HashMap<String, ArrayList<Integer>>();
+        
+        for (int i = 0; i < this.samples.size(); i++) {
+            int size = samples.get(i).size();
+            String str = samples.get(i).get(size - 1).toString();
+
+            if (!data[0].containsKey(str)) {
+                data[0].put(str, new ArrayList<Integer>());
+            } else {
+                data[0].get(str).add(i);
+            }
+        }
+
+        Object[] s = data[0].keySet().toArray();
+
+        data[1] = new HashMap<String, ArrayList<Integer>>();
+
+        for (int i = 0; i < s.length; i++) {
+            data[1].put(s[i].toString(),new ArrayList<Integer>());
+            int howMany = (int)(data[0].get(s[i].toString()).size() * procent);
+
+            int classSize = data[0].get(s[i].toString()).size()-1;
+
+            for(int j= classSize; j >= (classSize-howMany); j--){
+                data[1].get(s[i].toString()).add(data[0].get(s[i].toString()).get(j));
+                data[0].get(s[i].toString()).remove(j);
             }
             
         }
@@ -107,44 +148,49 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         return data;
     }
 
-
     @Override
-    public void addSamples(Samples s)  {
+    public void addSamples(Samples s) {
         this.samples.addAll(s);
     }
 
     @Override
-    public void addSample(Sample s)  {
+    public void addSample(Sample s) {
         this.samples.add(s);
     }
 
     @Override
     public double[] classifySample(Sample s) {
-        int index=0;
+        int index = 0;
         double max = Double.MIN_VALUE;
 
-        for(int i = 0; i < this.resultRules.size(); i++){
-            double val = this.resultRules.get(i).classiify(s);
-            if( max < val){
+        for (int i = 0; i < resultRules.size(); i++) {
+            double val = resultRules.get(i).classiify(s);
+            if (max < val) {
                 max = val;
                 index = i;
             }
         }
 
-        if(max != Double.MIN_VALUE){
-            throw new UnsupportedOperationException("Not supported yet.");
-            //double this.resultRules.get(index).
+        double[] data = null;
+        
+        if (max != Double.MIN_VALUE) {
+            data = new double[resultRules.get(index).getConclusion().length()];
+            for(int i=0;i <data.length; i++){
+                data[i] = (double)(resultRules.get(index).getConclusion().charAt(i));
+            }
         }
 
-        return null;
+        return data;
     }
 
-    
-    public String interprate(double[] data){
-        throw new UnsupportedOperationException("Not supported yet.");
+    public String interprate(double[] data) {
+        String result = new String("");
+
+        for(int i=0; i< data.length; i++){
+            result += (char)(data[i]);
+        }
+        return result;
     }
-
-
 
     @Override
     public void rebuild() {
@@ -262,8 +308,8 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     public Genom[] makePapulation() {
         Genom[] gen = new Genom[this.defaultNumber];
 
-        for(int i=0; i < gen.length; i++){
-            gen[i] = new Genom(5,this.howManyX(),this.howManyClasses());
+        for (int i = 0; i < gen.length; i++) {
+            gen[i] = new Genom(5, this.howManyX(), this.howManyClasses());
         }
 
         return gen;
@@ -274,7 +320,11 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         try {
             FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("d:/svm/data/iris.arff");
 
-            System.out.println(fuzzy.howManyClasses());
+            //System.out.println(fuzzy.partionData(0.2)[0]);
+            //System.out.println(fuzzy.partionData(0.2)[1]);
+
+
+
 
         } catch (IOException ex) {
             Logger.getLogger(FuzzyRuleClassifier.class.getName()).log(Level.SEVERE, null, ex);

@@ -48,12 +48,12 @@ public class Genom implements Comparable<Genom> {
     private ArrayList<FuzzySet[]> sets = new ArrayList<FuzzySet[]>();
     private static int numberOfSets = 4;
 
-    public void setValues(int factor, int _sets, HashMap<String, Integer> classes) {
+    public void setValues(int factor, int _sets, Object[] classes) {
 
         Random random = new Random(System.currentTimeMillis());
         Random rand2 = new Random(System.currentTimeMillis() + System.nanoTime() + 100);
 
-        Object[] set = classes.keySet().toArray();
+        Object[] set = classes;
 
         for (int i = 0; i < set.length; i++) {
             for (int j = 0; j < factor; j++) {
@@ -117,7 +117,7 @@ public class Genom implements Comparable<Genom> {
         this.repairGenom();
     }
 
-    public Genom(int f, int _sets, HashMap<String, Integer> classes) {
+    public Genom(int f, int _sets, Object[] classes) {
         this.setValues(f, _sets, classes);
     }
 
