@@ -48,18 +48,18 @@ public class Genom implements Comparable<Genom> {
     private ArrayList<FuzzySet[]> sets = new ArrayList<FuzzySet[]>();
     private static int numberOfSets = 4;
 
-    public void setValues(int factor, int _sets, HashMap<String,Integer> classes) {
+    public void setValues(int factor, int _sets, HashMap<String, Integer> classes) {
 
         Random random = new Random(System.currentTimeMillis());
-        Random rand2  = new Random(System.currentTimeMillis() + System.nanoTime() + 100);
-        
+        Random rand2 = new Random(System.currentTimeMillis() + System.nanoTime() + 100);
+
         Object[] set = classes.keySet().toArray();
 
-        for(int i=0; i < set.length; i++){
+        for (int i = 0; i < set.length; i++) {
             for (int j = 0; j < factor; j++) {
-                Pair<Boolean,Integer>[] con = new Pair[_sets];
+                Pair<Boolean, Integer>[] con = new Pair[_sets];
 
-                for(int c = 0; c < _sets; c++){
+                for (int c = 0; c < _sets; c++) {
                     con[c].setFirst(random.nextBoolean());
                     con[c].setSecond(rand2.nextInt(_sets));
                 }
@@ -69,7 +69,7 @@ public class Genom implements Comparable<Genom> {
                 rules.add(r);
             }
         }
-       
+
 
         for (int i = 0; i < _sets; i++) {
             switch (random.nextInt(3)) {
@@ -113,12 +113,11 @@ public class Genom implements Comparable<Genom> {
 
             }
         }
-        
+
         this.repairGenom();
     }
 
-
-    public Genom(int f, int _sets, HashMap<String,Integer> classes) {
+    public Genom(int f, int _sets, HashMap<String, Integer> classes) {
         this.setValues(f, _sets, classes);
     }
 
@@ -202,12 +201,13 @@ public class Genom implements Comparable<Genom> {
 
         zakres = 10; // tego nie jest pewnien... jaka wartosc tu wpisac...
 
-        rand = new Random(System.currentTimeMillis());
+        rand = new Random(System.currentTimeMillis() + System.nanoTime() + rand.nextInt(10000));
 
         for (int i = 0; i < g.sets.size(); i++) {
             FuzzySet[] s = g.sets.get(i);
 
             for (FuzzySet fuzzySet : s) {
+
                 if (rand.nextBoolean()) {
                     fuzzySet.setActive(!fuzzySet.getActive());
                 }
@@ -218,6 +218,7 @@ public class Genom implements Comparable<Genom> {
                             ((rand.nextBoolean()) ? (Math.random() * zakres / 10.0) : -(Math.random() * zakres / 10.0));
                     fuzzySet.setParam(d1);
                 } else {
+
                     if (fuzzySet instanceof TrapeziumSet) {
                         double d1 = fuzzySet.getParams()[0],
                                 d2 = fuzzySet.getParams()[1];
@@ -231,6 +232,7 @@ public class Genom implements Comparable<Genom> {
                         fuzzySet.setParam(d1, d2);
 
                     } else {
+
                         if (fuzzySet instanceof GaussFuzzySet) {
                             double dVal = fuzzySet.getParams()[0],
                                     sigma = fuzzySet.getParams()[1];
@@ -241,12 +243,25 @@ public class Genom implements Comparable<Genom> {
                             sigma = sigma * (1 + 2 * (Math.random() - 0.5));
 
                             fuzzySet.setParam(dVal, sigma);
-                        }
-                    }
+                        }//if 3...
+                    }//else if 2
+                }//else if 1
+            }//foreach...
+        }//for g.sets.size
+
+        for(int ii=0; ii < 3; ii++){
+            if(rand.nextBoolean()){
+                int i = rand.nextInt(g.rules.size());
+                int j = rand.nextInt(g.rules.size());
+
+                if(i != j){
+                    FuzzyRule tmp = g.rules.get(i);
+                    g.rules.set(i, g.rules.get(j));
+                    g.rules.set(j, tmp);
                 }
             }
         }
-
+        
         g.repairGenom();
 
         return g;
@@ -293,8 +308,8 @@ public class Genom implements Comparable<Genom> {
     }
 
     public int compareTo(Genom o) {
-        double f1 =   fitness();
+        double f1 = fitness();
         double f2 = o.fitness();
-        return (f1==f2)?0:((f1-f2>0)?1:-1);
+        return (f1 == f2) ? 0 : ((f1 - f2 > 0) ? 1 : -1);
     }
 }

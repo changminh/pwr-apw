@@ -110,7 +110,29 @@ public class FuzzyRule {
 
     public void setActive(boolean _act){this.isActive = _act;}
 
-    
+    private int findNearest(FuzzySet[] _sets,int index){
+        int i1=0,i2=0;
+        
+        for(int i=index+1; i < _sets.length; i++){
+            if(_sets[i].getActive()){
+                i1++; break;
+            }else{
+                i1++;
+            }
+        }
+
+        for(int i=index-1; i >= 0; i--){
+            if(_sets[i].getActive()){
+                i2++; break;
+            }else{
+                i2++;
+            }
+        }
+        
+        return (i1==12)?i1:((i1>i2)?i2:i1);
+    }
+
+
     public double classiify(Sample s){
         double result = 0;
 
@@ -125,9 +147,14 @@ public class FuzzyRule {
                 int index = condition[i].getSecond().intValue();
 
                 double x = Double.valueOf(s.get(i).toString()).doubleValue();
+                double value = 0;
 
-                double value = sets.get(i)[index].evaluate(x);
-
+                if(sets.get(i)[index].getActive()){
+                    value = sets.get(i)[index].evaluate(x);
+                }else{
+                    value = sets.get(i)[findNearest(sets.get(i), index)].evaluate(x);
+                }
+   
                 result = and(result, value);
             }
         }
@@ -147,6 +174,6 @@ public class FuzzyRule {
 
     public ArrayList<FuzzySet[]> getSets(){return this.sets;}
     public void setSets(ArrayList<FuzzySet[]> a){ this.sets = a;}
-
+    public String getConclusion(){ return new String(this.conclusion); }
     
 }
