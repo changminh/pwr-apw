@@ -93,8 +93,30 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
     @Override
     public double[] classifySample(Sample s) {
+        int index=0;
+        double max = Double.MIN_VALUE;
+
+        for(int i = 0; i < this.resultRules.size(); i++){
+            double val = this.resultRules.get(i).classiify(s);
+            if( max < val){
+                max = val;
+                index = i;
+            }
+        }
+
+        if(max != Double.MIN_VALUE){
+            
+        }
+
+        return null;
+    }
+
+    
+    public String interprate(double[] data){
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+
 
     @Override
     public void rebuild() {
