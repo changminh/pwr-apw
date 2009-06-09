@@ -133,6 +133,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
         if(max != Double.MIN_VALUE){
             throw new UnsupportedOperationException("Not supported yet.");
+            //double this.resultRules.get(index).
         }
 
         return null;
