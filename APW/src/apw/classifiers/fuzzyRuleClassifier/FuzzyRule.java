@@ -36,6 +36,7 @@ package apw.classifiers.fuzzyRuleClassifier;
 
 import apw.core.Sample;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  *
@@ -52,8 +53,36 @@ public class FuzzyRule {
         return (a < b)?a:b;
     }
 
-    public void mutate(){
 
+    private void checkRule(){
+        int count=0;
+        for(int i=0;i<condition.length; i++){
+            if(condition[i].getFirst().booleanValue()){
+                count++;
+                break;
+            }
+        }
+
+        if(count == 0){
+            int index = new Random(System.currentTimeMillis()).nextInt(condition.length);
+            condition[index].setFirst(new Boolean(true));
+        }
+    }
+
+    public FuzzyRule mutate(){
+        FuzzyRule rule = new FuzzyRule(this);
+        Random rand = new Random();
+
+        for(int i=0; i < condition.length; i++){
+            if(rand.nextBoolean()){
+                boolean boolValue = rule.condition[i].getFirst();
+                rule.condition[i].setFirst(!boolValue);
+            }
+        }
+
+        rule.checkRule();
+        
+        return rule;
     }
 
 

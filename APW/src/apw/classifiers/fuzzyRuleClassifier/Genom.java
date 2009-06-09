@@ -126,8 +126,45 @@ public class Genom {
         sets = s;
     }
 
-    private void repair() {
+    private void repairGenom() {
+
+        int count = 0;
+
+        for(int i = 0; i < this.rules.size(); i++){
+            if(rules.get(i).getActive()){
+                count++; break;
+            }
+        }
+
+        if(count == 0){
+            int index = new Random(System.currentTimeMillis()).nextInt(rules.size());
+            rules.get(index).setActive(true);
+        }
+        
+        for(int i = 0; i < this.sets.size(); i++){
+            count = 0;
+            FuzzySet[] fs = this.sets.get(i);
+
+            for(FuzzySet s : fs){
+                if(s.getActive()){
+                    count++;
+                    break;
+                }
+            }
+
+            if(count == 0){
+              int index = new Random(System.currentTimeMillis()).nextInt(fs.length);
+              fs[index].setActive(true);
+            }
+        }
+
+       
     }
+
+    public double fitness(){
+       throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 
     Genom mutate() {
         Genom g = new Genom(this);
@@ -193,7 +230,7 @@ public class Genom {
             }
         }
 
-        g.repair();
+        g.repairGenom();
 
         return g;
     }
