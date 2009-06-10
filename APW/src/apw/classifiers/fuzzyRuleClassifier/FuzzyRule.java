@@ -55,7 +55,7 @@ public class FuzzyRule {
 
     public void repairRule(){
         int count=0;
-        for(int i=0;i<condition.length; i++){
+        for(int i = 0;i < condition.length; i++){
             if(condition[i].getFirst().booleanValue()){
                 count++;
                 break;
@@ -63,19 +63,23 @@ public class FuzzyRule {
         }
 
         if(count == 0){
-            int index = new Random(System.currentTimeMillis()).nextInt(condition.length);
+            int index = new Random(System.currentTimeMillis() + System.nanoTime()).nextInt(condition.length);
             condition[index].setFirst(new Boolean(true));
         }
     }
 
     public FuzzyRule mutate(){
         FuzzyRule rule = new FuzzyRule(this);
-        Random rand = new Random();
+        Random rand = new Random(System.currentTimeMillis() + System.nanoTime());
 
         for(int i=0; i < condition.length; i++){
             if(rand.nextBoolean()){
-                boolean boolValue = rule.condition[i].getFirst();
+                boolean boolValue = rule.condition[i].getFirst().booleanValue();
                 rule.condition[i].setFirst(!boolValue);
+            }
+            
+            if(rand.nextBoolean()){
+                rule.condition[i].setSecond(new Random(System.nanoTime()).nextInt(this.sets.size()));
             }
         }
 
@@ -104,17 +108,19 @@ public class FuzzyRule {
         this.sets  = a;
     }
 
-    public boolean getActive(){
+    public boolean isActive(){
         return isActive;
     }
 
     public void setActive(boolean _act){this.isActive = _act;}
 
+
+
     private int findNearest(FuzzySet[] _sets,int index){
         int i1=0,i2=0;
         
         for(int i=index+1; i < _sets.length; i++){
-            if(_sets[i].getActive()){
+            if(_sets[i].isActive()){
                 i1++; break;
             }else{
                 i1++;
@@ -122,7 +128,7 @@ public class FuzzyRule {
         }
 
         for(int i=index-1; i >= 0; i--){
-            if(_sets[i].getActive()){
+            if(_sets[i].isActive()){
                 i2++; break;
             }else{
                 i2++;
@@ -147,9 +153,9 @@ public class FuzzyRule {
                 int index = condition[i].getSecond().intValue();
 
                 double x = Double.valueOf(s.get(i).toString()).doubleValue();
-                double value = 0;
+                double value = Double.MAX_VALUE;
 
-                if(sets.get(i)[index].getActive()){
+                if(sets.get(i)[index].isActive()){
                     value = sets.get(i)[index].evaluate(x);
                 }else{
                     value = sets.get(i)[findNearest(sets.get(i), index)].evaluate(x);
@@ -164,7 +170,15 @@ public class FuzzyRule {
 
     @Override
     public String toString(){
-        throw new UnsupportedOperationException("Not yet Implemented");
+        String result = "(Aktywana: " + (isActive()?1:0) + ";" + " przeslanki:";
+        
+        for(int i = 0; i < this.condition.length;i++ ){
+            int ac = (this.condition[i].getFirst().booleanValue() == true)?1:0;
+            result += "(" + ac + "; " + this.condition[i].getSecond().intValue() + ")";
+        }
+
+        result += "; konlkuzja:(" + this.conclusion + "))";
+        return result;
     }
 
     @Override
@@ -175,5 +189,5 @@ public class FuzzyRule {
     public ArrayList<FuzzySet[]> getSets(){return this.sets;}
     public void setSets(ArrayList<FuzzySet[]> a){ this.sets = a;}
     public String getConclusion(){ return new String(this.conclusion); }
-    
+    public Pair<Boolean,Integer>[] getConditions(){return this.condition;}
 }
