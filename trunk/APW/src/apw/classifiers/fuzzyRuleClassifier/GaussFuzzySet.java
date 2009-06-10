@@ -40,9 +40,17 @@ package apw.classifiers.fuzzyRuleClassifier;
 
 public class GaussFuzzySet extends FuzzySet{
 
-    private double dValue=0,
-                   sigma=0;
 
+    private double dValue=0,
+                   sigma=100;
+
+    private double zakres;
+
+    public GaussFuzzySet(double zakres){
+       this.zakres = zakres;
+       dValue = Math.random()*zakres;
+       sigma = Math.random()*zakres/400;
+    }
 
     @Override
     public void setParam(double... data) {
@@ -66,7 +74,7 @@ public class GaussFuzzySet extends FuzzySet{
 
     @Override
     public GaussFuzzySet clone() {
-        GaussFuzzySet s = new GaussFuzzySet();
+        GaussFuzzySet s = new GaussFuzzySet(this.zakres);
         s.dValue = this.dValue;
         s.sigma = this.sigma;
         return s;

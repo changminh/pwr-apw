@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -56,7 +57,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     protected Samples samples = null;
     protected Genom[] genoms = null;
     protected String[] options;
-    protected final int defaultNumber = 1000;
+    
     protected ArrayList<FuzzyRule> resultRules = new ArrayList<FuzzyRule>();
     protected HashMap<String, ArrayList<Integer>> learningSet = null;
     protected HashMap<String, ArrayList<Integer>> testSet = null;
@@ -70,6 +71,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         HashMap<String, ArrayList<Integer>>[] tmp = this.partionData(0.2);
         learningSet = tmp[0];
         testSet = tmp[1];
+        //System.gc();
     }
 
     public FuzzyRuleClassifier(File input) throws IOException, ParseException {
@@ -85,7 +87,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     }
     //************************ end ******************************************
 
-    private int howManyX() {
+    private int howManyInputs() {
         return (this.samples.get(0).size() - 1);
     }
 
@@ -109,7 +111,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
     private HashMap<String, ArrayList<Integer>>[] partionData(double procent) {
 
-        if((procent <= 0) && (procent >= 1.0)){
+        if((procent < 0) && (procent >= 1.0)){
             throw new RuntimeException("Parametr metody partionData posiada nie prawidłową wartość: " + procent);
         }
 
@@ -200,9 +202,9 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     @Override
     public Classifier copy() {
         FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier(samples);
-        fuzzy.setOptions(this.getOptions());
-        fuzzy.setGenoms(this.getGenomSet());
-        fuzzy.resultRules = this.getResultRules();
+        fuzzy.setOptions(getOptions());
+        fuzzy.setGenoms(getGenomSet());
+        fuzzy.resultRules = getResultRules();
         return fuzzy;
     }
 
@@ -251,7 +253,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         return _options;
     }
 
-    public Samples normalize(Samples nSamples) {
+    private Samples normalize(Samples nSamples) {
         double length;
         Samples _samples = new Samples(nSamples.getAtts());
 
@@ -301,15 +303,163 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         return (genoms != null) ? genoms.length : 0;
     }
 
+
+    private ArrayList<Genom> getNewPapulation(ArrayList<Genom> x,final int howMany){
+        double E = 0.0;
+
+        for(int i = 0; i < x.size(); i++){
+            E += x.get(i).fitness();
+        }
+
+        double[] p = new double[x.size()];
+        double[] q = new double[x.size()];
+
+        for(int i=0;i<p.length;i++){
+            p[i] = x.get(i).fitness()/E;
+            q[i] = 0.0;
+            for(int j=0; j <= i;j++){
+                q[i] += p[j];
+            }
+        }
+
+        ArrayList<Genom> result = new ArrayList<Genom>(howMany);
+
+        for(int i=0;i < howMany; i++){
+            double value = Math.random();
+
+            if(value <= q[0]){
+                result.add(x.get(0));
+            }else{
+                if(value >= q[q.length-1]){
+                    result.add(x.get(x.size()-1));
+                }else{
+                    for(int j = 1; j < x.size(); j++){
+                        if((value <= q[j]) && (value > q[j-1])){
+                            result.add(x.get(j));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+    
+    protected final int defaultNumber = 10;
+
+
     public void buildClassifier() {
-        throw new UnsupportedOperationException("Not yet implemented");
+        ArrayList<Genom> gens = new ArrayList<Genom>();
+
+        for (int i = 0; i < defaultNumber; i++) {
+            gens.add(new Genom(5, howManyInputs(), howManyClasses()));
+        }
+        
+        int epos = 0;
+        final int maxEpos = 100;
+        boolean theBestFound = false;
+        int bestIndex = -1;
+        double mutationProb = 0.02;
+        double crossProb = 0.2;
+
+        do{
+
+            for(int i=0; i < 3; i++){
+              if(Math.random() <= crossProb){
+                Genom o1 = gens.get(2*i);  //0,2,4
+                Genom o2 = gens.get(2*i+1);//1,3,5
+                Genom[] result = o1.crossWith(o2);
+                gens.add(result[0]);
+                gens.add(result[1]);
+              }
+            }
+
+                //Collections.sort(gens);
+
+            for(int i=0;i< gens.size(); i++){
+                
+              if(Math.random() <= mutationProb){
+                 gens.add(gens.get(i).mutate());
+              }
+            }
+
+            for(int i=0;i<gens.size();i++){
+                Object[] clas = learningSet.keySet().toArray();
+
+                gens.get(i).setCorr(0);
+                gens.get(i).setIncorr(0);
+                gens.get(i).setUnClass(0);
+
+                for(int c = 0; c < this.learningSet.size();c++){
+                    ArrayList<Integer>  _samp = learningSet.get(clas[c].toString());
+                    
+                    for(int j = 0; j < _samp.size(); j++){
+                        String result = gens.get(i).classify(samples.get(_samp.get(j).intValue()));
+                        
+                        if(result == null){
+                            gens.get(i).setUnClass(gens.get(i).getUnClass() + 1);
+                        }else{
+                            if(result.compareTo(clas[c].toString()) == 0){
+                                gens.get(i).setCorr(gens.get(i).getCorr() + 1);
+                            }else{
+                                gens.get(i).setIncorr(gens.get(i).getIncorr() + 1);
+                            }
+                        }
+                    }
+                    
+                    _samp = this.testSet.get(clas[c].toString());
+
+                    for(int j = 0; j < _samp.size(); j++){
+                        String result = gens.get(i).classify(samples.get(_samp.get(j).intValue()));
+
+                        if(result == null){
+                            gens.get(i).setUnClass(gens.get(i).getUnClass() + 1);
+                        }else{
+                            if(result.compareTo(clas[c].toString()) == 0){
+                                gens.get(i).setCorr(gens.get(i).getCorr() + 1);
+                            }else{
+                                gens.get(i).setIncorr(gens.get(i).getIncorr() + 1);
+                            }
+                        }
+                    }
+                }
+
+
+                System.out.println("Epoka: " + epos + " Gen: " + i + " Corr: " + gens.get(i).getCorr() +
+                                                      " Incorr: " + gens.get(i).getIncorr() +
+                                                      " unClass: " + gens.get(i).getUnClass() + " Rules: " + (int)gens.get(i).getPrem()+
+                                                      " Fsets: " + (int)gens.get(i).getFsets());
+                
+                if((gens.get(i).getIncorr() == 0.0) && (gens.get(i).getUnClass() == 0.0)){
+                    bestIndex = i;
+                    theBestFound = true;
+                }
+            }
+
+            if(!theBestFound){
+                Collections.sort(gens);
+                gens = this.getNewPapulation(gens, this.defaultNumber);
+                
+            }
+
+
+            //System.out.print("*");
+            
+        }while(( ++epos < maxEpos ) && !theBestFound);
+
+        if(bestIndex != -1){
+            System.out.println(gens.get(bestIndex).toString());
+        }
+
+        //throw new UnsupportedOperationException("Not yet implemented");
     }
 
     public Genom[] makePapulation() {
-        Genom[] gen = new Genom[this.defaultNumber];
+        Genom[] gen = new Genom[defaultNumber];
 
         for (int i = 0; i < gen.length; i++) {
-            gen[i] = new Genom(5, this.howManyX(), this.howManyClasses());
+            gen[i] = new Genom(5, howManyInputs(), howManyClasses());
         }
 
         return gen;
@@ -322,7 +472,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
             //System.out.println(fuzzy.partionData(0.2)[0]);
             //System.out.println(fuzzy.partionData(0.2)[1]);
-
+            fuzzy.buildClassifier();
 
 
 

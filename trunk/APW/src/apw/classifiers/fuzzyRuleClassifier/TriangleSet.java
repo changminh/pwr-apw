@@ -40,9 +40,11 @@ package apw.classifiers.fuzzyRuleClassifier;
 class TriangleSet extends  FuzzySet {
     private TriangleSet left = null,right = null;
     private double dValue=0.0;
+    private double zakres ;
 
-
-    public TriangleSet() {
+    public TriangleSet(double zakres) {
+        this.zakres = zakres;
+        dValue = Math.random()*zakres;
     }
 
     @Override
@@ -91,7 +93,7 @@ class TriangleSet extends  FuzzySet {
 
     @Override
     public TriangleSet clone() {
-        TriangleSet s = new TriangleSet();
+        TriangleSet s = new TriangleSet(this.zakres);
         s.dValue = this.dValue;
         s.left = this.left;
         s.right = this.right;
@@ -106,4 +108,11 @@ class TriangleSet extends  FuzzySet {
         this.right = _right;
     }
 
+    public TriangleSet getLeft(){
+        return this.left;
+    }
+
+    public TriangleSet getRight(){
+        return this.right;
+    }
 }

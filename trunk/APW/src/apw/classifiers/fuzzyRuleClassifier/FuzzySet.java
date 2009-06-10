@@ -41,7 +41,7 @@ package apw.classifiers.fuzzyRuleClassifier;
 abstract class FuzzySet {
     private boolean active=true;
 
-    public boolean getActive(){return this.active;}
+    public boolean isActive(){return this.active;}
     public void setActive(boolean _act){this.active = _act;}
     public abstract void setParam(double... data);
     public abstract double[] getParams();
