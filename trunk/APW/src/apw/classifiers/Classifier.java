@@ -33,6 +33,9 @@
  */
 package apw.classifiers;
 
+import apw.core.Attribute;
+import apw.core.Nominal;
+import apw.core.Numeric;
 import apw.core.Sample;
 import apw.core.Samples;
 import java.io.Serializable;
@@ -44,6 +47,33 @@ import java.io.Serializable;
 public abstract class Classifier implements Serializable {
 
     public Classifier(Samples s) {
+    }
+    
+    public final Object classifySampleAsObject(Sample s)
+    {
+    	Attribute classAttribute = s.getSamples().getClassAttribute();
+    	if (classAttribute instanceof Numeric) {
+	        double[] darr = classifySample(s);
+	        return darr[0];
+		}
+    	if (classAttribute instanceof Nominal) {
+			Nominal nominal = (Nominal) classAttribute;
+			double[] darr = classifySample(s);
+        
+        	int best = 0;
+        	double vbest = 0.0;
+        	for (int i = 0; i < darr.length; i++) {
+    			if(vbest<darr[i])
+    			{
+    				vbest = darr[i];
+    				best = i;
+    			}
+        	}	
+        	String[] keys = nominal.getSortedIKeys();
+        	return keys[best];
+    	}
+    	return null;
+   	
     }
 
     public abstract double[] classifySample(Sample s);
