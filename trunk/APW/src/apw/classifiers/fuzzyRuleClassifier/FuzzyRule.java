@@ -70,16 +70,18 @@ public class FuzzyRule {
 
     public FuzzyRule mutate(){
         FuzzyRule rule = new FuzzyRule(this);
-        Random rand = new Random(System.currentTimeMillis() + System.nanoTime());
+        //Random RandomClass = new Random(System.currentTimeMillis() + System.nanoTime());
 
         for(int i=0; i < condition.length; i++){
-            if(rand.nextBoolean()){
+            if(RandomClass.nextBoolean()){
                 boolean boolValue = rule.condition[i].getFirst().booleanValue();
                 rule.condition[i].setFirst(!boolValue);
             }
             
-            if(rand.nextBoolean()){
-                rule.condition[i].setSecond(new Random(System.nanoTime()).nextInt(this.sets.size()));
+            if(RandomClass.nextBoolean()){
+                int index = rule.condition[i].getSecond().intValue();
+                int value = RandomClass.nextInt(index, sets.get(i).length);
+                rule.condition[i].setSecond(value);
             }
         }
 
@@ -117,7 +119,8 @@ public class FuzzyRule {
 
 
     private int findNearest(FuzzySet[] _sets,int index){
-        int i1=0,i2=0;
+        int i1=Integer.MAX_VALUE,
+            i2=Integer.MAX_VALUE;
         
         for(int i=index+1; i < _sets.length; i++){
             if(_sets[i].isActive()){
@@ -140,7 +143,7 @@ public class FuzzyRule {
 
 
     public double classiify(Sample s){
-        double result = 0;
+        double result = Double.MAX_VALUE;
 
         if(s.size() - 1 != condition.length){
             System.err.println("Dlugosc probek nie odpowiednia w metodzie FuzzyRule::classify");
@@ -154,13 +157,14 @@ public class FuzzyRule {
 
                 double x = Double.valueOf(s.get(i).toString()).doubleValue();
                 double value = Double.MAX_VALUE;
-
+              
                 if(sets.get(i)[index].isActive()){
                     value = sets.get(i)[index].evaluate(x);
                 }else{
-                    value = sets.get(i)[findNearest(sets.get(i), index)].evaluate(x);
+                    int ii = findNearest(sets.get(i), index);
+                    value = sets.get(i)[ii].evaluate(x);
                 }
-   
+
                 result = and(result, value);
             }
         }
