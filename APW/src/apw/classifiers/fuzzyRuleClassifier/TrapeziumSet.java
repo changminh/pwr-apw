@@ -47,6 +47,12 @@ class TrapeziumSet extends  FuzzySet{
         this.zakres = zakres;
         d1= Math.random()*zakres;
         d2= Math.random()*zakres;
+
+        if(d1 > d2){
+            double tmp = d1;
+            d1=d2;
+            d2=tmp;
+        }
     }
 
     @Override
@@ -76,13 +82,13 @@ class TrapeziumSet extends  FuzzySet{
         if(this.left == null){
             if(x <= this.d2){ return 1.0; }
         }else{
-            left_d = left.getParams()[0];
+            left_d = left.getParams()[1];
         }
 
         if(this.right == null){
             if(x >= this.d1){ return 1.0; }
         }else{
-            right_d = right.getParams()[1];
+            right_d = right.getParams()[0];
         }
 
         if(x < d1){
@@ -114,5 +120,21 @@ class TrapeziumSet extends  FuzzySet{
 
     public void setRight(TrapeziumSet _right){
         this.right = _right;
+    }
+
+    @Override
+    public void correct() {
+        if(d1 > d2){
+            double tmp = d1;
+            d1=d2;
+            d2=tmp;
+        }
+
+        if(this.left != null){
+           if(this.left.getParams()[1] >= d1){
+             d1 += this.left.getParams()[1];
+             d2 += this.left.getParams()[1];
+           }
+        }
     }
 }

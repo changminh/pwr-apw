@@ -31,22 +31,40 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
+
 package apw.classifiers.fuzzyRuleClassifier;
+
+import java.util.Random;
 
 /**
  *
  * @author przemo
  */
+public class RandomClass {
+    private static double min = 0.0;
+    private static double max = 0.0;
+    private static Random rand = new Random(System.currentTimeMillis() + System.nanoTime() + (int)(10000*Math.random()));
+   
+    public static void setMin(double _m){min=_m;}
+    public static void setMax(double _m){max=_m;}
+    public static double getMin(){return min;}
+    public static double getMax(){return max;}
 
-abstract class FuzzySet {
-    private boolean active=true;
+    public static double rDouble(){
+        double range = max - min;
+        return Math.random()*(rand.nextBoolean()?(range/10.0):(-range/10.0));
+    }
 
-    public boolean isActive(){return this.active;}
-    public void setActive(boolean _act){this.active = _act;}
-    public abstract void setParam(double... data);
-    public abstract double[] getParams();
-    public abstract double evaluate(double value);
-    @Override
-    public abstract FuzzySet clone();
-    public abstract void correct();
+    public static int nextInt(int val,int range){
+        return (val + rand.nextInt(range - 1) + 1) % range;
+    }
+
+    public static boolean nextBoolean(){return rand.nextBoolean();}
+
+    public static void reset(){
+        rand = new Random(System.currentTimeMillis() + 
+                          System.nanoTime() +
+                          (int)(10000*Math.random()));
+    }
+
 }

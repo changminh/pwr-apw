@@ -35,7 +35,6 @@ package apw.classifiers.fuzzyRuleClassifier;
 
 import apw.core.Sample;
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  *
@@ -45,17 +44,12 @@ public class Genom implements Comparable<Genom> {
 
     private ArrayList<FuzzyRule> rules = new ArrayList<FuzzyRule>();
     private ArrayList<FuzzySet[]> sets = new ArrayList<FuzzySet[]>();
-    private static int numberOfSets = 4;
+    private static int numberOfSets = 6;
     
-    private double beta  = 0.5, delta = 0.3,eps = 0.4,dzeta = 0.4;
+    private double beta  = 0.75, delta = 0.1,eps = 0.1,dzeta = 0.8;
     private double corr=0,incorr=0,unclass=0,prem=0,fsets=0;
 
-
-
     public void setValues(int factor, int _sets, Object[] classes) {
-
-        Random random = new Random(System.currentTimeMillis());
-        Random rand2 = new Random(System.currentTimeMillis() + System.nanoTime() + 100);
 
         Object[] set = classes;
 
@@ -66,7 +60,7 @@ public class Genom implements Comparable<Genom> {
                 for (int c = 0; c < con.length; c++) {
                     con[c] = new Pair<Boolean, Integer>();
                     con[c].setFirst(true);
-                    con[c].setSecond(rand2.nextInt(_sets));
+                    con[c].setSecond(RandomClass.nextInt(0,numberOfSets));
                 }
 
                 FuzzyRule r = new FuzzyRule(con, set[i].toString(), sets);
@@ -74,42 +68,21 @@ public class Genom implements Comparable<Genom> {
             }
         }
 
-        double zakres = 2;
-
         for (int i = 0; i < _sets; i++) {
-            switch (random.nextInt(3)) {
-                case 0:{
+            switch (RandomClass.nextInt(0, 3)) {
+                case 1:{
                         TriangleSet[] _set = new TriangleSet[numberOfSets];
 
                         for(int ii = 0; ii < _set.length; ii++ ){
-                            _set[ii] = new TriangleSet(zakres);
-                        }
-
-
-                        _set[0].setRight(_set[1]);
-
-                        for (int j = 1; j < _set.length - 1; j++) {
-                            _set[j].setLeft(_set[j - 1]);
-                            _set[j].setRight(_set[j + 1]);
-                        }
-
-                        _set[_set.length - 1].setLeft(_set[_set.length - 2]);
-
-                        sets.add(_set);
-                    }
-                    break;
-                case 1:{
-                        TrapeziumSet[] _set = new TrapeziumSet[numberOfSets];
-
-                        for(int ii = 0; ii < _set.length; ii++ ){
-                            _set[ii] = new TrapeziumSet(zakres);
+                            _set[ii] = new TriangleSet(RandomClass.getMax() - RandomClass.getMin());
                         }
 
                         _set[0].setRight(_set[1]);
 
                         for (int j = 1; j < _set.length - 1; j++) {
-                            _set[j].setLeft(_set[j - 1]);
+                            _set[j].setLeft (_set[j - 1]);
                             _set[j].setRight(_set[j + 1]);
+                            _set[j].correct();
                         }
 
                         _set[_set.length - 1].setLeft(_set[_set.length - 2]);
@@ -118,10 +91,30 @@ public class Genom implements Comparable<Genom> {
                     }
                     break;
                 case 2:{
+                        TrapeziumSet[] _set = new TrapeziumSet[numberOfSets];
+
+                        for(int ii = 0; ii < _set.length; ii++ ){
+                            _set[ii] = new TrapeziumSet(RandomClass.getMax() - RandomClass.getMin());
+                        }
+
+                        _set[0].setRight(_set[1]);
+
+                        for (int j = 1; j < _set.length - 1; j++) {
+                            _set[j].setLeft (_set[j - 1]);
+                            _set[j].setRight(_set[j + 1]);
+                            _set[j].correct();
+                        }
+
+                        _set[_set.length - 1].setLeft(_set[_set.length - 2]);
+
+                        sets.add(_set);
+                    }
+                    break;
+                case 0:{
                         GaussFuzzySet[] _set = new GaussFuzzySet[numberOfSets];
 
                         for(int ii = 0; ii < _set.length; ii++ ){
-                            _set[ii] = new GaussFuzzySet(zakres);
+                            _set[ii] = new GaussFuzzySet(RandomClass.getMax() - RandomClass.getMin());
                         }
                         sets.add(_set);
                     }
@@ -131,6 +124,8 @@ public class Genom implements Comparable<Genom> {
         }
 
         this.repairGenom();
+        this.setFsets();
+        this.setPrem();
     }
 
     public Genom(int f, int _sets, Object[] classes) {
@@ -160,6 +155,7 @@ public class Genom implements Comparable<Genom> {
 
     private void repairGenom() {
         int count = 0;
+        //Random RandClass = new Random(System.currentTimeMillis() + System.nanoTime());
 
         for (int i = 0; i < this.rules.size(); i++) {
             if (rules.get(i).isActive()) {
@@ -169,7 +165,7 @@ public class Genom implements Comparable<Genom> {
         }
 
         if (count == 0) {
-            int index = new Random(System.currentTimeMillis() + System.nanoTime()).nextInt(rules.size());
+            int index = RandomClass.nextInt(0,rules.size());
             rules.get(index).setActive(true);
         }
 
@@ -185,7 +181,7 @@ public class Genom implements Comparable<Genom> {
             }
 
             if (count == 0) {
-                int index = new Random(System.currentTimeMillis() + System.nanoTime()).nextInt(fs.length);
+                int index = RandomClass.nextInt(0,fs.length);
                 fs[index].setActive(true);
             }
         }
@@ -210,20 +206,27 @@ public class Genom implements Comparable<Genom> {
     public void setUnClass(double x){unclass = x;}
    
 
+    private double or(double a,double b){
+        return (a > b)?a:b;
+    }
+
+    
+
     public String classify(Sample s){
-        double max = -1;
+        double max = 0.0;
         int index = -1;
         
         for(int i=0; i < this.rules.size(); i++ ){
             if(rules.get(i).isActive()){
                 double value = this.rules.get(i).classiify(s);
+                
                 if(max < value){
                     max = value;
                     index = i;
                 }
             }
         }
-        return (max != -1)?new String(rules.get(index).getConclusion()):null;
+        return (max != 0.0)?new String(rules.get(index).getConclusion()):null;
     }
 
 
@@ -265,68 +268,41 @@ public class Genom implements Comparable<Genom> {
 
     
     public double fitness() {
-        double result = beta*corr*k(incorr) + dzeta*corr*k(unclass) +
-                        delta*k(prem) + eps*k(fsets);
+        double result = corr*(beta*k(incorr) + dzeta*k(unclass)) + delta*k(prem) + eps*k(fsets);
+                        
         return result;
     }
 
     Genom mutate() {
         Genom g = new Genom(this);
-        Random rand = new Random(System.currentTimeMillis() + System.nanoTime());
-        double zakres ;
-
+     
         for (int i = 0; i < g.rules.size(); i++) {
             FuzzyRule rr = g.rules.get(i);
 
-            if (rand.nextBoolean()) {
+            if (RandomClass.nextBoolean()) {
                 rr.setActive(!rr.isActive());
             }
 
-            if (rand.nextBoolean()) {
+            if (RandomClass.nextBoolean()) {
                 g.rules.set(i, rr.mutate());
             }
         }
-
-        zakres = 2; // tego nie jest pewnien... jaka wartosc tu wpisac...
-
-        ///rand = new Random(System.currentTimeMillis() + System.nanoTime() + rand.nextInt(10000));
 
         for (int i = 0; i < g.sets.size(); i++) {
             FuzzySet[] s = g.sets.get(i);
 
             for (FuzzySet fuzzySet : s) {
 
-              if (rand.nextBoolean()) {
+              if (RandomClass.nextBoolean()) {
                  fuzzySet.setActive(!fuzzySet.isActive());
               }
-
-              //if(rand.nextBoolean())
+              
+              if(RandomClass.nextBoolean())
                 if (fuzzySet instanceof TriangleSet) {
                     double d1 = fuzzySet.getParams()[0];
-                    d1 = d1 + Math.random()*
-                            ((rand.nextBoolean()) ? (zakres / 10.0) : -(zakres / 10.0));
-
-                    TriangleSet set = (TriangleSet)fuzzySet;
-
-                    double left=Double.MIN_VALUE,right=Double.MAX_VALUE;
-                    if(set.getLeft() != null){
-                        left = set.getLeft().getParams()[0];
-                    }
-
-                    if(set.getRight()!= null){
-                        right = set.getRight().getParams()[0];
-                    }
                     
-                    if((left < d1) && (right > d1)){
-                        fuzzySet.setParam(d1);
-                    }else{
-                        if(left >= d1){
-                            d1 = left + 0.001;
-                        }else{
-                            d1 = right - 0.001;
-                        }
-                        fuzzySet.setParam(d1);
-                    }
+                    d1 = d1 + RandomClass.rDouble();
+                    fuzzySet.correct();
                     
                 } else {
 
@@ -334,17 +310,11 @@ public class Genom implements Comparable<Genom> {
                         double d1 = fuzzySet.getParams()[0],
                                d2 = fuzzySet.getParams()[1];
 
-                        d1 = d1 + Math.random()*
-                                ((rand.nextBoolean()) ? ((zakres / 10.0)) : (-(zakres / 10.0)));
+                        d1 = d1 + RandomClass.rDouble();
+                        d2 = d2 + RandomClass.rDouble();
 
-                        d2 = d2 + Math.random()*
-                                ((rand.nextBoolean()) ? ((zakres / 10.0)) : (-(zakres / 10.0)));
-
-                        if(d1<d2){
-                            fuzzySet.setParam(d1, d2);
-                        }else{
-                            fuzzySet.setParam(d2, d1);
-                        }
+                        fuzzySet.setParam(d1, d2);
+                        fuzzySet.correct();
 
                     } else {
 
@@ -352,12 +322,12 @@ public class Genom implements Comparable<Genom> {
                             double dVal = fuzzySet.getParams()[0],
                                    sigma = fuzzySet.getParams()[1];
 
-                            dVal = dVal + Math.random()*
-                                          ((rand.nextBoolean()) ? (zakres / 10.0) : -(zakres / 10.0));
+                            dVal = dVal + RandomClass.rDouble();
 
                             sigma = sigma * (1 + 2 * (Math.random() - 0.5));
 
                             fuzzySet.setParam(dVal, sigma);
+                             //System.out.println("Mutuje zbiór...");
                         }//if 3...
                     }//else if 2
                 }//else if 1
@@ -365,9 +335,9 @@ public class Genom implements Comparable<Genom> {
         }//for g.sets.size
 
         for(int ii=0; ii < 3; ii++){
-            if(rand.nextBoolean()){
-                int i = rand.nextInt(g.rules.size());
-                int j = rand.nextInt(g.rules.size());
+            if(RandomClass.nextBoolean()){
+                int i = RandomClass.nextInt(0,g.rules.size());
+                int j = RandomClass.nextInt(0,g.rules.size());
 
                 if(i != j){
                     FuzzyRule tmp = g.rules.get(i);
@@ -391,10 +361,10 @@ public class Genom implements Comparable<Genom> {
         Genom newGen1 = new Genom(this);
         Genom newGen2 = new Genom(_genom);
 
-        Random rand = new Random(System.currentTimeMillis());
+        //Random RandomClass = new Random(System.currentTimeMillis());
 
         for (int i = 0; i < newGen1.rules.size(); i++) {
-            if (rand.nextBoolean()) {
+            if (RandomClass.nextBoolean()) {
                 ArrayList<FuzzySet[]> s1 = newGen1.getSets();
                 FuzzyRule r = newGen1.rules.get(i);
                 newGen1.rules.set(i, newGen2.rules.get(i));
@@ -404,10 +374,10 @@ public class Genom implements Comparable<Genom> {
             }
         }
 
-        rand = new Random(System.currentTimeMillis() + rand.nextInt(10000));
+        //RandomClass = new Random(System.currentTimeMillis() + RandomClass.nextInt(10000));
 
         for (int i = 0; i < newGen1.sets.size(); i++) {
-            if (rand.nextBoolean()) {
+            if (RandomClass.nextBoolean()) {
                 FuzzySet[] s = newGen1.sets.get(i);
                 newGen1.sets.set(i, newGen2.sets.get(i));
                 newGen2.sets.set(i, s);

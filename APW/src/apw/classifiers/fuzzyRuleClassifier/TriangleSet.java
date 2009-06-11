@@ -47,6 +47,17 @@ class TriangleSet extends  FuzzySet {
         dValue = Math.random()*zakres;
     }
 
+    public void correct(){
+        if(this.left == null){
+            return;
+        }
+
+        if(left.getParams()[0] >= dValue){
+            dValue = Math.random()*zakres + left.getParams()[0];
+        }
+    }
+
+
     @Override
     public void setParam(double... data) {
         if( data != null){
