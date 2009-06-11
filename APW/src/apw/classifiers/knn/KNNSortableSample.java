@@ -1,4 +1,4 @@
-package apw.classifiers;
+package apw.classifiers.knn;
 
 import apw.core.Sample;
 
