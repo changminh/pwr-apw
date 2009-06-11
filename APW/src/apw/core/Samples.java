@@ -262,7 +262,7 @@ public class Samples implements List<Sample> {
     public int indexOf(Object o) {
         Object os[] = data.getData();
         for (int i = 0; i < os.length; i++)
-            if (os[i].equals(o))
+            if (os[i]!=null&&os[i].equals(o))
                 return i;
         return -1;
     }
