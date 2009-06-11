@@ -1,4 +1,4 @@
-package apw.classifiers.id3;
+package apw.classifiers.c4_5;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -12,11 +12,11 @@ import apw.core.Sample;
  * @author Krzysztof Praszmo
  */
 
-public class DecisionLeaf<T> extends DecisionNode<T> {
+public class C4_5DecisionLeaf<T> extends C4_5DecisionNode<T> {
 
 	private Object nodeClass;
 	
-	public DecisionLeaf(List<Sample> samples)
+	public C4_5DecisionLeaf(List<Sample> samples)
 	{
 		super(samples);
 		Attribute a = samples.get(0).getSamples().getClassAttribute();
@@ -46,7 +46,7 @@ public class DecisionLeaf<T> extends DecisionNode<T> {
 			throw new IllegalArgumentException("Samples class must be Nominal");
 	}
 	
-	public DecisionLeaf(List<Sample> samples,Object nodeClass) 
+	public C4_5DecisionLeaf(List<Sample> samples,Object nodeClass) 
 	{
 		super(samples);
 		this.nodeClass = nodeClass;
