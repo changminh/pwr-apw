@@ -1,16 +1,17 @@
-package apw.classifiers.id3;
+package apw.classifiers.c4_5;
 
 import apw.core.Nominal;
+import apw.core.Numeric;
 import apw.core.Sample;
 import apw.core.util.Entropy;
 
 import java.util.*;
-public class ID3DecisionNode<T> extends DecisionNode<T> {
+public class C4_5NominalNode<T> extends C4_5DecisionNode<T> {
 
-	protected DecisionNode<T>[] childNodes;
+	protected C4_5DecisionNode<T>[] childNodes;
 	protected Nominal ruleAttribute = null;
 
-	public ID3DecisionNode(List<Sample> samples, List<Nominal> attributes) 
+	public C4_5NominalNode(List<Sample> samples, List<Nominal> nominals, LinkedList<Numeric> numerics) 
 	{	
 		super(samples);
 		if(samples.size()==0)
@@ -18,7 +19,7 @@ public class ID3DecisionNode<T> extends DecisionNode<T> {
 				
 		double bestEntropy = -1.0;
 		
-		for (Nominal nominal : attributes) 
+		for (Nominal nominal : nominals) 
 		{
 			double entropy = Entropy.nominalEntropy(samples, nominal);
 			if(entropy>bestEntropy)
@@ -28,7 +29,7 @@ public class ID3DecisionNode<T> extends DecisionNode<T> {
 			}
 		}
 		LinkedList<Nominal> attributes_new = new LinkedList<Nominal>();
-		attributes_new.addAll(attributes);
+		attributes_new.addAll(nominals);
 		attributes_new.remove(ruleAttribute);
 		
 		int att_num = samples.get(0).getSamples().getAtts().indexOf(ruleAttribute);
@@ -60,7 +61,7 @@ public class ID3DecisionNode<T> extends DecisionNode<T> {
 			}
 		}
 		
-		childNodes = new DecisionNode[samplesGroups.length];
+		childNodes = new C4_5DecisionNode[samplesGroups.length];
 		
 		for (int i = 0; i < samplesGroups.length; i++) 
 		{
@@ -68,7 +69,7 @@ public class ID3DecisionNode<T> extends DecisionNode<T> {
 			
 			if(group.size()==0)
 			{
-				childNodes[i] = new DecisionLeaf<T>(group,biggestGroup.get(0).classAttributeInt());
+				childNodes[i] = new C4_5DecisionLeaf<T>(group,biggestGroup.get(0).classAttributeInt());
 				
 			}
 			else
@@ -84,18 +85,18 @@ public class ID3DecisionNode<T> extends DecisionNode<T> {
 				}
 				if(sameClass)
 				{
-					childNodes[i] = new DecisionLeaf<T>(group,group.get(0).classAttributeInt());
+					childNodes[i] = new C4_5DecisionLeaf<T>(group,group.get(0).classAttributeInt());
 					
 				}
 				else
 				{
 					if(attributes_new.size()==0)
 					{
-						childNodes[i] = new DecisionLeaf<T>(group);
+						childNodes[i] = new C4_5NumericNode<T>(group,numerics);
 					}
 					else
 					{
-						childNodes[i] = new ID3DecisionNode<T>(group,attributes_new);
+						childNodes[i] = new C4_5NominalNode<T>(group,attributes_new,numerics);
 					}
 				}
 			}

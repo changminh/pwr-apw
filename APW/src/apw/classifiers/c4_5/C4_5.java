@@ -1,4 +1,4 @@
-package apw.classifiers.id3;
+package apw.classifiers.c4_5;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +9,7 @@ import apw.classifiers.Classifier;
 import apw.classifiers.RuleClassifier;
 import apw.core.Attribute;
 import apw.core.Nominal;
+import apw.core.Numeric;
 import apw.core.Sample;
 import apw.core.Samples;
 
@@ -16,25 +17,38 @@ import apw.core.Samples;
  * @author Krzysztof Praszmo
  */
 
-public class ID3 extends RuleClassifier {
+public class C4_5 extends RuleClassifier {
 
-	private ID3DecisionNode<Object> tree;
+	private C4_5DecisionNode<Object> tree;
 	
-	public ID3(Samples s) 
+	
+	public C4_5(Samples s) 
 	{	
 		super(s);
-		ArrayList<Nominal> attributes = new ArrayList<Nominal>(s.getAtts().size());
+		LinkedList<Nominal> nominals = new LinkedList<Nominal>();
+		LinkedList<Numeric> numerics = new LinkedList<Numeric>();
 		for (Attribute attribute : s.getAtts()) {
-			if (attribute instanceof Nominal) 
-			{
-				Nominal n = (Nominal) attribute;
-				if(n!=s.getClassAttribute())
-					attributes.add(n);
+			if (attribute instanceof Nominal) {
+				Nominal nom = (Nominal) attribute;
+				if(nom!=s.getClassAttribute())
+					nominals.add(nom);
 			}
-			else throw new IllegalArgumentException("Samples class must be nominal");
+			else
+			{
+				Numeric num = (Numeric) attribute;
+				numerics.add(num);
+			}
 		}
 		
-		tree = new ID3DecisionNode<Object>(s,attributes);
+			
+		if(nominals.size()==0)
+		{
+			tree = new C4_5NumericNode<Object>(s,numerics);			
+		}
+		else
+		{
+			tree = new C4_5NominalNode<Object>(s,nominals,numerics);
+		}
 
 		for (String str : getRules()) {
 			System.out.println(str);
@@ -64,8 +78,7 @@ public class ID3 extends RuleClassifier {
 
 	@Override
 	public double[] classifySample(Sample s) 
-	{
-		
+	{	
 		Object sampleClass = tree.classify(s);
 		Attribute att = s.getSamples().getClassAttribute();
 		if (att instanceof Nominal) {
