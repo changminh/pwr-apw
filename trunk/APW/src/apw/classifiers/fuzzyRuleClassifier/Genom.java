@@ -54,8 +54,7 @@ class Genom implements Comparable<Genom> {
 
     public static int setType = 0;
   
-    
-
+   
     private void setValues(int factor, int _sets, Object[] classes) {
 
         Object[] set = classes;
