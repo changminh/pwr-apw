@@ -478,7 +478,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
         int generation = 0;
         
-        boolean theBestFound = false;
+        //boolean theBestFound = false;
 
         ArrayList<Genom> parants;
 
@@ -520,11 +520,10 @@ public class FuzzyRuleClassifier extends RuleClassifier {
                 }
 
             } else {
-                theBestFound = true;
+                generation = this.maxEpos;
             }
 
         } while ((++generation < maxEpos) &&
-                    !theBestFound &&
                     resultGen.getSecond().intValue() < generetionWiat);
 
         bestResult = gens.get(0);
@@ -557,24 +556,34 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         try {
             FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("d:/svm/data/iris.arff");
 
-            String[] data = new String[]{"-o", "20",     //liczba osobnikow przypadajaca na populacje
+            String[] data = new String[]{"-o", "10",     //liczba osobnikow przypadajaca na populacje
                                          "-r", "5",      //liczba regul przypadajaca na jedna klase
                                          "-f", "5",      //liczba zbiorow rozmytych przypadajaca na jedna grupe
                                          "-t", "0",      //typ zbiorów 0 - gauss, 1 - trojkatny, 2 - trapezowy
-                                         "-m", "0.3",    //prawdopodobienstwo mutacji
-                                         "-c", "0.8",    //prawdopodobienstwo krzyzowania
+                                         "-m", "0.05",   //prawdopodobienstwo mutacji
+                                         "-c", "0.1",    //prawdopodobienstwo krzyzowania
+                                         "-mg","1000",   //maksymalna liczba epok jaka trwa uczenie
+                                         
                                          "-b", "0.5",    //wspolczynnik beta w funckji oceny
+                                                         //tzn. jak bardzo bierzemy pod uwage zle zaklasyfikowania
+                                         
                                          "-d", "0.4",    //wspolczynnik delta w funckji oceny
+                                                         //tzn. jak bardzo bierzemy pod uwage brak zaklasyfikowania
+                                         
                                          "-e", "0.4",    //wspolczynnik epsilon w funckji oceny
+                                                         //tzn. jak bardzo bierzemy licybe aktzwnzch
+                                                         //pryeslanek we wszystkich regulach
+                                         
                                          "-z", "0.3",    //wspolczynnik dzeta w funckji oceny
+                                                         //tzn. jak bardzo bierzemy pod uwage brak zaklasyfikowania
 
-                                         "-rp", "90.0",  //procent poprawnej klasyfikacji po jakim
+                                         "-rp", "95.0",  //procent poprawnej klasyfikacji po jakim
                                                          //osobnik zostanie zakceptowaby jako rozwiazanie
 
-                                         "-gw", "200",   //liczba epok po jakiej po ktorej,
+                                         "-gw", "500"};  //liczba epok po ktorej,
                                                          ///jesli nic sie nie zmieni, uczenie zostanie przerwane
 
-                                         "-mg", "1000"}; //maksymalna liczba epok jaka trwa uczenie
+                                         
             
             fuzzy.setOptions(data);
             fuzzy.buildClassifier();
