@@ -37,7 +37,7 @@ public class ID3 extends RuleClassifier {
 		tree = new ID3DecisionNode<Object>(s,attributes);
 
 		for (String str : getRules()) {
-			System.out.println(str);
+			//System.out.println(str);
 		}
 	}
 

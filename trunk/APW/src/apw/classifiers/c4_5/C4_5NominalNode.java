@@ -1,5 +1,6 @@
 package apw.classifiers.c4_5;
 
+import apw.classifiers.id3.DecisionLeaf;
 import apw.core.Nominal;
 import apw.core.Numeric;
 import apw.core.Sample;
@@ -17,7 +18,7 @@ public class C4_5NominalNode<T> extends C4_5DecisionNode<T> {
 		if(samples.size()==0)
 			throw new RuntimeException("samples.size()==0 ??? Can not be !!!");
 				
-		double bestEntropy = -1.0;
+		double bestEntropy = -1000.0;
 		
 		for (Nominal nominal : nominals) 
 		{
@@ -34,6 +35,12 @@ public class C4_5NominalNode<T> extends C4_5DecisionNode<T> {
 		
 		int att_num = samples.get(0).getSamples().getAtts().indexOf(ruleAttribute);
 		
+		if(ruleAttribute==null)
+		{
+			childNodes = new C4_5DecisionNode[1];
+			childNodes[0] = new C4_5DecisionLeaf<T>(samples);
+			return;
+		}
 
 		LinkedList<Sample>[] samplesGroups = new LinkedList[ruleAttribute.getSortedIKeys().length];
 		
@@ -109,6 +116,7 @@ public class C4_5NominalNode<T> extends C4_5DecisionNode<T> {
 	@Override
 	public LinkedList<String> getRules() 
 	{
+		if(childNodes.length==1)return childNodes[0].getRules();
 		LinkedList<String> result = new LinkedList<String>();
 		for (int i = 0; i < childNodes.length; i++) {
 			String prefix =  "& "+ruleAttribute.getName()+"=="+ruleAttribute.getSortedIKeys()[i]+"("+source.size()+")";
@@ -123,6 +131,7 @@ public class C4_5NominalNode<T> extends C4_5DecisionNode<T> {
 	@Override
 	public Object classify(Sample x) 
 	{
+		if(childNodes.length==1)return childNodes[0].classify(x);
 		int att_num = x.getSamples().getAtts().indexOf(ruleAttribute);
 		int index;
 		if(x.get(att_num)!=null)
