@@ -19,7 +19,7 @@ public class C4_5NumericNode<T> extends C4_5DecisionNode<T> {
 		if(samples.size()==0)
 			throw new RuntimeException("samples.size()==0 ??? Can not be !!!");
 				
-		double bestEntropy = 1000.0;
+		double bestEntropy = 0.0;
 		
 		for (Numeric numeric : numerics) 
 		{
@@ -27,7 +27,7 @@ public class C4_5NumericNode<T> extends C4_5DecisionNode<T> {
 
 				double div = (Double)sample.get(sample.getSamples().getAtts().indexOf(numeric));
 				double entropy = Entropy.numericEntropy(samples, numeric, div);
-				if(entropy<bestEntropy)
+				if(entropy>bestEntropy)
 				{
 					divider = div;
 					bestEntropy = entropy;

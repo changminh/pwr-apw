@@ -20,16 +20,20 @@ public abstract class ClassifierTest {
 	 */
     public static void main(String[] args) {
         // TODO to be removed
-//      File f = new File("data/weather.nominal.arff");
-//      File f = new File("data/weather.arff");
+//*      File f = new File("data/weather.nominal.arff");
+      File f = new File("data/weather.arff");
 //        File f = new File("data/shuttle.arff");
 //        File f = new File("data/iris.arff");
 //      File f = new File("data/soybean.arff");
-      File f = new File("data/segment-test.arff");
+//*      File f = new File("data/segment-test.arff");
 //        File f = new File("data/labor.arff");
-//    	File f = new File("data/contact-lenses.arff");
+//*    	File f = new File("data/contact-lenses.arff");
 //      File f = new File("data/cpu.arff");
+      int g_ok = 0;
+      int g_sum = 0;
 
+      for(int it=0;it<1;it++)
+      {
     	try {
             System.out.println("Loading data.");
             ARFFLoader l = new ARFFLoader(f);
@@ -46,12 +50,12 @@ public abstract class ClassifierTest {
             System.out.println("Dataset size: " + s.size() + ". Building classifier.");
 
             Classifier classifier;
-            classifier = new KNN(s);
-//            classifier = new KNN(s, 12, KNN.RANKING_BASED_VOTING);
-//            classifier = new KNN(s, 12, KNN.SIMPLE_VOTING);
-//            classifier = new KNN(s, 12, KNN.DISTANCE_BASED_VOTING);
+//            classifier = new KNN(s);
+//            classifier = new KNN(s, 4, KNN.SIMPLE_VOTING);
+//            classifier = new KNN(s, 4, KNN.DISTANCE_BASED_VOTING);
+//          classifier = new KNN(s, 4, KNN.RANKING_BASED_VOTING);
 //            classifier = new ID3(s);
-//            classifier = new C4_5(s);
+            classifier = new C4_5(s);
          
             
            boolean numeric = false;
@@ -89,15 +93,17 @@ public abstract class ClassifierTest {
                     Object correct = sample.classAttributeInt();
                     //System.out.println();
                     
-                    System.out.println("class: "+result.toString());
+                    //System.out.println("class: "+result.toString());
                     //System.out.println(Arrays.toString(probs));
-                    System.out.println(sample);
-                    System.out.println("correct: "+correct);
-                    System.out.println();
+                    //System.out.println(sample);
+                    //System.out.println("correct: "+correct);
+                    //System.out.println();
                     if(result.equals(correct)) ok++;
                 
                     
                 }
+               g_ok+=ok;
+               g_sum+=test.size();
                 	System.out.println("RATE:"+(ok*100/test.size())+"%");
             	
             }
@@ -111,5 +117,9 @@ public abstract class ClassifierTest {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+      
+    }
+  	System.out.println("RATE:"+((double)g_ok/(double)g_sum));
+
     }
 }
