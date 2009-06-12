@@ -40,16 +40,22 @@ import java.util.ArrayList;
  *
  * @author Przemek Woś
  */
-public class Genom implements Comparable<Genom> {
+class Genom implements Comparable<Genom> {
 
     private ArrayList<FuzzyRule> rules = new ArrayList<FuzzyRule>();
     private ArrayList<FuzzySet[]> sets = new ArrayList<FuzzySet[]>();
-    private static int numberOfSets = 6;
+    public static int numberOfSets = 6;
     
-    private double beta  = 0.75, delta = 0.1,eps = 0.1,dzeta = 0.8;
+    public static double beta  = 0.75,
+                          delta = 0.1,
+                          eps = 0.1,
+                          dzeta = 0.8;
+
+    public static int setType = 0;
+    
     private double corr=0,incorr=0,unclass=0,prem=0,fsets=0;
 
-    public void setValues(int factor, int _sets, Object[] classes) {
+    private void setValues(int factor, int _sets, Object[] classes) {
 
         Object[] set = classes;
 
@@ -69,7 +75,7 @@ public class Genom implements Comparable<Genom> {
         }
 
         for (int i = 0; i < _sets; i++) {
-            switch (RandomClass.nextInt(0, 3)) {
+            switch (setType) {
                 case 1:{
                         TriangleSet[] _set = new TriangleSet[numberOfSets];
 
@@ -188,30 +194,14 @@ public class Genom implements Comparable<Genom> {
     }
 
 
-
-    public double getBeta(){return beta ;}
-    public double getDelta(){return delta ;}
-    public double getEpsilon(){return eps ;}
-    public double getDzeta(){return dzeta ;}
     public double getIncorr(){return incorr;}
     public double getCorr(){return corr;}
     public double getUnClass(){return unclass ;}
 
-    public void setBeta(double x){this.beta = x;}
-    public void setDelta(double x){this.delta = x;}
-    public void setEpsilon(double x){this.eps = x;}
-    public void setDzeta(double x){this.dzeta = x;}
     public void setIncorr(double x){incorr = x;}
     public void setCorr(double x){corr = x;}
     public void setUnClass(double x){unclass = x;}
    
-
-    private double or(double a,double b){
-        return (a > b)?a:b;
-    }
-
-    
-
     public String classify(Sample s){
         double max = 0.0;
         int index = -1;
@@ -266,8 +256,11 @@ public class Genom implements Comparable<Genom> {
     public double getPrem(){return this.prem;}
     public double getFsets(){return this.fsets;}
 
-    
+    //private double lastFitness ;
+
     public double fitness() {
+
+
         double result = corr*(beta*k(incorr) + dzeta*k(unclass)) + delta*k(prem) + eps*k(fsets);
                         
         return result;
@@ -302,6 +295,7 @@ public class Genom implements Comparable<Genom> {
                     double d1 = fuzzySet.getParams()[0];
                     
                     d1 = d1 + RandomClass.rDouble();
+                    fuzzySet.setParam(d1);
                     fuzzySet.correct();
                     
                 } else {
@@ -326,6 +320,7 @@ public class Genom implements Comparable<Genom> {
 
                             sigma = sigma * (1 + 2 * (Math.random() - 0.5));
 
+                            //sigma = sigma*RandomClass.rDouble();
                             fuzzySet.setParam(dVal, sigma);
                              //System.out.println("Mutuje zbiór...");
                         }//if 3...
