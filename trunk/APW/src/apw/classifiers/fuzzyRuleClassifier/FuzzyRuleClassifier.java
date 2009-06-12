@@ -41,6 +41,7 @@ import apw.core.loader.ARFFLoader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,6 +63,10 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     protected int rulesPerClass = 5;
     protected double mutationProb = 0.05;
     protected double crossProb = 0.2;
+    protected double porcent = 100.0;
+    protected int generetionWiat = 500;
+    protected int maxEpos = 1000;
+
 
     private static class Utils {
 
@@ -187,6 +192,27 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             this.crossProb = Double.parseDouble(data);
         }
 
+        data = Utils.getOption("rp", options);
+
+        if (data.length() != 0) {
+            this.porcent = Double.parseDouble(data);
+            //System.out.println("Procent: " + this.porcent);
+        }
+
+        data = Utils.getOption("gw", options);
+
+        if (data.length() != 0) {
+            this.generetionWiat = Integer.parseInt(data);
+            //System.out.println("Procent: " + this.generetionWiat);
+        }
+
+        data = Utils.getOption("mg", options);
+
+        if (data.length() != 0) {
+            this.maxEpos = Integer.parseInt(data);
+            //System.out.println("Procent: " + this.maxEpos);
+        }
+        
         this.options = options;
     }
 
@@ -194,12 +220,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     public FuzzyRuleClassifier(Samples S) {
         super(S);
         samples = this.normalize(S);
-        // genoms = new Genom[defaultNumber];
         options = new String[]{};
-        //HashMap<String, ArrayList<Integer>>[] tmp = this.partionData(0.2);
-        //learningSet = tmp[0];
-        //testSet = tmp[1];
-
         double[] m = this.findMinMax(samples);
         RandomClass.setMin(m[0]);
         RandomClass.setMax(m[1]);
@@ -440,9 +461,10 @@ public class FuzzyRuleClassifier extends RuleClassifier {
                 }
             }
 
-            if ((gens.get(i).getIncorr() == 0.0) && (gens.get(i).getUnClass() == 0.0)) {
+            if(((gens.get(i).getCorr()/samples.size())*100.0) >= porcent){
                 return true;
             }
+            
         }
         return false;
     }
@@ -455,7 +477,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         }
 
         int generation = 0;
-        final int maxEpos = 10000;
+        
         boolean theBestFound = false;
 
         ArrayList<Genom> parants;
@@ -463,6 +485,8 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         gradeFunction(gens);
         Collections.sort(gens);
 
+        Pair<Genom,Integer> resultGen = new Pair<Genom, Integer>(gens.get(0),0);
+        
         do {
 
             int size = gens.size() / 2;
@@ -484,16 +508,29 @@ public class FuzzyRuleClassifier extends RuleClassifier {
                 }
             }
 
-
             if (!gradeFunction(gens)) {
                 Collections.sort(gens);
                 gens = getNewPapulation(gens, defaultNumber);
+
+                if(resultGen.getFirst().compareTo(gens.get(0))==0){
+                    resultGen.setSecond(resultGen.getSecond().intValue()+1);
+                }else{
+                    resultGen.setFirst(gens.get(0));
+                    resultGen.setSecond(0);
+                }
+
             } else {
                 theBestFound = true;
             }
 
+        } while ((++generation < maxEpos) &&
+                    !theBestFound &&
+                    resultGen.getSecond().intValue() < generetionWiat);
 
-            System.out.println("Pokolenie: " + generation +
+        bestResult = gens.get(0);
+
+        /*
+        System.out.println("Pokolenie: " + generation +
                     " Gen: " + 0 +
                     " Corr: " + gens.get(0).getCorr() +
                     " Incorr: " + gens.get(0).getIncorr() +
@@ -502,39 +539,46 @@ public class FuzzyRuleClassifier extends RuleClassifier {
                     " Fsets: " + (int) gens.get(0).getFsets() +
                     " Fitness : " + gens.get(0).fitness() +
                     " Statistic: " + (100.0 * gens.get(0).getCorr() / samples.size()));
-
-
-        } while ((++generation < maxEpos) && !theBestFound);
-
-        Collections.sort(gens);
-        bestResult = gens.get(0);
+        */
 
     }
 
-    public Genom[] makePapulation() {
-        Genom[] gen = new Genom[defaultNumber];
-
-        for (int i = 0; i < gen.length; i++) {
-            gen[i] = new Genom(5, howManyInputs(), howManyClasses());
+    public void printRules(PrintStream out){
+        for(int i=0; i < this.bestResult.getRuleNumber();i++){
+            if(this.bestResult.getRule(i).contains("Aktywna: 1")){
+                out.println(this.bestResult.getRule(i).toString());
+            }
         }
-
-        return gen;
     }
+
 
     public static void main(String[] arg) {
 
         try {
             FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("d:/svm/data/iris.arff");
 
-            fuzzy.setOptions(new String[]{"-o", "20", "-r", "5",
-                        "-f", "5", "-t", "0",
-                        "-m", "0.3", "-c", "0.8",
-                        "-b", "0.5", "-d", "0.4",
-                        "-e", "0.4", "-z", "0.3",});
+            String[] data = new String[]{"-o", "20",     //liczba osobnikow przypadajaca na populacje
+                                         "-r", "5",      //liczba regul przypadajaca na jedna klase
+                                         "-f", "5",      //liczba zbiorow rozmytych przypadajaca na jedna grupe
+                                         "-t", "0",      //typ zbiorów 0 - gauss, 1 - trojkatny, 2 - trapezowy
+                                         "-m", "0.3",    //prawdopodobienstwo mutacji
+                                         "-c", "0.8",    //prawdopodobienstwo krzyzowania
+                                         "-b", "0.5",    //wspolczynnik beta w funckji oceny
+                                         "-d", "0.4",    //wspolczynnik delta w funckji oceny
+                                         "-e", "0.4",    //wspolczynnik epsilon w funckji oceny
+                                         "-z", "0.3",    //wspolczynnik dzeta w funckji oceny
 
+                                         "-rp", "90.0",  //procent poprawnej klasyfikacji po jakim
+                                                         //osobnik zostanie zakceptowaby jako rozwiazanie
+
+                                         "-gw", "200",   //liczba epok po jakiej po ktorej,
+                                                         ///jesli nic sie nie zmieni, uczenie zostanie przerwane
+
+                                         "-mg", "1000"}; //maksymalna liczba epok jaka trwa uczenie
+            
+            fuzzy.setOptions(data);
             fuzzy.buildClassifier();
-
-
+            fuzzy.printRules(System.out);
 
         } catch (IOException ex) {
             Logger.getLogger(FuzzyRuleClassifier.class.getName()).log(Level.SEVERE, null, ex);

@@ -44,16 +44,17 @@ class Genom implements Comparable<Genom> {
 
     private ArrayList<FuzzyRule> rules = new ArrayList<FuzzyRule>();
     private ArrayList<FuzzySet[]> sets = new ArrayList<FuzzySet[]>();
+    private double corr=0,incorr=0,unclass=0,prem=0,fsets=0;
+
     public static int numberOfSets = 6;
-    
     public static double beta  = 0.75,
-                          delta = 0.1,
-                          eps = 0.1,
-                          dzeta = 0.8;
+                         delta = 0.1,
+                         eps = 0.1,
+                         dzeta = 0.8;
 
     public static int setType = 0;
+  
     
-    private double corr=0,incorr=0,unclass=0,prem=0,fsets=0;
 
     private void setValues(int factor, int _sets, Object[] classes) {
 
@@ -256,8 +257,6 @@ class Genom implements Comparable<Genom> {
     public double getPrem(){return this.prem;}
     public double getFsets(){return this.fsets;}
 
-    //private double lastFitness ;
-
     public double fitness() {
 
 
@@ -311,7 +310,6 @@ class Genom implements Comparable<Genom> {
                         fuzzySet.correct();
 
                     } else {
-
                         if (fuzzySet instanceof GaussFuzzySet) {
                             double dVal = fuzzySet.getParams()[0],
                                    sigma = fuzzySet.getParams()[1];
@@ -320,9 +318,8 @@ class Genom implements Comparable<Genom> {
 
                             sigma = sigma * (1 + 2 * (Math.random() - 0.5));
 
-                            //sigma = sigma*RandomClass.rDouble();
                             fuzzySet.setParam(dVal, sigma);
-                             //System.out.println("Mutuje zbiór...");
+                            
                         }//if 3...
                     }//else if 2
                 }//else if 1
@@ -399,6 +396,17 @@ class Genom implements Comparable<Genom> {
         
         return result;
     }
+
+    public String getRule(int i){
+        if((i < this.rules.size()) && (i > -1)){
+            return this.rules.get(i).toString();
+        }else{
+            return null;
+        }
+    }
+
+    public int getRuleNumber(){return this.rules.size();}
+
 
     public static void setNumOfSets(int num) {
         numberOfSets = num;

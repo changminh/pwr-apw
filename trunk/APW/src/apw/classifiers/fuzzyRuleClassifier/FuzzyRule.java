@@ -174,14 +174,14 @@ public class FuzzyRule {
 
     @Override
     public String toString(){
-        String result = "(Aktywana: " + (isActive()?1:0) + ";" + " przeslanki:";
+        String result = "(Aktywna: " + (isActive()?1:0) + ";" + " przeslanki:";
         
         for(int i = 0; i < this.condition.length;i++ ){
             int ac = (this.condition[i].getFirst().booleanValue() == true)?1:0;
             result += "(" + ac + "; " + this.condition[i].getSecond().intValue() + ")";
         }
 
-        result += "; konlkuzja:(" + this.conclusion + "))";
+        result += "; konkluzja:(" + this.conclusion + "))";
         return result;
     }
 
