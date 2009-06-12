@@ -56,21 +56,149 @@ import java.util.logging.Logger;
 public class FuzzyRuleClassifier extends RuleClassifier {
 
     protected Samples samples = null;
-    protected Genom[] genoms = null;
     protected String[] options;
-    protected HashMap<String, ArrayList<Integer>> learningSet = null;
-    protected HashMap<String, ArrayList<Integer>> testSet = null;
     protected Genom bestResult = null;
+    protected int defaultNumber = 12;
+    protected int rulesPerClass = 5;
+    protected double mutationProb = 0.05;
+    protected double crossProb = 0.2;
+
+    private static class Utils {
+
+        public static int getOptionPos(char flag, String[] options) {
+            return getOptionPos("" + flag, options);
+        }
+
+        public static int getOptionPos(String flag, String[] options) {
+            if (options == null) {
+                return -1;
+            }
+
+            for (int i = 0; i < options.length; i++) {
+                if ((options[i].length() > 0) && (options[i].charAt(0) == '-')) {
+                    // Check if it is a negative number
+                    try {
+                        Double.valueOf(options[i]);
+                    } catch (NumberFormatException e) {
+                        // found?
+                        if (options[i].equals("-" + flag)) {
+                            return i;
+                        }
+                        // did we reach "--"
+                        if (options[i].charAt(1) == '-') {
+                            return -1;
+                        }
+                    }
+                }
+            }
+
+            return -1;
+        }
+
+        public static String getOption(char flag, String[] options)
+                throws Exception {
+
+            return getOption("" + flag, options);
+        }
+
+        public static String getOption(String flag, String[] options)
+                throws Exception {
+
+            String newString;
+            int i = getOptionPos(flag, options);
+
+            if (i > -1) {
+                if (options[i].equals("-" + flag)) {
+                    if (i + 1 == options.length) {
+                        throw new Exception("No value given for -" + flag + " option.");
+                    }
+                    options[i] = "";
+                    newString = new String(options[i + 1]);
+                    options[i + 1] = "";
+                    return newString;
+                }
+                if (options[i].charAt(1) == '-') {
+                    return "";
+                }
+            }
+
+            return "";
+        }
+    }
+
+    public void setOptions(String[] options) throws Exception {
+        String data = Utils.getOption('o', options);
+
+        if (data.length() != 0) {
+            defaultNumber = Integer.parseInt(data);
+        }
+
+        data = Utils.getOption('r', options);
+
+        if (data.length() != 0) {
+            this.rulesPerClass = Integer.parseInt(data);
+        }
+
+        data = Utils.getOption('f', options);
+
+        if (data.length() != 0) {
+            Genom.numberOfSets = Integer.parseInt(data);
+        }
+
+        data = Utils.getOption('t', options);
+
+        if (data.length() != 0) {
+            Genom.setType = Integer.parseInt(data);
+        }
+
+        data = Utils.getOption('b', options);
+
+        if (data.length() != 0) {
+            Genom.beta = Double.parseDouble(data);
+        }
+
+        data = Utils.getOption('e', options);
+
+        if (data.length() != 0) {
+            Genom.eps = Double.parseDouble(data);
+        }
+
+        data = Utils.getOption('d', options);
+
+        if (data.length() != 0) {
+            Genom.delta = Double.parseDouble(data);
+        }
+
+        data = Utils.getOption('z', options);
+
+        if (data.length() != 0) {
+            Genom.dzeta = Double.parseDouble(data);
+        }
+
+        data = Utils.getOption('m', options);
+
+        if (data.length() != 0) {
+            this.mutationProb = Double.parseDouble(data);
+        }
+
+        data = Utils.getOption('c', options);
+
+        if (data.length() != 0) {
+            this.crossProb = Double.parseDouble(data);
+        }
+
+        this.options = options;
+    }
 
     //************************* constructors *********************************
     public FuzzyRuleClassifier(Samples S) {
         super(S);
         samples = this.normalize(S);
-        genoms = new Genom[defaultNumber];
+        // genoms = new Genom[defaultNumber];
         options = new String[]{};
-        HashMap<String, ArrayList<Integer>>[] tmp = this.partionData(0.2);
-        learningSet = tmp[0];
-        testSet = tmp[1];
+        //HashMap<String, ArrayList<Integer>>[] tmp = this.partionData(0.2);
+        //learningSet = tmp[0];
+        //testSet = tmp[1];
 
         double[] m = this.findMinMax(samples);
         RandomClass.setMin(m[0]);
@@ -112,48 +240,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
         return data.keySet().toArray();
     }
-
-    private HashMap<String, ArrayList<Integer>>[] partionData(double procent) {
-
-        if ((procent < 0) && (procent >= 1.0)) {
-            throw new RuntimeException("Parametr metody partionData posiada nie prawidłową wartość: " + procent);
-        }
-
-        HashMap<String, ArrayList<Integer>>[] data = new HashMap[2];
-
-        data[0] = new HashMap<String, ArrayList<Integer>>();
-
-        for (int i = 0; i < this.samples.size(); i++) {
-            int size = samples.get(i).size();
-            String str = samples.get(i).get(size - 1).toString();
-
-            if (!data[0].containsKey(str)) {
-                data[0].put(str, new ArrayList<Integer>());
-            } else {
-                data[0].get(str).add(i);
-            }
-        }
-
-        Object[] s = data[0].keySet().toArray();
-
-        data[1] = new HashMap<String, ArrayList<Integer>>();
-
-        for (int i = 0; i < s.length; i++) {
-            data[1].put(s[i].toString(), new ArrayList<Integer>());
-            int howMany = (int) (data[0].get(s[i].toString()).size() * procent);
-
-            int classSize = data[0].get(s[i].toString()).size() - 1;
-
-            for (int j = classSize; j >= (classSize - howMany); j--) {
-                data[1].get(s[i].toString()).add(data[0].get(s[i].toString()).get(j));
-                data[0].get(s[i].toString()).remove(j);
-            }
-
-        }
-
-        return data;
-    }
-
+    
     @Override
     public void addSamples(Samples s) {
         this.samples.addAll(s);
@@ -197,29 +284,18 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
     @Override
     public Classifier copy() {
-        FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier(samples);
-        fuzzy.setOptions(getOptions());
-        fuzzy.setGenoms(getGenomSet());
-        fuzzy.bestResult = new Genom(this.bestResult);
-        return fuzzy;
-    }
-
-    public Genom[] getGenomSet() {
-        Genom[] ind = new Genom[this.genoms.length];
-        for (int i = 0; i < ind.length; i++) {
-            ind[i] = new Genom(this.genoms[i]);
+        try {
+            FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier(samples);
+            fuzzy.setOptions(getOptions());
+            fuzzy.bestResult = new Genom(this.bestResult);
+            return fuzzy;
+        } catch (Exception ex) {
+            Logger.getLogger(FuzzyRuleClassifier.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return ind;
+        return null;
     }
 
-    public void setGenoms(Genom[] _genoms) {
-        System.arraycopy(_genoms, 0, genoms, 0, _genoms.length);
-    }
-
-    public void setOptions(String[] ops) {
-        throw new UnsupportedOperationException("Not yet Implemented");
-    }
-
+   
     public String[] getOptions() {
         String[] _options = new String[options.length];
 
@@ -272,15 +348,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         return "Fuzzy Rule Classifier for APW Project, made by Przemek Woś...";
     }
 
-    public void setNumberOfGenoms(int number) {
-        genoms = new Genom[number];
-    }
-
-    public int getNumberOfGenoms() {
-        return (genoms != null) ? genoms.length : 0;
-    }
-
-    private ArrayList<Genom> getNewPapulation(ArrayList<Genom> x, final int howMany) {
+    private ArrayList<Genom> roullet(ArrayList<Genom> x, final int howMany) {
         double E = 0.0;
 
         for (int i = 0; i < x.size(); i++) {
@@ -321,9 +389,8 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
         return result;
     }
-    protected final int defaultNumber = 10;
 
-    private ArrayList<Genom> getNewPapulation2(ArrayList<Genom> x, final int howMany) {
+    private ArrayList<Genom> getNewPapulation(ArrayList<Genom> x, final int howMany) {
         ArrayList<Genom> result = new ArrayList<Genom>(howMany);
 
         for (int i = 0; i < howMany; i++) {
@@ -383,29 +450,26 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     public void buildClassifier() {
         ArrayList<Genom> gens = new ArrayList<Genom>();
 
-        for (int i = 0; i < defaultNumber + 10; i++) {
-            gens.add(new Genom(5, howManyInputs(), howManyClasses()));
+        for (int i = 0; i < defaultNumber; i++) {
+            gens.add(new Genom(this.rulesPerClass, howManyInputs(), howManyClasses()));
         }
 
         int generation = 0;
         final int maxEpos = 10000;
         boolean theBestFound = false;
-        double mutationProb = 0.1;
-        double crossProb = 0.02;
 
         ArrayList<Genom> parants;
 
-        this.gradeFunction(gens);
-
+        gradeFunction(gens);
         Collections.sort(gens);
-        
+
         do {
 
             int size = gens.size() / 2;
-            parants = getNewPapulation(gens, size);
+            parants = roullet(gens, size);
 
             for (int i = 0; i < size / 2; i++) {
-                if (Math.random() <= crossProb) {
+                if (Math.random() <= this.crossProb) {
                     Genom o1 = parants.get(2 * i);     //0,2,4
                     Genom o2 = parants.get(2 * i + 1); //1,3,5
                     Genom[] result = o1.crossWith(o2);
@@ -413,19 +477,20 @@ public class FuzzyRuleClassifier extends RuleClassifier {
                     gens.add(result[1]);
                 }
             }
-    
+
             for (int i = 0; i < gens.size(); i++) {
                 if (Math.random() <= mutationProb) {
                     gens.add(gens.get(i).mutate());
-                    //gens.set(i, gens.get(i).mutate());
                 }
             }
 
+
             if (!gradeFunction(gens)) {
                 Collections.sort(gens);
-                gens = getNewPapulation2(gens, defaultNumber);
+                gens = getNewPapulation(gens, defaultNumber);
+            } else {
+                theBestFound = true;
             }
-
 
 
             System.out.println("Pokolenie: " + generation +
@@ -435,7 +500,8 @@ public class FuzzyRuleClassifier extends RuleClassifier {
                     " unClass: " + gens.get(0).getUnClass() +
                     " Rules: " + (int) gens.get(0).getPrem() +
                     " Fsets: " + (int) gens.get(0).getFsets() +
-                    " Fitness : " + gens.get(0).fitness());
+                    " Fitness : " + gens.get(0).fitness() +
+                    " Statistic: " + (100.0 * gens.get(0).getCorr() / samples.size()));
 
 
         } while ((++generation < maxEpos) && !theBestFound);
@@ -443,7 +509,6 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         Collections.sort(gens);
         bestResult = gens.get(0);
 
-    //throw new UnsupportedOperationException("Not yet implemented");
     }
 
     public Genom[] makePapulation() {
@@ -460,6 +525,13 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
         try {
             FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("d:/svm/data/iris.arff");
+
+            fuzzy.setOptions(new String[]{"-o", "20", "-r", "5",
+                        "-f", "5", "-t", "0",
+                        "-m", "0.3", "-c", "0.8",
+                        "-b", "0.5", "-d", "0.4",
+                        "-e", "0.4", "-z", "0.3",});
+
             fuzzy.buildClassifier();
 
 
@@ -468,7 +540,10 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             Logger.getLogger(FuzzyRuleClassifier.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ParseException ex) {
             Logger.getLogger(FuzzyRuleClassifier.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Logger.getLogger(FuzzyRuleClassifier.class.getName()).log(Level.SEVERE, null, ex);
         }
+
 
     }
 
