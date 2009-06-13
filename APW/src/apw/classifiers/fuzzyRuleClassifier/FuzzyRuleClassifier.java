@@ -520,22 +520,12 @@ roulette(ArrayList<Genom> x, final int howMany) {
                 generation = maxEpos;
             }
 
-            System.out.println("Pokolenie: " + generation +
-                    " Gen: " + 0 +
-                    " Corr: " + gens.get(0).getCorr() +
-                    " Incorr: " + gens.get(0).getInCorr() +
-                    " unClass: " + gens.get(0).getUnClass() +
-                    " Rules: " + (int) gens.get(0).getPrem() +
-                    " Fsets: " + (int) gens.get(0).getFsets() +
-                    " Fitness : " + gens.get(0).fitness() +
-                    " Statistic: " + (100.0 * gens.get(0).getCorr() / samples.size()));
-
         } while ((++generation < maxEpos) &&
                     resultGen.getSecond().intValue() < generetionWiat);
 
         Collections.sort(gens);
         bestResult = gens.get(0);
-
+/*
         System.out.println("Pokolenie: " + generation +
                     " Gen: " + 0 +
                     " Corr: " + gens.get(0).getCorr() +
@@ -545,6 +535,7 @@ roulette(ArrayList<Genom> x, final int howMany) {
                     " Fsets: " + (int) gens.get(0).getFsets() +
                     " Fitness : " + gens.get(0).fitness() +
                     " Statistic: " + (100.0 * gens.get(0).getCorr() / samples.size()));
+ */
     }
 
     public void printRules(PrintStream out){
@@ -590,7 +581,7 @@ roulette(ArrayList<Genom> x, final int howMany) {
             String[] data = new String[]{"-o", "10",     //liczba osobnikow przypadajaca na populacje
                                          "-r", "5",      //liczba regul przypadajaca na jedna klase
                                          "-f", "5",      //liczba zbiorow rozmytych przypadajaca na jedna grupe
-                                         "-t", "3",      //typ zbiorów 0 - gauss, 1 - trojkatny, 2 - trapezowy 3 - mieszane
+                                         "-t", "0",      //typ zbiorów 0 - gauss, 1 - trojkatny, 2 - trapezowy 3 - mieszane
                                          "-m", "0.04",   //prawdopodobienstwo mutacji
                                          "-c", "0.1",    //prawdopodobienstwo krzyzowania
                                          "-mg","10000",  //maksymalna liczba epok jaka trwa uczenie
@@ -608,16 +599,17 @@ roulette(ArrayList<Genom> x, final int howMany) {
                                          "-z", "0.3",    //wspolczynnik dzeta w funckji przystosowania
                                                          //tzn. jak bardzo bierzemy pod uwage brak zaklasyfikowania
 
-                                         "-rp", "93.0", //procent poprawnej klasyfikacji po jakim
-                                                         //osobnik zostanie zakceptowaby jako rozwiazanie
+                                         "-rp", "93.0",  //procent poprawnej klasyfikacji po jakim
+                                                         //osobnik zostanie zakceptowany jako rozwiazanie
 
                                          "-gw", "500"};  //liczba epok po ktorej,
                                                          ///jesli nic sie nie zmieni, uczenie zostanie przerwane
 
                                         
             fuzzy.setOptions(data);
+            System.out.println("Zaczynamy uczenie( to moze chwile potrwac :) )" );
             fuzzy.buildClassifier();
-            
+            System.out.println("Wynik: ");
             fuzzy.printRules(System.out);
 
         } catch (IOException ex) {
