@@ -593,19 +593,19 @@ roulette(ArrayList<Genom> x, final int howMany) {
                                          "-t", "3",      //typ zbiorów 0 - gauss, 1 - trojkatny, 2 - trapezowy 3 - mieszane
                                          "-m", "0.04",   //prawdopodobienstwo mutacji
                                          "-c", "0.1",    //prawdopodobienstwo krzyzowania
-                                         "-mg","10000",   //maksymalna liczba epok jaka trwa uczenie
+                                         "-mg","10000",  //maksymalna liczba epok jaka trwa uczenie
                                          
-                                         "-b", "0.5",    //wspolczynnik beta w funckji oceny
+                                         "-b", "0.5",    //wspolczynnik beta w funckji przystosowania
                                                          //tzn. jak bardzo bierzemy pod uwage zle zaklasyfikowania
                                          
-                                         "-d", "0.4",    //wspolczynnik delta w funckji oceny
+                                         "-d", "0.4",    //wspolczynnik delta w funckji przystosowania
                                                          //tzn. jak bardzo bierzemy pod uwage brak zaklasyfikowania
                                          
-                                         "-e", "0.4",    //wspolczynnik epsilon w funckji oceny
+                                         "-e", "0.4",    //wspolczynnik epsilon w funckji przystosowania
                                                          //tzn. jak bardzo bierzemy licybe aktzwnzch
                                                          //pryeslanek we wszystkich regulach
                                          
-                                         "-z", "0.3",    //wspolczynnik dzeta w funckji oceny
+                                         "-z", "0.3",    //wspolczynnik dzeta w funckji przystosowania
                                                          //tzn. jak bardzo bierzemy pod uwage brak zaklasyfikowania
 
                                          "-rp", "93.0", //procent poprawnej klasyfikacji po jakim
