@@ -43,7 +43,7 @@ import java.util.Random;
 public class RandomClass {
     private static double min = 0.0;
     private static double max = 0.0;
-    private static Random rand = new Random(System.currentTimeMillis() + System.nanoTime() + (int)(10000*Math.random()));
+    private static Random rand = new Random();
    
     public static void setMin(double _m){min=_m;}
     public static void setMax(double _m){max=_m;}
@@ -52,7 +52,11 @@ public class RandomClass {
 
     public static double rDouble(){
         double range = max - min;
-        return Math.random()*(rand.nextBoolean()?(range/10.0):(-range/10.0));
+        return rand.nextDouble()*(rand.nextDouble() < 0.5?(range/10.0):(-range/10.0));
+    }
+
+    public static double nextDouble(){
+        return rand.nextDouble();
     }
 
     public static int nextInt(int val,int range){

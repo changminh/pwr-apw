@@ -37,32 +37,40 @@ package apw.classifiers.fuzzyRuleClassifier;
  *
  * @author przemo
  */
-class TriangleSet extends  FuzzySet {
-    private TriangleSet left = null,right = null;
-    private double dValue=0.0;
-    private double zakres ;
+class TriangleSet extends FuzzySet  {
+
+    private TriangleSet left = null,  right = null;
+    private double dValue = 0.0;
+    private double zakres;
 
     public TriangleSet(double zakres) {
         this.zakres = zakres;
-        dValue = Math.random()*zakres;
+        dValue = RandomClass.nextDouble() * zakres + RandomClass.getMin();
     }
 
-    public void correct(){
-        if(this.left == null){
-            return;
+    public void correct() {
+        double dl,dr;
+
+        if (getLeft() != null) {
+            dl = getLeft().getParams()[0];
+        } else {
+            dl = RandomClass.getMin();
         }
 
-        if(left.getParams()[0] >= dValue){
-            dValue = Math.random()*zakres + left.getParams()[0];
+        if (getRight() != null) {
+            dr = getRight().getParams()[0];
+        } else {
+            dr = RandomClass.getMax();
         }
+
+        dValue = (dr - dl) * RandomClass.nextDouble() + dl;
     }
-
 
     @Override
     public void setParam(double... data) {
-        if( data != null){
+        if (data != null) {
             this.dValue = data[0];
-        }else{
+        } else {
             System.err.println("Paramatr funkcji setParam równy null");
         }
     }
@@ -77,28 +85,32 @@ class TriangleSet extends  FuzzySet {
         double[] left_d = null;
         double[] right_d = null;
 
-        if(this.left == null){
-            if(x <= this.dValue){ return 1.0; }
-        }else{
+        if (this.left == null) {
+            if (x <= this.dValue) {
+                return 1.0;
+            }
+        } else {
             left_d = left.getParams();
         }
-        
-        if(this.right == null){
-            if(x >= this.dValue){ return 1.0; }
-        }else{
+
+        if (this.right == null) {
+            if (x >= this.dValue) {
+                return 1.0;
+            }
+        } else {
             right_d = right.getParams();
         }
 
-        if(x < dValue){
-            if(left_d[0] <= x){
-                return (x - left_d[0])/(dValue - left_d[0]);
+        if (x < dValue) {
+            if (left_d[0] <= x) {
+                return (x - left_d[0]) / (dValue - left_d[0]);
             }
-        }else{
-            if(right_d[0] > x){
-                return (right_d[0] - x)/(right_d[0] - dValue);
+        } else {
+            if (right_d[0] > x) {
+                return (right_d[0] - x) / (right_d[0] - dValue);
             }
         }
-        
+
         return 0.0;
     }
 
@@ -106,24 +118,39 @@ class TriangleSet extends  FuzzySet {
     public TriangleSet clone() {
         TriangleSet s = new TriangleSet(this.zakres);
         s.dValue = this.dValue;
-        s.left = this.left;
-        s.right = this.right;
         return s;
     }
 
-    public void setLeft(TriangleSet _left){
+    public void setLeft(TriangleSet _left) {
         this.left = _left;
     }
 
-    public void setRight(TriangleSet _right){
+    public void setRight(TriangleSet _right) {
         this.right = _right;
     }
 
-    public TriangleSet getLeft(){
+    @Override
+    public String toString() {
+        return "Aktywny: " + (isActive() ? 1 : 0) + "; d: " + dValue + ";";
+    }
+
+    @Override
+    public FuzzySet getLeft() {
         return this.left;
     }
 
-    public TriangleSet getRight(){
+    @Override
+    public FuzzySet getRight() {
         return this.right;
+    }
+
+    @Override
+    public void setLeft(FuzzySet s) {
+       this.left = (TriangleSet)s;
+    }
+
+    @Override
+    public void setRight(FuzzySet s) {
+        this.right =  (TriangleSet)s;
     }
 }

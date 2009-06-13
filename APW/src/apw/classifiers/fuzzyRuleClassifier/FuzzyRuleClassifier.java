@@ -221,7 +221,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         super(S);
         samples = this.normalize(S);
         options = new String[]{};
-        double[] m = this.findMinMax(samples);
+        double[] m = findMinMax(samples);
         RandomClass.setMin(m[0]);
         RandomClass.setMax(m[1]);
 
@@ -274,12 +274,11 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
     @Override
     public double[] classifySample(Sample s) {
-
-        if (this.bestResult == null) {
+        if (bestResult == null) {
             return null;
         }
 
-        String result = this.bestResult.classify(s);
+        String result = bestResult.classify(s);
         double[] r = new double[result.length()];
 
         for (int i = 0; i < r.length; i++) {
@@ -308,7 +307,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         try {
             FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier(samples);
             fuzzy.setOptions(getOptions());
-            fuzzy.bestResult = new Genom(this.bestResult);
+            fuzzy.bestResult = new Genom(bestResult);
             return fuzzy;
         } catch (Exception ex) {
             Logger.getLogger(FuzzyRuleClassifier.class.getName()).log(Level.SEVERE, null, ex);
@@ -369,7 +368,8 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         return "Fuzzy Rule Classifier for APW Project, made by Przemek Woś...";
     }
 
-    private ArrayList<Genom> roullet(ArrayList<Genom> x, final int howMany) {
+    private ArrayList<Genom>
+roulette(ArrayList<Genom> x, final int howMany) {
         double E = 0.0;
 
         for (int i = 0; i < x.size(); i++) {
@@ -456,7 +456,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
                     if (result.compareTo(samples.get(j).get(index).toString()) == 0) {
                         gens.get(i).setCorr(gens.get(i).getCorr() + 1);
                     } else {
-                        gens.get(i).setIncorr(gens.get(i).getIncorr() + 1);
+                        gens.get(i).setIncorr(gens.get(i).getInCorr() + 1);
                     }
                 }
             }
@@ -473,13 +473,11 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         ArrayList<Genom> gens = new ArrayList<Genom>();
 
         for (int i = 0; i < defaultNumber; i++) {
-            gens.add(new Genom(this.rulesPerClass, howManyInputs(), howManyClasses()));
+            gens.add(new Genom(rulesPerClass, howManyInputs(), howManyClasses()));
         }
 
         int generation = 0;
         
-        //boolean theBestFound = false;
-
         ArrayList<Genom> parants;
 
         gradeFunction(gens);
@@ -488,12 +486,11 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         Pair<Genom,Integer> resultGen = new Pair<Genom, Integer>(gens.get(0),0);
         
         do {
-
             int size = gens.size() / 2;
-            parants = roullet(gens, size);
+            parants = roulette(gens, size);
 
             for (int i = 0; i < size / 2; i++) {
-                if (Math.random() <= this.crossProb) {
+                if (Math.random() <= crossProb) {
                     Genom o1 = parants.get(2 * i);     //0,2,4
                     Genom o2 = parants.get(2 * i + 1); //1,3,5
                     Genom[] result = o1.crossWith(o2);
@@ -512,42 +509,76 @@ public class FuzzyRuleClassifier extends RuleClassifier {
                 Collections.sort(gens);
                 gens = getNewPapulation(gens, defaultNumber);
 
-                if(resultGen.getFirst().compareTo(gens.get(0))==0){
-                    resultGen.setSecond(resultGen.getSecond().intValue()+1);
+                if(resultGen.getFirst().compareTo(gens.get(0)) == 0){
+                    resultGen.setSecond(resultGen.getSecond().intValue() + 1);
                 }else{
                     resultGen.setFirst(gens.get(0));
                     resultGen.setSecond(0);
                 }
 
             } else {
-                generation = this.maxEpos;
+                generation = maxEpos;
             }
 
-        } while ((++generation < maxEpos) &&
-                    resultGen.getSecond().intValue() < generetionWiat);
-
-        bestResult = gens.get(0);
-
-        /*
-        System.out.println("Pokolenie: " + generation +
+            System.out.println("Pokolenie: " + generation +
                     " Gen: " + 0 +
                     " Corr: " + gens.get(0).getCorr() +
-                    " Incorr: " + gens.get(0).getIncorr() +
+                    " Incorr: " + gens.get(0).getInCorr() +
                     " unClass: " + gens.get(0).getUnClass() +
                     " Rules: " + (int) gens.get(0).getPrem() +
                     " Fsets: " + (int) gens.get(0).getFsets() +
                     " Fitness : " + gens.get(0).fitness() +
                     " Statistic: " + (100.0 * gens.get(0).getCorr() / samples.size()));
-        */
 
+        } while ((++generation < maxEpos) &&
+                    resultGen.getSecond().intValue() < generetionWiat);
+
+        Collections.sort(gens);
+        bestResult = gens.get(0);
+
+        System.out.println("Pokolenie: " + generation +
+                    " Gen: " + 0 +
+                    " Corr: " + gens.get(0).getCorr() +
+                    " Incorr: " + gens.get(0).getInCorr() +
+                    " unClass: " + gens.get(0).getUnClass() +
+                    " Rules: " + (int) gens.get(0).getPrem() +
+                    " Fsets: " + (int) gens.get(0).getFsets() +
+                    " Fitness : " + gens.get(0).fitness() +
+                    " Statistic: " + (100.0 * gens.get(0).getCorr() / samples.size()));
     }
 
     public void printRules(PrintStream out){
-        for(int i=0; i < this.bestResult.getRuleNumber();i++){
+        
+        out.println("Reguly: ");
+
+        for(int i=0; i < bestResult.getRuleNumber();i++){
             if(this.bestResult.getRule(i).contains("Aktywna: 1")){
-                out.println(this.bestResult.getRule(i).toString());
+                out.println(bestResult.getRule(i).toString());
             }
         }
+        
+        out.println("\nZbiory: \n");
+
+        for(int i = 0; i < bestResult.getNumOfSets();i++){
+            String[] _sets = bestResult.getSets(i);
+            
+            if(_sets[0].contains("d:")){
+                out.println("(Typ grupy: 1;");
+            }else{
+                if(_sets[0].contains("dl:")){
+                    out.println("(Typ grupy: 2;");
+                }else{
+                    out.println("(Typ grupy: 0;");
+                }
+            }
+
+            for(int j=0; j < _sets.length; j++){
+                out.println("(" + _sets[j] + ")");
+            }
+            
+            out.println(")\n");
+        }
+
     }
 
 
@@ -559,10 +590,10 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             String[] data = new String[]{"-o", "10",     //liczba osobnikow przypadajaca na populacje
                                          "-r", "5",      //liczba regul przypadajaca na jedna klase
                                          "-f", "5",      //liczba zbiorow rozmytych przypadajaca na jedna grupe
-                                         "-t", "0",      //typ zbiorów 0 - gauss, 1 - trojkatny, 2 - trapezowy
-                                         "-m", "0.05",   //prawdopodobienstwo mutacji
+                                         "-t", "3",      //typ zbiorów 0 - gauss, 1 - trojkatny, 2 - trapezowy 3 - mieszane
+                                         "-m", "0.04",   //prawdopodobienstwo mutacji
                                          "-c", "0.1",    //prawdopodobienstwo krzyzowania
-                                         "-mg","1000",   //maksymalna liczba epok jaka trwa uczenie
+                                         "-mg","10000",   //maksymalna liczba epok jaka trwa uczenie
                                          
                                          "-b", "0.5",    //wspolczynnik beta w funckji oceny
                                                          //tzn. jak bardzo bierzemy pod uwage zle zaklasyfikowania
@@ -577,16 +608,16 @@ public class FuzzyRuleClassifier extends RuleClassifier {
                                          "-z", "0.3",    //wspolczynnik dzeta w funckji oceny
                                                          //tzn. jak bardzo bierzemy pod uwage brak zaklasyfikowania
 
-                                         "-rp", "95.0",  //procent poprawnej klasyfikacji po jakim
+                                         "-rp", "93.0", //procent poprawnej klasyfikacji po jakim
                                                          //osobnik zostanie zakceptowaby jako rozwiazanie
 
                                          "-gw", "500"};  //liczba epok po ktorej,
                                                          ///jesli nic sie nie zmieni, uczenie zostanie przerwane
 
-                                         
-            
+                                        
             fuzzy.setOptions(data);
             fuzzy.buildClassifier();
+            
             fuzzy.printRules(System.out);
 
         } catch (IOException ex) {

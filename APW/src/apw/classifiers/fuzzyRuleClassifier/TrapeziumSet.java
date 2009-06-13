@@ -34,13 +34,16 @@
 package apw.classifiers.fuzzyRuleClassifier;
 
 /**
- *
  * @author  Przemek Woś
  */
-class TrapeziumSet extends  FuzzySet{
 
-    private TrapeziumSet left = null,right = null;
-    private double d1=0.0,d2=0.0;
+class TrapeziumSet extends  FuzzySet{
+    private TrapeziumSet left = null,
+                         right = null;
+    
+    private double d1=0.0,
+                   d2=0.0;
+
     private double zakres;
 
     public TrapeziumSet(double zakres){
@@ -72,21 +75,21 @@ class TrapeziumSet extends  FuzzySet{
 
     @Override
     public double evaluate(double x) {
-        if((x >= this.d1)&&(x <= this.d2)){
+        if((x >= d1)&&(x <= d2)){
             return 1.0;
         }
 
         double left_d=0;
         double right_d=0;
 
-        if(this.left == null){
-            if(x <= this.d2){ return 1.0; }
+        if(left == null){
+            if(x <= d2){ return 1.0; }
         }else{
             left_d = left.getParams()[1];
         }
 
-        if(this.right == null){
-            if(x >= this.d1){ return 1.0; }
+        if(right == null){
+            if(x >= d1){ return 1.0; }
         }else{
             right_d = right.getParams()[0];
         }
@@ -109,19 +112,9 @@ class TrapeziumSet extends  FuzzySet{
         TrapeziumSet s = new TrapeziumSet(this.zakres);
         s.d1 = this.d1;
         s.d2 = this.d2;
-        s.left = this.left;
-        s.right = this.right;
         return s;
     }
     
-    public void setLeft(TrapeziumSet _left){
-        this.left = _left;
-    }
-
-    public void setRight(TrapeziumSet _right){
-        this.right = _right;
-    }
-
     @Override
     public void correct() {
         if(d1 > d2){
@@ -129,12 +122,31 @@ class TrapeziumSet extends  FuzzySet{
             d1=d2;
             d2=tmp;
         }
-
-        if(this.left != null){
-           if(this.left.getParams()[1] >= d1){
-             d1 += this.left.getParams()[1];
-             d2 += this.left.getParams()[1];
-           }
-        }
     }
+
+    @Override
+    public String toString() {
+        return "Aktywny: " + (isActive()?1:0) + "; dl: " + d1 +"; dr: " + d2 + ";";
+    }
+
+    @Override
+    public FuzzySet getLeft() {
+       return this.left;
+    }
+
+    @Override
+    public FuzzySet getRight() {
+        return this.right;
+    }
+    
+    @Override
+    public void setLeft(FuzzySet s) {
+       this.left = (TrapeziumSet)s;
+    }
+
+    @Override
+    public void setRight(FuzzySet s) {
+        this.right =  (TrapeziumSet)s;
+    }
+
 }
