@@ -66,7 +66,8 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     protected double porcent = 100.0;
     protected int generetionWiat = 500;
     protected int maxEpos = 1000;
-
+    protected double rebuildProcent=0;
+    protected double rPro=1;
 
     private static class Utils {
 
@@ -196,23 +197,27 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
         if (data.length() != 0) {
             this.porcent = Double.parseDouble(data);
-            //System.out.println("Procent: " + this.porcent);
+            this.rebuildProcent = this.porcent;
         }
 
         data = Utils.getOption("gw", options);
 
         if (data.length() != 0) {
             this.generetionWiat = Integer.parseInt(data);
-            //System.out.println("Procent: " + this.generetionWiat);
         }
 
         data = Utils.getOption("mg", options);
 
         if (data.length() != 0) {
             this.maxEpos = Integer.parseInt(data);
-            //System.out.println("Procent: " + this.maxEpos);
         }
         
+        data = Utils.getOption("bp", options);
+
+        if (data.length() != 0) {
+            rPro = Double.parseDouble(data);
+        }
+
         this.options = options;
     }
 
@@ -299,7 +304,78 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
     @Override
     public void rebuild() {
-        buildClassifier();
+        if(bestResult == null){return;}
+
+        rebuildProcent += rPro;
+
+        if(rebuildProcent > 100.0){
+            rebuildProcent = 100.0;
+        }
+
+        ArrayList<Genom> gens = new ArrayList<Genom>();
+
+        gens.add(bestResult);
+
+        for (int i = 1; i < defaultNumber; i++) {
+            gens.add(bestResult.mutate());
+        }
+
+        int generation = 0;
+        boolean best = false;
+
+        ArrayList<Genom> parants;
+
+        gradeFunction(gens,rebuildProcent);
+        Collections.sort(gens);
+
+        Pair<Genom,Integer> resultGen = new Pair<Genom, Integer>(gens.get(0),0);
+
+        do {
+            int size = gens.size() / 2;
+            parants = roulette(gens, size);
+
+            for (int i = 0; i < size / 2; i++) {
+                if (Math.random() <= crossProb) {
+                    Genom o1 = parants.get(2 * i);     //0,2,4
+                    Genom o2 = parants.get(2 * i + 1); //1,3,5
+                    Genom[] result = o1.crossWith(o2);
+                    gens.add(result[0]);
+                    gens.add(result[1]);
+                }
+            }
+
+            for (int i = 0; i < gens.size(); i++) {
+                if (Math.random() <= mutationProb) {
+                    gens.add(gens.get(i).mutate());
+                }
+            }
+
+            if (!gradeFunction(gens,rebuildProcent)) {
+                Collections.sort(gens);
+                gens = getNewPapulation(gens, defaultNumber);
+
+                if(resultGen.getFirst().compareTo(gens.get(0)) == 0){
+                    resultGen.setSecond(resultGen.getSecond().intValue() + 1);
+                }else{
+                    resultGen.setFirst(gens.get(0));
+                    resultGen.setSecond(0);
+                }
+
+            } else {
+                generation = maxEpos;
+                best = true;
+            }
+
+        } while ((++generation < maxEpos) &&
+                    resultGen.getSecond().intValue() < generetionWiat);
+
+
+        if(!best){
+            this.rebuildProcent -= this.rPro;
+        }
+
+        Collections.sort(gens);
+        bestResult = gens.get(0);
     }
 
     @Override
@@ -368,8 +444,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         return "Fuzzy Rule Classifier for APW Project, made by Przemek Woś...";
     }
 
-    private ArrayList<Genom>
-roulette(ArrayList<Genom> x, final int howMany) {
+    private ArrayList<Genom> roulette(ArrayList<Genom> x, final int howMany) {
         double E = 0.0;
 
         for (int i = 0; i < x.size(); i++) {
@@ -439,7 +514,7 @@ roulette(ArrayList<Genom> x, final int howMany) {
         return new double[]{min, max};
     }
 
-    private boolean gradeFunction(ArrayList<Genom> gens) {
+    private boolean gradeFunction(ArrayList<Genom> gens, final double pr) {
         for (int i = 0; i < gens.size(); i++) {
             gens.get(i).setCorr(0);
             gens.get(i).setIncorr(0);
@@ -461,7 +536,7 @@ roulette(ArrayList<Genom> x, final int howMany) {
                 }
             }
 
-            if(((gens.get(i).getCorr()/samples.size())*100.0) >= porcent){
+            if(((gens.get(i).getCorr()/samples.size())*100.0) >= pr){
                 return true;
             }
             
@@ -480,7 +555,7 @@ roulette(ArrayList<Genom> x, final int howMany) {
         
         ArrayList<Genom> parants;
 
-        gradeFunction(gens);
+        gradeFunction(gens,this.porcent);
         Collections.sort(gens);
 
         Pair<Genom,Integer> resultGen = new Pair<Genom, Integer>(gens.get(0),0);
@@ -505,7 +580,7 @@ roulette(ArrayList<Genom> x, final int howMany) {
                 }
             }
 
-            if (!gradeFunction(gens)) {
+            if (!gradeFunction(gens,this.porcent)) {
                 Collections.sort(gens);
                 gens = getNewPapulation(gens, defaultNumber);
 
@@ -582,8 +657,10 @@ roulette(ArrayList<Genom> x, final int howMany) {
                                          "-r", "5",      //liczba regul przypadajaca na jedna klase
                                          "-f", "5",      //liczba zbiorow rozmytych przypadajaca na jedna grupe
                                          "-t", "0",      //typ zbiorów 0 - gauss, 1 - trojkatny, 2 - trapezowy 3 - mieszane
-                                         "-m", "0.04",   //prawdopodobienstwo mutacji
+                                         "-m", "0.4",    //prawdopodobienstwo mutacji
                                          "-c", "0.1",    //prawdopodobienstwo krzyzowania
+                                         "-bp", "50",     //procent o jaki ma sie zwiekszyc poprawne klasyfikoanie zbioru uczacego
+                                                         //gdy wywolamy metode rebuid
                                          "-mg","10000",  //maksymalna liczba epok jaka trwa uczenie
                                          
                                          "-b", "0.5",    //wspolczynnik beta w funckji przystosowania
@@ -599,7 +676,7 @@ roulette(ArrayList<Genom> x, final int howMany) {
                                          "-z", "0.3",    //wspolczynnik dzeta w funckji przystosowania
                                                          //tzn. jak bardzo bierzemy pod uwage brak zaklasyfikowania
 
-                                         "-rp", "93.0",  //procent poprawnej klasyfikacji po jakim
+                                         "-rp", "50.0",  //procent poprawnej klasyfikacji po jakim
                                                          //osobnik zostanie zakceptowany jako rozwiazanie
 
                                          "-gw", "500"};  //liczba epok po ktorej,
@@ -610,6 +687,9 @@ roulette(ArrayList<Genom> x, final int howMany) {
             System.out.println("Zaczynamy uczenie( to moze chwile potrwac :) )" );
             fuzzy.buildClassifier();
             System.out.println("Wynik: ");
+            fuzzy.printRules(System.out);
+            System.out.println("Trenujemy dalej...)" );
+            fuzzy.rebuild();
             fuzzy.printRules(System.out);
 
         } catch (IOException ex) {
