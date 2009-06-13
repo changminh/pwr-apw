@@ -46,7 +46,17 @@ abstract class FuzzySet {
     public abstract void setParam(double... data);
     public abstract double[] getParams();
     public abstract double evaluate(double value);
+    public abstract void correct();
+    public abstract FuzzySet getLeft();
+    public abstract FuzzySet getRight();
+
+    public abstract void setLeft(FuzzySet s);
+    public abstract void setRight(FuzzySet s);
+
+    @Override
+    public abstract String toString();
+
     @Override
     public abstract FuzzySet clone();
-    public abstract void correct();
+
 }

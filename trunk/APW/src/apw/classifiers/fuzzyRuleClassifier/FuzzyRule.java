@@ -121,7 +121,10 @@ public class FuzzyRule {
     private int findNearest(FuzzySet[] _sets,int index){
         int i1=Integer.MAX_VALUE,
             i2=Integer.MAX_VALUE;
-        
+
+        if(index+1 < _sets.length){i1=0;}
+        if(index-1 > -1){i2=0;}
+
         for(int i=index+1; i < _sets.length; i++){
             if(_sets[i].isActive()){
                 i1++; break;

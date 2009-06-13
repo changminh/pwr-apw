@@ -42,11 +42,13 @@ public class GaussFuzzySet extends FuzzySet{
     private double dValue=0,
                    sigma=0;
 
+    //private static Random rand = new Random((int)(Math.random()*10000));
     private double zakres;
 
     public GaussFuzzySet(double zakres){
        this.zakres = zakres;
-       dValue = Math.random()*zakres;
+       dValue = RandomClass.nextDouble()*zakres;
+        //System.out.println("dv "+dValue +"  _  "+this.zakres);
        sigma  = Math.pow(zakres,2)/400.0;
     }
 
@@ -56,7 +58,7 @@ public class GaussFuzzySet extends FuzzySet{
             dValue = data[0];
             sigma  = data[1];
         }else{
-             System.err.println("Paramatr funkcji setParam równy null albo mniejszt rowny 1");
+            System.err.println("Paramatr funkcji setParam równy null albo mniejszt rowny 1");
         }
     }
 
@@ -72,14 +74,38 @@ public class GaussFuzzySet extends FuzzySet{
 
     @Override
     public GaussFuzzySet clone() {
-        GaussFuzzySet s = new GaussFuzzySet(this.zakres);
+        GaussFuzzySet s = new GaussFuzzySet(zakres);
         s.dValue = this.dValue;
         s.sigma = this.sigma;
         return s;
     }
 
     @Override
-    public void correct() {
+    public void correct() {}
+
+    @Override
+    public String toString() {
+        return "Aktywny: " + (isActive()?1:0) + "; d : " + dValue +"; s: " + sigma + ";";
+    }
+
+    @Override
+    public FuzzySet getLeft() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public FuzzySet getRight() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public void setLeft(FuzzySet s) {
+       //this.left = (GaussFuzzySet)s;
+    }
+
+    @Override
+    public void setRight(FuzzySet s) {
+        //this.right =  (GaussFuzzySet)s;
     }
 
 }
