@@ -595,6 +595,16 @@ public class FuzzyRuleClassifier extends RuleClassifier {
                 generation = maxEpos;
             }
 
+             System.out.println("Pokolenie: " + generation +
+                    " Gen: " + 0 +
+                    " Corr: " + gens.get(0).getCorr() +
+                    " Incorr: " + gens.get(0).getInCorr() +
+                    " unClass: " + gens.get(0).getUnClass() +
+                    " Rules: " + (int) gens.get(0).getPrem() +
+                    " Fsets: " + (int) gens.get(0).getFsets() +
+                    " Fitness : " + gens.get(0).fitness() +
+                    " Statistic: " + (100.0 * gens.get(0).getCorr() / samples.size()));
+
         } while ((++generation < maxEpos) &&
                     resultGen.getSecond().intValue() < generetionWiat);
 
@@ -651,15 +661,15 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     public static void main(String[] arg) {
 
         try {
-            FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("d:/svm/data/iris.arff");
+            FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("c:/svm/data/wine.arff");
 
             String[] data = new String[]{"-o", "10",     //liczba osobnikow przypadajaca na populacje
                                          "-r", "5",      //liczba regul przypadajaca na jedna klase
                                          "-f", "5",      //liczba zbiorow rozmytych przypadajaca na jedna grupe
                                          "-t", "0",      //typ zbiorów 0 - gauss, 1 - trojkatny, 2 - trapezowy 3 - mieszane
-                                         "-m", "0.4",    //prawdopodobienstwo mutacji
-                                         "-c", "0.1",    //prawdopodobienstwo krzyzowania
-                                         "-bp", "50",     //procent o jaki ma sie zwiekszyc poprawne klasyfikoanie zbioru uczacego
+                                         "-m", "0.7",    //prawdopodobienstwo mutacji
+                                         "-c", "0.5",    //prawdopodobienstwo krzyzowania
+                                         "-bp", "50",    //procent o jaki ma sie zwiekszyc poprawne klasyfikoanie zbioru uczacego
                                                          //gdy wywolamy metode rebuid
                                          "-mg","10000",  //maksymalna liczba epok jaka trwa uczenie
                                          
@@ -676,7 +686,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
                                          "-z", "0.3",    //wspolczynnik dzeta w funckji przystosowania
                                                          //tzn. jak bardzo bierzemy pod uwage brak zaklasyfikowania
 
-                                         "-rp", "50.0",  //procent poprawnej klasyfikacji po jakim
+                                         "-rp", "95.0",  //procent poprawnej klasyfikacji po jakim
                                                          //osobnik zostanie zakceptowany jako rozwiazanie
 
                                          "-gw", "500"};  //liczba epok po ktorej,

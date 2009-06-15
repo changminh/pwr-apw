@@ -83,16 +83,17 @@ class TrapeziumSet extends  FuzzySet{
         double right_d=0;
 
         if(left == null){
-            if(x <= d2){ return 1.0; }
+            if(x < d1){ return 1.0; }
         }else{
             left_d = left.getParams()[1];
         }
 
         if(right == null){
-            if(x >= d1){ return 1.0; }
+            if(x > d2){ return 1.0; }
         }else{
             right_d = right.getParams()[0];
         }
+
 
         if(x < d1){
             if(left_d <= x){
@@ -103,7 +104,7 @@ class TrapeziumSet extends  FuzzySet{
                 return (right_d - x)/(right_d - d2);
             }
         }
-
+        
         return 0.0;
     }
 
