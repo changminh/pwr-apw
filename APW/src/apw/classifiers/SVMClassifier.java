@@ -194,6 +194,8 @@ public class SVMClassifier extends Classifier {
         double length;
         Samples _samples = new Samples(nSamples.getAtts());
 
+       // System.out.println(nSamples.getAtts());
+
         for (int i = 0; i < nSamples.size(); i++) {
             length = 0.0;
             int size = nSamples.get(i).size() - 1;
@@ -212,17 +214,20 @@ public class SVMClassifier extends Classifier {
                 data /= length;
                 String str = Double.toString(data);
                 Object obj = nSamples.getAtts().get(j).getRepresentation(str);
+              
                 list.add(obj);
             }
 
             Object obj = nSamples.getAtts().get(size).
                     getRepresentation(nSamples.get(i).get(size).toString());
 
+            
             list.add(obj);
-
             Sample newSample = new Sample(new Samples(nSamples.getAtts()), list.toArray());
-            // System.err.println(newSample);
+    
             _samples.add(newSample);
+
+           
         }
 
         return _samples;
@@ -360,27 +365,36 @@ public class SVMClassifier extends Classifier {
      */
     protected String samplesToSparse(Sample sample) {
         String line = new String();
+       
+        Object _c = samples.getAtts().get(sample.size()-1).
+                               getRepresentation(sample.get(sample.size()-1).toString());
 
-        int c = (int) Double.parseDouble(sample.classAttributeRepr().toString());
+        double c = Double.parseDouble(_c.toString());
 
-        if (c == 0) {
-            c = -1;
-        }
+        //if(c == 0.0){
+        //   c = -1.0;
+        //}
+
+        c-=1.0;
 
         line = c + " ";
         for (int j = 1; j < sample.size(); j++) {
-            int tmpI = (int) Double.parseDouble(sample.classAttributeRepr().toString());
-            if (j - 1 == tmpI) {
-                continue;
-            }
+            //int tmpI = (int) Double.parseDouble(sample.classAttributeRepr().toString());
+            
+            //System.out.println(tmpI);
 
-            double value = Double.parseDouble(sample.get(j - 1).toString());
+            //if (j - 1 == tmpI) {
+               // continue;
+            //}
+
+            double value = Double.parseDouble(sample.get(j-1).toString());
 
             if (value != 0.0) {
                 line += " " + j + ":" + value;
             }
         }
-        // System.out.println(line);
+
+       // System.out.println(line);
         return (line + "\n");
     }
 
@@ -420,7 +434,12 @@ public class SVMClassifier extends Classifier {
         }
 
         Vector sparseData = new Vector();
+        Vector vy = new Vector();
+        //Vector vx = new Vector();
+
         sparseData.add(samplesToSparse(s));
+
+        //System.out.println(sparseData.toString());
 
         if (samples.get(0).size() == s.size()) {
             svm_node[] x = null;
@@ -428,7 +447,10 @@ public class SVMClassifier extends Classifier {
             for (int d = 0; d < sparseData.size(); d++) {
                 String line = (String) sparseData.get(d);
 
+                //System.out.println("Wektor wejsciowy: " + line);
+
                 StringTokenizer st = new StringTokenizer(line, " \t\n\r\f:");
+                vy.addElement(st.nextToken());
 
                 int m = st.countTokens() / 2;
                 x = new svm_node[m];
@@ -436,7 +458,9 @@ public class SVMClassifier extends Classifier {
                     x[j] = new svm_node();
                     x[j].index = atoi(st.nextToken());
                     x[j].value = atof(st.nextToken());
+                    //System.out.print(x[j].index + ":" + x[j].value + " ");
                 }
+                //vx.addElement(x);
             }
 
             return new double[]{svm.svm_predict(model, x)};
@@ -477,7 +501,8 @@ public class SVMClassifier extends Classifier {
             if (getDebug()) {
                 System.err.println("Normalizing...");
             }
-            _samples = normalize(samples);
+            _samples = samples = normalize(samples);
+            //_samples = samples;
         }else{
             if(this.normalize != 0){
                 System.err.println("Not defined value for normailizing...");
@@ -509,7 +534,9 @@ public class SVMClassifier extends Classifier {
                 x[j] = new svm_node();
                 x[j].index = atoi(st.nextToken());
                 x[j].value = atof(st.nextToken());
+                //System.out.print(x[j].index + ":" + x[j].value + " ");
             }
+            //System.out.println();
             if (m > 0) {
                 max_index = Math.max(max_index, x[m - 1].index);
             }
@@ -579,8 +606,14 @@ public class SVMClassifier extends Classifier {
             svm.setDebug(true);
             svm.buildClassifier();
 
-            double[] data = svm.classifySample(svm.getSample(0));
-            System.out.println(svm.interprate(data));
+
+            int x = 100;
+            int index = svm.samples.size()-x;
+            double[] data = svm.classifySample(svm.getSample(index));
+            String res = svm.getSample(index).get(svm.getSample(index).size()-1).toString();
+            
+         
+            System.out.println("Wynik(Powinno byc " + res+"): " + svm.interprate(data));
 
         } catch (IOException ex) {
             Logger.getLogger(SVMClassifier.class.getName()).log(Level.SEVERE, null, ex);

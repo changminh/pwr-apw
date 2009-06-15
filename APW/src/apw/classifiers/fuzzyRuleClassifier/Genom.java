@@ -232,9 +232,6 @@ class Genom implements Comparable<Genom> {
                 fs[index].setActive(true);
             }
         }
-
-    //this.setPrem();
-    //this.setFsets();
     }
 
     public double getInCorr() {
@@ -321,9 +318,6 @@ class Genom implements Comparable<Genom> {
     public double fitness() {
         double result = corr * (beta * k(incorr) + dzeta * k(unclass)) + delta * k(prem) + eps * k(fsets);
         return result;
-    }
-
-    public void sort(FuzzySet[] data) {
     }
 
     Genom mutate() {
