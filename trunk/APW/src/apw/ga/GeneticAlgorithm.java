@@ -77,7 +77,7 @@ import java.util.Random;
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-final class GeneticAlgorithm {
+public final class GeneticAlgorithm {
 
     int populationSize;
     double crossoverProb, mutationProb;
