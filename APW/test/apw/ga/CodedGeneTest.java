@@ -47,11 +47,10 @@ public class CodedGeneTest {
     public CodedGeneTest() {
     }
     // GeneticAlgorithm c = new GeneticAlgorithm(5);
-    GeneticAlgorithm c = GeneticAlgorithm.builder().
-            gene(5, true).
-            gene(5, true).
-            build();
-
+    GeneticAlgorithm c = GeneticAlgorithm.defineGenotype().
+            integer(5, true).
+            integer(5, true).
+            endDefinition();
     GeneticAlgorithm.Chromosome bs = c.p[0];
 
     @Test
@@ -75,12 +74,12 @@ public class CodedGeneTest {
 
     @Test
     public void builderTest() {
-        GeneticAlgorithm cd = GeneticAlgorithm.builder().
-                gene(7, true).
-                gene(5, true).
-                gene(5, true).
-                populationSize(1).
-                build();
+        GeneticAlgorithm cd = GeneticAlgorithm.defineGenotype().
+                integer(7, true).
+                integer(5, true).
+                integer(5, true).
+                endDefinition().
+                populationSize(1);
         GeneticAlgorithm.Chromosome b = cd.p[0];
 
         for (int i = 0; i <= 31; i++) {
@@ -98,10 +97,10 @@ public class CodedGeneTest {
     public void testSimulatedRealUsage() {
         int bits = 30;
         int limit = 1 << bits;
-        GeneticAlgorithm cd = GeneticAlgorithm.builder().
-                gene(1, false).
-                gene(bits, true).
-                build();
+        GeneticAlgorithm cd = GeneticAlgorithm.defineGenotype().
+                integer(1, false).
+                integer(bits, true).
+                endDefinition();
         Random r = new Random(System.currentTimeMillis());
         int l = 0, b = 0, i;
         cd.encode(bs, b, 0);
@@ -131,10 +130,9 @@ public class CodedGeneTest {
         int bits = 2;
         double delta = 25d;
         double maxError = 0;
-        GeneticAlgorithm cd = GeneticAlgorithm.builder().
-                gene(bits, true).
-                range(minValue, maxValue).
-                build();
+        GeneticAlgorithm cd = GeneticAlgorithm.defineGenotype().
+                numeric(bits, true, minValue, maxValue).
+                endDefinition();
         Random r = new Random(System.currentTimeMillis());
         double l = 0, dif = 0;
         int i;
@@ -147,7 +145,8 @@ public class CodedGeneTest {
             }
             cd.decodeDouble(bs, 0);
             dif = l - cd.decodeDouble(bs, 0);
-            if (maxError < dif) maxError = dif;
+            if (maxError < dif)
+                maxError = dif;
             assertEquals(l, cd.decodeDouble(bs, 0), delta);
         }
         System.out.println("Properly simulated double " + i +

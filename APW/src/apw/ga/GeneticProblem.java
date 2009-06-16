@@ -59,8 +59,8 @@ public class GeneticProblem {
         GeneticAlgorithm. /** Simple GA solution:
                 /**Begin genotype definition          */
                 defineGenotype().
-                numeric(2, true, -1, 1).        // define 2 numeric genes Gray
-                numeric(2, true, -1, 1).        // coded on 2 bits in range (-1,1)
+                numeric(20, true, -1, 1).       // define 2 numeric genes Gray
+                numeric(20, true, -1, 1).       // coded on 20 bits in range (-1,1)
                 endDefinition().                // GA definition end
                 /** Genotype defined, proceed to       */
                 /** GA simulation parameter definition */
