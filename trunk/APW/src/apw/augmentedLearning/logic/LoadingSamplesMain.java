@@ -105,7 +105,7 @@ public class LoadingSamplesMain {
 
     public void step4() {
         step3.dispose();
-        RuleAquisition aquisition = new RuleAquisition(this);
+        RuleAcquisition aquisition = new RuleAcquisition(this);
         aquisition.doJob();
     }
 

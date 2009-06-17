@@ -1,20 +1,23 @@
 package apw.augmentedLearning.logic;
 
+import apw.augmentedLearning.gui.ComplexCreatorFrame;
 import apw.augmentedLearning.gui.ProgressIndicator;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author Nitric
  */
-public class RuleAquisition {
+public class RuleAcquisition {
     private LoadingSamplesMain advisor;
     private HashSet<Integer> accessorsToBeRemoved = new HashSet<Integer>();
     private HashSet<Integer> accessors;
@@ -33,8 +36,9 @@ public class RuleAquisition {
     private ArrayList<Integer> validSamples = new ArrayList<Integer>();
     private HashSet<Integer> bannedSamples;
     private HashSet<Integer> samplesWithNull;
+    private boolean hasToWait = false;
 
-    public RuleAquisition(LoadingSamplesMain advisor) {
+    public RuleAcquisition(LoadingSamplesMain advisor) {
         this.advisor = advisor;
         accessors = advisor.getTermsAccessors();
         dataFile = advisor.getDataFile();
@@ -59,7 +63,7 @@ public class RuleAquisition {
      * Knowledge Augmented AQ Algorithm
      */
     public void kaaqa() {
-        // Remove samples, which are covered by the rules inserted by the expert:
+        // Remove samples, which are covered by the rules given by the expert:
         Rule tempRule;
         int count = 0;
         for (int i = 0; i < rawData.length; i++)
@@ -86,7 +90,7 @@ public class RuleAquisition {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(RuleAquisition.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(RuleAcquisition.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 throw new RuntimeException("Huston, we have a problem...");
             }
@@ -102,7 +106,7 @@ public class RuleAquisition {
             bw.write(sb.toString());
             bw.close();
         } catch (IOException ex) {
-            Logger.getLogger(RuleAquisition.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RuleAcquisition.class.getName()).log(Level.SEVERE, null, ex);
         }
         // Check the rules correctness (?)
         outer:
@@ -117,7 +121,9 @@ public class RuleAquisition {
                             .getSelector(classAttrId));
                 }
             }
+            System.out.println("");
         }
+        acquireRulesForRestSamples();
         System.out.println("Dziękujemy, zapraszamy ponownie.");
     }
     
@@ -355,7 +361,6 @@ public class RuleAquisition {
             currentSample = dataFile.getRawObjects()[sampleID];
             theSameClass = ((String)currentSample[classAttrId]).equals(currentPositiveSeedCategory);
             for (int complexId = 0; complexId < star.size(); complexId++) {
-                // info = prolog.solve(new Struct(complexNamePrefix + complexId, currentSample));
                 if (star.get(complexId).covers(currentSample)) {
                     if (theSameClass) {
                         positiveSamplesCovered[complexId]++;
@@ -384,7 +389,7 @@ public class RuleAquisition {
         // System.out.println("");
         // Choose the best complexes:
         Double max;
-        int index = 0;                                                          // ??!!11/?!??    -1!
+        int index = 0;                                                          
         ArrayList<Integer> best = new ArrayList<Integer>();
         for (int i = 0; i < maxComplexes; i++) {
             max = -1.d;
@@ -425,6 +430,65 @@ public class RuleAquisition {
                     System.exit(-1);
                 }
             }
+        }
+    }
+
+    public void acquireRulesForRestSamples() {
+        if (accessors.size() < 1)
+            return;
+        int answer = JOptionPane.showConfirmDialog(
+                null,
+                "Pozostało " + accessors.size() + " niepokrytych przykładów. " + "Czy chcesz wprowadzić dla nich swoje reguły?",
+                "Pozostały niepokryte przykłady",
+                JOptionPane.YES_NO_OPTION);
+        if (answer == JOptionPane.NO_OPTION)
+            return;
+
+        Iterator<Integer> iter = accessors.iterator();
+        int current;
+        while (iter.hasNext()) {
+            System.out.print("Krotka: ");
+            for (Object o : rawData[current = iter.next()])
+                System.out.print(o + " ");
+            System.out.println("");
+            new RuleCreatorThread(dataFile, current).start();
+            try {
+                waitForResponse();
+            }
+            catch (InterruptedException ex) {
+                System.err.println("Oh, it's not polite to disturb!");
+            }
+        }
+    }
+
+    public synchronized void addComplex(Complex c, int i) {
+        hasToWait = false;
+        notifyAll();
+    }
+
+    private synchronized void waitForResponse() throws InterruptedException {
+        hasToWait = true;
+        while (hasToWait)
+            wait();
+    }
+
+    class RuleCreatorThread extends Thread {
+        DataFile dataFile;
+        int currentSample;
+
+        public RuleCreatorThread(DataFile dataFile, int currentSample) {
+            this.dataFile = dataFile;
+            this.currentSample = currentSample;
+        }
+
+        @Override
+        public void run() {
+            java.awt.EventQueue.invokeLater(
+                new Runnable() {
+                    public void run() {
+                        new ComplexCreatorFrame(dataFile, currentSample, RuleAcquisition.this).setVisible(true);
+                    }
+            });
         }
     }
 }

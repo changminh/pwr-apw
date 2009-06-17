@@ -35,6 +35,12 @@ public class SelectorForNumberCreatorPanel extends SelectorCreatorPanel {
         jl_attributeName.setText(attributesName);
     }
 
+
+    @Override
+    public void setEnabled(boolean b) {
+        jcb_operator.setEnabled(b);
+    }
+
     public SelectorForNumber getSelector() throws NumberFormatException {
         switch((SelectorTypeForNumbers)jcb_operator.getSelectedItem()) {
             case ALL_VALUES:
