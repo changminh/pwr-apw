@@ -68,6 +68,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     protected int maxEpos = 1000;
     protected double rebuildProcent=0;
     protected double rPro=1;
+    protected boolean normilize=false;
 
     private static class Utils {
 
@@ -204,6 +205,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
         if (data.length() != 0) {
             this.generetionWiat = Integer.parseInt(data);
+            //System.out.println(data);
         }
 
         data = Utils.getOption("mg", options);
@@ -218,13 +220,19 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             rPro = Double.parseDouble(data);
         }
 
+        data = Utils.getOption("N", options);
+
+        if (data.length() != 0) {
+            this.normilize = (Integer.parseInt(data) == 0)?false:true;
+        }
+
         this.options = options;
     }
 
     //************************* constructors *********************************
     public FuzzyRuleClassifier(Samples S) {
         super(S);
-        samples = this.normalize(S);
+        samples = S;
         options = new String[]{};
         double[] m = findMinMax(samples);
         RandomClass.setMin(m[0]);
@@ -270,11 +278,17 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     @Override
     public void addSamples(Samples s) {
         this.samples.addAll(s);
+        if(this.normilize == true){
+            this.samples = this.normalize(samples);
+        }
     }
 
     @Override
     public void addSample(Sample s) {
         this.samples.add(s);
+        if(this.normilize == true){
+            this.samples = this.normalize(samples);
+        }
     }
 
     @Override
@@ -284,13 +298,17 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         }
 
         String result = bestResult.classify(s);
-        double[] r = new double[result.length()];
 
-        for (int i = 0; i < r.length; i++) {
-            r[i] = (double) (result.charAt(i));
+        if(result != null){
+            double[] r = new double[result.length()];
+
+            for (int i = 0; i < r.length; i++) {
+                r[i] = (double) (result.charAt(i));
+            }
+            return r;
         }
-
-        return r;
+        
+        return null;
     }
 
     public String interprate(double[] data) {
@@ -536,7 +554,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
                 }
             }
 
-            if(((gens.get(i).getCorr()/samples.size())*100.0) >= pr){
+            if( (gens.get(i).getCorr()*100.0)/samples.size() >= pr){
                 return true;
             }
             
@@ -545,6 +563,11 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     }
 
     public void buildClassifier() {
+
+        if(this.normilize == true){
+            this.samples = this.normalize(samples);
+        }
+
         ArrayList<Genom> gens = new ArrayList<Genom>();
 
         for (int i = 0; i < defaultNumber; i++) {
@@ -559,7 +582,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         Collections.sort(gens);
 
         Pair<Genom,Integer> resultGen = new Pair<Genom, Integer>(gens.get(0),0);
-        
+
         do {
             int size = gens.size() / 2;
             parants = roulette(gens, size);
@@ -584,7 +607,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
                 Collections.sort(gens);
                 gens = getNewPapulation(gens, defaultNumber);
 
-                if(resultGen.getFirst().compareTo(gens.get(0)) == 0){
+                if(comapre(resultGen.getFirst(), gens.get(0))){
                     resultGen.setSecond(resultGen.getSecond().intValue() + 1);
                 }else{
                     resultGen.setFirst(gens.get(0));
@@ -594,17 +617,18 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             } else {
                 generation = maxEpos;
             }
-
+/*
              System.out.println("Pokolenie: " + generation +
-                    " Gen: " + 0 +
-                    " Corr: " + gens.get(0).getCorr() +
-                    " Incorr: " + gens.get(0).getInCorr() +
-                    " unClass: " + gens.get(0).getUnClass() +
-                    " Rules: " + (int) gens.get(0).getPrem() +
-                    " Fsets: " + (int) gens.get(0).getFsets() +
-                    " Fitness : " + gens.get(0).fitness() +
-                    " Statistic: " + (100.0 * gens.get(0).getCorr() / samples.size()));
-
+                    "; Gen: " + 0 +
+                    "; Corr: " + gens.get(0).getCorr() +
+                    "; Incorr: " + gens.get(0).getInCorr() +
+                    "; unClass: " + gens.get(0).getUnClass() +
+                    "; Rules: " + (int) gens.get(0).getPrem() +
+                    "; Fsets: " + (int) gens.get(0).getFsets() +
+                    "; Fitness : " + gens.get(0).fitness() +
+                    "; Statistic: " + (100.0 * gens.get(0).getCorr() / samples.size()));
+*/
+            System.err.print("*");
         } while ((++generation < maxEpos) &&
                     resultGen.getSecond().intValue() < generetionWiat);
 
@@ -612,16 +636,28 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         bestResult = gens.get(0);
 /*
         System.out.println("Pokolenie: " + generation +
-                    " Gen: " + 0 +
-                    " Corr: " + gens.get(0).getCorr() +
-                    " Incorr: " + gens.get(0).getInCorr() +
-                    " unClass: " + gens.get(0).getUnClass() +
-                    " Rules: " + (int) gens.get(0).getPrem() +
-                    " Fsets: " + (int) gens.get(0).getFsets() +
-                    " Fitness : " + gens.get(0).fitness() +
-                    " Statistic: " + (100.0 * gens.get(0).getCorr() / samples.size()));
- */
+                    "; Gen: " + 0 +
+                    "; Corr: " + gens.get(0).getCorr() +
+                    "; Incorr: " + gens.get(0).getInCorr() +
+                    "; unClass: " + gens.get(0).getUnClass() +
+                    "; Rules: " + (int) gens.get(0).getPrem() +
+                    "; Fsets: " + (int) gens.get(0).getFsets() +
+                    "; Fitness : " + gens.get(0).fitness() +
+                    "; Statistic: " + (100.0 * gens.get(0).getCorr() / samples.size()));
+*/
     }
+
+    private boolean comapre(Genom a,Genom b){
+        boolean class1 = a.getCorr()    == b.getCorr();
+        boolean class2 = a.getInCorr()  == b.getInCorr();
+        boolean class3 = a.getUnClass() == b.getUnClass();
+        boolean class4 = a.getFsets()   == b.getFsets();
+        boolean class5 = a.getPrem()    == b.getPrem();
+        
+        return class1 && class2 && class3 && class4 && class5;
+    }
+
+
 
     public void printRules(PrintStream out){
         

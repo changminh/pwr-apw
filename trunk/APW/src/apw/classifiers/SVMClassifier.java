@@ -59,7 +59,7 @@ public class SVMClassifier extends Classifier {
 
     protected Samples samples = null;
     protected svm_parameter param;  // LibSVM oprions
-    protected int normalize=0;        // normalize input data
+    protected int normalize=0;      // normalize input data
     protected svm_problem prob;     // LibSVM Problem
     protected svm_model model;      // LibSVM Model
     protected String error_msg;
@@ -463,6 +463,8 @@ public class SVMClassifier extends Classifier {
                 //vx.addElement(x);
             }
 
+            System.out.print(svm.svm_predict(model, x));
+
             return new double[]{svm.svm_predict(model, x)};
         }
         return null;
@@ -584,13 +586,11 @@ public class SVMClassifier extends Classifier {
 
             String[] ops = {new String("-t"),
                 dataFile,
-                new String("-x"), // 5 folds CV
-                new String("5"),
-                new String("-i"), //
+                
                 new String("-S"), // WLSVM options
                 new String("0"),  // Classification problem
                 new String("-K"), // RBF kernel
-                new String("2"),
+                new String("0"),
                 new String("-G"), // gamma
                 new String("1"),
                 new String("-C"), // C

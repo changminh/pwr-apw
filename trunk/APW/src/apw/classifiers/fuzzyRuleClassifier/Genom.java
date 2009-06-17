@@ -138,7 +138,7 @@ class Genom implements Comparable<Genom> {
                         for (int j = 1; j < _set.length - 1; j++) {
                             _set[j].setLeft(_set[j - 1]);
                             _set[j].setRight(_set[j + 1]); // 2,3,4,5,6,7
-                            _set[j].setParam(liczby.get(2 * i), liczby.get(2 * i + 1));
+                            _set[j].setParam(liczby.get(2 * j), liczby.get(2 * j + 1));
                         }
 
                         _set[_set.length - 1].setLeft(_set[_set.length - 2]);
