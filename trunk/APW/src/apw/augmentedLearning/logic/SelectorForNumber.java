@@ -15,13 +15,12 @@ public class SelectorForNumber extends Selector {
     protected double lowerLimit;
     protected double upperLimit;
     protected double delta = 0.001;
-    // TODO: Zabezpieczyć przed nieprawidłowymi zmianami!
     
-    public double getLowerLimit() {
+    protected double getLowerLimit() {
         return lowerLimit;
     }
     
-    public void setLowerLimit(double lowerLimit) {
+    protected void setLowerLimit(double lowerLimit) {
         this.lowerLimit = lowerLimit;
     }
 
@@ -29,7 +28,7 @@ public class SelectorForNumber extends Selector {
         return type;
     }
 
-    public void setType(SelectorTypeForNumbers type) {
+    protected void setType(SelectorTypeForNumbers type) {
         this.type = type;
     }
 
@@ -37,7 +36,7 @@ public class SelectorForNumber extends Selector {
         return upperLimit;
     }
 
-    public void setUpperLimit(double upperLimit) {
+    protected void setUpperLimit(double upperLimit) {
         this.upperLimit = upperLimit;
     }
 
@@ -59,29 +58,9 @@ public class SelectorForNumber extends Selector {
         );
     }
 
-    /* public static SelectorForNumber getSelGE(int attributeId, boolean isNegated, double lowerLimit) {
-        return new SelectorForNumber(
-                attributeId,
-                isNegated, 
-                SelectorTypeForNumbers.GREATER_OR_EQUAL,
-                lowerLimit,
-                Double.POSITIVE_INFINITY
-        );
-    } */
-
     public static SelectorForNumber getSelEQ(int attributeId, double value) {
         return new SelectorForNumber(attributeId, SelectorTypeForNumbers.EQUAL, value, value);
     }
-
-    /* public static SelectorForNumber getSelLT(int attributeId, boolean isNegated, double upperLimit) {
-        return new SelectorForNumber(
-                attributeId,
-                isNegated, 
-                SelectorTypeForNumbers.LOWER_THAN,
-                Double.NEGATIVE_INFINITY,
-                upperLimit
-        );
-    } */
 
     public static SelectorForNumber getSelLE(int attributeId, double upperLimit) {
         return new SelectorForNumber(
@@ -340,6 +319,8 @@ public class SelectorForNumber extends Selector {
     }
 
     public boolean covers(Object o) {
+        if (o == null)
+            return type == SelectorTypeForNumbers.ALL_VALUES;
         Double value = (Double)o;
         switch(type) {
             case ALL_VALUES: return true;

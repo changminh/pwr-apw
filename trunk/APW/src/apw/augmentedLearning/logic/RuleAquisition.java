@@ -32,6 +32,7 @@ public class RuleAquisition {
     private ProgressIndicator progress;
     private ArrayList<Integer> validSamples = new ArrayList<Integer>();
     private HashSet<Integer> bannedSamples;
+    private HashSet<Integer> samplesWithNull;
 
     public RuleAquisition(LoadingSamplesMain advisor) {
         this.advisor = advisor;
@@ -41,6 +42,7 @@ public class RuleAquisition {
         classAttrId = dataFile.getClassAttributeIndex();
         rawData = dataFile.getRawObjects();
         bannedSamples = advisor.getBannedSamples();
+        samplesWithNull = dataFile.getSamplesWithNull();
     }
 
     public void doJob() {
@@ -75,6 +77,10 @@ public class RuleAquisition {
             if (tempRule != null) {
                 removeCoveredSamples(tempRule);
                 advisor.addRule(tempRule);
+            }
+            else if (accessors.size() <= dataFile.getSamplesWithNull().size()) {
+                System.out.println("Pozostało " + accessors.size() + " niepokrytych krotek.");
+                break;
             }
             else {
                 try {
@@ -136,7 +142,25 @@ public class RuleAquisition {
         star.add(getUniversalComplex());
         ArrayList<Complex> partialStar;
         Integer[] tempAccessors = accessors.toArray(new Integer[] { });
-        int positiveSeed = tempAccessors[r.nextInt(tempAccessors.length)];
+        int positiveSeed = -1;
+        // Check whether there are still samples that doesn't contain null:
+        boolean thereAre = false;
+        for (int i : tempAccessors)
+            if (!samplesWithNull.contains(i)) {
+                thereAre = true;
+                break;
+            }
+        if (!thereAre)
+            return null;
+        outer:
+        while (positiveSeed == -1) {
+            positiveSeed = tempAccessors[r.nextInt(tempAccessors.length)];
+            // Check if positiveSeed doesn't contain any 'null' value:
+            if (samplesWithNull.contains(positiveSeed)) {
+                positiveSeed = -1;
+                continue outer;
+            }
+        }
         int negativeSeed;
         currentPositiveSeedCategory = (String) rawData[positiveSeed][classAttrId];
 
@@ -164,11 +188,6 @@ public class RuleAquisition {
             // Leave only the best complexes
             removeLessGeneralComplexes();
             removeWeakComplexes();
-//            try {
-//                new BufferedReader(new InputStreamReader(System.in)).readLine();
-//            }
-//            catch(Exception e) { }
-            // Removing uncovered negative seeds
             removeUncoveredNegativeSeeds();
         }
 
@@ -201,7 +220,6 @@ public class RuleAquisition {
     }
 
     private ArrayList<Complex> partialStar(Integer positiveSeed, Integer negativeSeed) {
-        System.out.println("Metoda partialStar");
         System.out.println("Pozytywne ziarno: ");
         for (Object t : rawData[positiveSeed])
             System.out.print("" + t + "  ");
@@ -215,7 +233,7 @@ public class RuleAquisition {
         SelectorForNumber[] sfnum;
         Complex temp;
         String positiveS, negativeS;                  // For values of particular nominal attributes
-        Double positiveD, negativeD;
+        Double positiveD, negativeD;                  // For values of particular numeric attributes
         for (int i = 0; i < attributesCount; i++) {
             if (i == classAttrId)
                 continue;
@@ -227,7 +245,7 @@ public class RuleAquisition {
                 sfnom = (SelectorForNominal) temp.getSelector(i);
                 positiveS = (String) rawData[positiveSeed][i];
                 negativeS = (String) rawData[negativeSeed][i];
-                if (!positiveS.equals(negativeS)) {
+                if (!(negativeS == null || positiveS.equals(negativeS))) {
                     /* Important: we assume, that $sfnom contains all the possible values of attribute!
                      * Otherwise, the selector wouldn't be as generall as possible as not all permitted
                      * values would be contained by it! */
@@ -241,7 +259,7 @@ public class RuleAquisition {
                  divided by the forbidden value of the negativeSeed's attribute's value. */
                 positiveD = (Double)rawData[positiveSeed][i];
                 negativeD = (Double)rawData[negativeSeed][i];
-                if (!negativeD.equals(positiveD)) {
+                if (!(negativeD == null || negativeD.equals(positiveD))) {
                     sfnum = ((SelectorForNumber) temp.getSelector(i)).divide(negativeD);
                     for (SelectorForNumber sel : sfnum) {
                         if (sel.covers(positiveD)) {
@@ -300,26 +318,6 @@ public class RuleAquisition {
         }
         // System.out.println("Po odchudzaniu kompleksów = " + star.size());
     }
-
-        /*
-        private void translateComplexes(ArrayList<Complex> complexes) {
-        StringBuilder sb = new StringBuilder();
-        int counter = 0;
-
-        translatedComplexes = new String[complexes.size()];
-        for (Complex c : complexes) {
-            translatedComplexes[counter] = translator.convertComplex(c, complexNamePrefix + counter);
-            sb.append(translatedComplexes[counter++] + "\n");
-        }
-        try {
-            // System.out.println(sb.toString());
-            prolog.setTheory(new Theory(sb.toString()));
-        }
-        catch (InvalidTheoryException ex) {
-            Logger.getLogger(RuleAquisition.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    */
 
     private void removeUncoveredNegativeSeeds() {
         outer:
