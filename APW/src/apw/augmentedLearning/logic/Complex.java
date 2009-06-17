@@ -41,9 +41,6 @@ public class Complex {
     }
 
     public boolean covers(Object[] values) {
-        // System.out.println("this = " + this);
-        /* for (Object o : values)
-            System.out.print(o + " "); */
         for (int i = 0; i < selectors.size(); i++) {
             if (!selectors.get(i).covers(values[i])) {
                 // System.out.println(" ==> nie pokrywam");

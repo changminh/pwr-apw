@@ -118,9 +118,9 @@ public class SelectorForNominal extends Selector {
     }
 
     public boolean covers(Object o) {
+        if (o == null)
+            return type == SelectorTypeForNominal.UNIVERSAL;
         String s = (String)o;
-        /* System.out.println("s = " + s);
-        System.out.println("values = " + values); */
         return values.contains(s);
     }
 }

@@ -10,7 +10,6 @@ import apw.core.Samples;
 import apw.augmentedLearning.gui.LoadingSamples_Step1;
 import apw.augmentedLearning.gui.LoadingSamples_Step3;
 import apw.augmentedLearning.gui.LoadingSamples_Step2;
-import apw.core.Sample;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,10 +28,10 @@ public class LoadingSamplesMain {
     private ArrayList<Term[]> terms = new ArrayList<Term[]>();
     private HashSet<Integer> termsAccessors = new HashSet<Integer>();
     private HashSet<Integer> bannedSamples = new HashSet<Integer>();
-    private HashMap<Integer, Double> minValues = new HashMap<Integer, Double>();
-    private HashMap<Integer, Double> maxValues = new HashMap<Integer, Double>();
     private Samples samples;
     private DataFile dataFile;
+//    private HashMap<Integer, Double> minValues = new HashMap<Integer, Double>();
+//    private HashMap<Integer, Double> maxValues = new HashMap<Integer, Double>();
 
     public HashSet<Integer> getBannedSamples() {
         return bannedSamples;
@@ -95,9 +94,9 @@ public class LoadingSamplesMain {
     }
 
     public void step3() {
-        collectMinMaxValues();
-        dataFile.setMinValues(minValues);
-        dataFile.setMaxValues(maxValues);
+        // collectMinMaxValues();
+        // dataFile.setMinValues(minValues);
+        // dataFile.setMaxValues(maxValues);
         for (int i = 0; i < terms.size(); i++)
             termsAccessors.add(i);
         step3 = new LoadingSamples_Step3(dataFile, inst);
@@ -110,7 +109,8 @@ public class LoadingSamplesMain {
         aquisition.doJob();
     }
 
-    private void collectMinMaxValues() {
+    /*
+     private void collectMinMaxValues() {
         double min, max;
         Sample s;
         Double temp;
@@ -134,4 +134,5 @@ public class LoadingSamplesMain {
             }
         }
     }
+     */
 }

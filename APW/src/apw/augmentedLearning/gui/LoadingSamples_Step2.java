@@ -125,6 +125,7 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         String nullTag = dataFile.getMissingValueTag();
         Object[] values;
         rawObjects = new Object[records.size()][];
+        HashSet<Integer> samplesWithNull = new HashSet<Integer>();
         Term[] terms;
         int counter = 0;
         // TODO: Optimization...?
@@ -135,6 +136,7 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
                 if (record[i].equals(nullTag)) {
                     values[i] = null;
                     terms[i] = new Var("_");
+                    samplesWithNull.add(counter);
                 }
                 else
                     switch(attributesTypes.get(i)) {
@@ -159,6 +161,7 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         }
         advisor.setSamples(samples);
         dataFile.setRawObjects(rawObjects);
+        dataFile.setSamplesWithNull(samplesWithNull);
         new Worker().start();
     }
 
@@ -453,13 +456,14 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
             // Else, check all following samples, that aren't yet considered to be conflicting.
             Object[] sample = rawObjects[current];
             inner:
-            for (Integer sampleId = current + 1; sampleId < rawObjects.length; sampleId++) {
+            for (Integer otherSampleId = current + 1; otherSampleId < rawObjects.length; otherSampleId++) {
                 // Again: if sample is considered to be conflicting with some other, skip it.
-                if (accessorsToRemove.contains(sampleId))
+                if (accessorsToRemove.contains(otherSampleId))
                     continue inner;
+                Object[] otherSample = rawObjects[otherSampleId];
                 foundOtherValue = false;
                 for (int attId = 0; attId < attributesCount; attId++) {
-                    if (!sample[attId].equals(rawObjects[sampleId][attId]))
+                    if (!(sample[attId] == null || otherSample[attId] == null || sample[attId].equals(otherSample[attId])))
                         if (!foundOtherValue) {
                             foundOtherValue = true;
                             attributeId = attId;
@@ -467,12 +471,12 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
                         else continue inner;
                 }
                 if (foundOtherValue && attributeId == classAttributeIndex) {
-                    accessorsToRemove.add(sampleId);
+                    accessorsToRemove.add(otherSampleId);
                     if (temp == null) {
                         temp = new ArrayList<Integer>();
                         temp.add(current);
                     }
-                    temp.add(sampleId);
+                    temp.add(otherSampleId);
                     conflictingSamples.put(current, temp);
                 }
             }
