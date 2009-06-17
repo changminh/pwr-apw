@@ -6,6 +6,7 @@ import apw.augmentedLearning.logic.SelectorForNominal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.event.ListDataListener;
 
 
@@ -73,6 +74,15 @@ public class SelectorForNominalCreatorPanel extends SelectorCreatorPanel {
     public void setValues(HashSet<String> values) {
         this.values = values;
         amountOfAllValues = values.size();
+    }
+
+    public void setSingleValue(String s) {
+        jcb_values.setModel(new DefaultComboBoxModel(new String[] {s}));
+    }
+
+    @Override
+    public void setEnabled(boolean b) {
+        jb_modify.setEnabled(b);
     }
 
     /** This method is called from within the constructor to

@@ -162,7 +162,12 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         advisor.setSamples(samples);
         dataFile.setRawObjects(rawObjects);
         dataFile.setSamplesWithNull(samplesWithNull);
-        new Worker().start();
+        new Thread() {
+            @Override
+            public void run() {
+                checkForConflictingSamples();
+            }
+        }.start();
     }
 
     /**
@@ -340,8 +345,8 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jsp_tablePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 518, Short.MAX_VALUE)
-                    .addComponent(jl_wprowadzNazwyAtrybutow, javax.swing.GroupLayout.DEFAULT_SIZE, 518, Short.MAX_VALUE)
+                    .addComponent(jsp_tablePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 785, Short.MAX_VALUE)
+                    .addComponent(jl_wprowadzNazwyAtrybutow, javax.swing.GroupLayout.DEFAULT_SIZE, 785, Short.MAX_VALUE)
                     .addComponent(jb_next, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
@@ -497,16 +502,13 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
                 if (!categories.contains(s = (String) rawObjects[j][classAttributeIndex]))
                     categories.add(s);
             }
-            // Display window...
             System.err.println("");
-            new ConflictsResolvingFrame(
-                    rawObjects[i], categories.toArray(new String[] {}), samples, classAttributeIndex, this
-            ).setVisible(true);
+            // Display window...
+            new ConflictResolvingThread(rawObjects[i], categories.toArray(new String[] { }), classAttributeIndex, LoadingSamples_Step2.this).start();
             // ... and wait for the expert's answer!
-            hasToWait = true;
             try {
-                while (hasToWait)
-                    this.wait();
+                waitForResponse();
+                System.out.println("Zakończono oczekiwanie");
             } catch (InterruptedException e) { System.out.println("Przerwano oczekiwanie"); }
             rawObjects[i][classAttributeIndex] = interceptor;
         }
@@ -520,10 +522,17 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         }.start();
     }
 
+    private synchronized void waitForResponse() throws InterruptedException {
+        hasToWait = true;
+        while (hasToWait == true) {
+            wait();
+        }
+    }
+
     public synchronized void setValue(String s) {
         interceptor = s;
         hasToWait = false;
-        this.notify();
+        notifyAll();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -533,10 +542,26 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
     private javax.swing.JTable jt_dataTable;
     // End of variables declaration//GEN-END:variables
 
-    class Worker extends Thread {
+    class ConflictResolvingThread extends Thread {
+        private Object[] sample;
+        private String[] categories;
+        private int classAttId;
+        private LoadingSamples_Step2 parent;
+
+        public ConflictResolvingThread(Object[] sample, String[] categories, int classAttId, LoadingSamples_Step2 parent) {
+            this.sample = sample;
+            this.categories = categories;
+            this.classAttId = classAttId;
+            this.parent = parent;
+        }
+
         @Override
         public void run() {
-            checkForConflictingSamples();
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    new ConflictsResolvingFrame(sample, categories, samples, classAttId, parent).setVisible(true);
+                }
+            });
         }
     }
 }

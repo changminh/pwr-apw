@@ -14,6 +14,7 @@ package apw.augmentedLearning.gui;
 import apw.augmentedLearning.logic.Complex;
 import javax.swing.JComponent;
 import apw.augmentedLearning.logic.DataFile;
+import apw.augmentedLearning.logic.RuleAcquisition;
 
 /**
  *
@@ -24,6 +25,8 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
     private DataFile dataFile;
     private boolean conclusionMode = false;          // rule = if (assumption) then (conclusion)
     private LoadingSamples_Step3 parent = null;
+    private RuleAcquisition acqusitor;
+    private int currentSample;
 
     public ComplexCreatorFrame() {
         myInitComponents(false);
@@ -39,6 +42,19 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
         this.parent = parent;
         myInitComponents(conclusionMode);
         setLocationRelativeTo(parent);
+    }
+
+    public ComplexCreatorFrame(DataFile dataFile, int currentSample, RuleAcquisition parent) {
+        this.dataFile = dataFile;
+        this.conclusionMode = false;
+        this.acqusitor = parent;
+        this.currentSample = currentSample;
+        myInitComponents(conclusionMode);
+        setLocationRelativeTo(null);
+        // Additional operations
+        jb_nextComplex.setEnabled(false);
+        jb_ok.setText("Gotowe");
+        complexCreatorPanel.setSample(currentSample);
     }
 
     private void myInitComponents(boolean conclusionMode) {
@@ -181,11 +197,23 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jb_okActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_okActionPerformed
-        parent.addComplex(getComplex(), true, conclusionMode);
+        // parent == null -> means that inserted rule is for particular sample with nulls
+        if (parent != null)
+            parent.addComplex(getComplex(), true, conclusionMode);
+        else {
+            acqusitor.addComplex(getComplex(), currentSample);
+            dispose();
+        }
 }//GEN-LAST:event_jb_okActionPerformed
 
     private void jb_nextComplexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_nextComplexActionPerformed
-        parent.addComplex(getComplex(), conclusionMode, false);
+        // parent == null -> means that inserted rule is for particular sample with nulls
+        if (parent != null)
+            parent.addComplex(getComplex(), conclusionMode, false);
+        else {
+            acqusitor.addComplex(getComplex(), currentSample);
+            dispose();
+        }
     }//GEN-LAST:event_jb_nextComplexActionPerformed
 
     /**
