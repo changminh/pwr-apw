@@ -36,6 +36,12 @@ public class SelectorForNominal extends Selector {
         return new SelectorForNominal(attributeId, isNegated, SelectorTypeForNominal.SET, set);
     }
 
+    public static SelectorForNominal getSelSet(int attributeId, String uniqueValue) {
+        HashSet<String> set = new HashSet<String>();
+        set.add(uniqueValue);
+        return new SelectorForNominal(attributeId, false, SelectorTypeForNominal.SET, set);
+    }
+
     public boolean covers(String attributeValue) {
         return values.contains(attributeValue);
     }

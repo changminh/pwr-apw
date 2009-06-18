@@ -37,6 +37,8 @@ public class RuleAcquisition {
     private HashSet<Integer> bannedSamples;
     private HashSet<Integer> samplesWithNull;
     private boolean hasToWait = false;
+    private String tempRuleName;
+    private int userRulesCount = 0;
 
     public RuleAcquisition(LoadingSamplesMain advisor) {
         this.advisor = advisor;
@@ -96,18 +98,6 @@ public class RuleAcquisition {
             }
         }
         progress.dispose();
-        StringBuilder sb = new StringBuilder();
-        for (Rule rule : advisor.getRules()) {
-            rule.translate();
-            sb.append(rule.translator.prologRepresentation() + "\n");
-        }
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter("results.pl"));
-            bw.write(sb.toString());
-            bw.close();
-        } catch (IOException ex) {
-            Logger.getLogger(RuleAcquisition.class.getName()).log(Level.SEVERE, null, ex);
-        }
         // Check the rules correctness (?)
         outer:
         for (int i = 0; i < rawData.length; i++) {
@@ -124,6 +114,7 @@ public class RuleAcquisition {
             System.out.println("");
         }
         acquireRulesForRestSamples();
+        savePrologRepresentationToFile();
         System.out.println("Dziękujemy, zapraszamy ponownie.");
     }
     
@@ -218,7 +209,6 @@ public class RuleAcquisition {
         for (int i = 0; i < attributesCount; i++)
             if (dataFile.isNominalAttribute(i)) {
                 result.addSelector(SelectorForNominal.getSelUniversal(i, dataFile.getNominalValuesOfAttribute(i)));
-                // System.out.println("Nominal values of... = " + dataFile.getNominalValuesOfAttribute(i));
             }
             else
                 result.addSelector(SelectorForNumber.getUniversalSelector(i));
@@ -445,13 +435,8 @@ public class RuleAcquisition {
             return;
 
         Iterator<Integer> iter = accessors.iterator();
-        int current;
         while (iter.hasNext()) {
-            System.out.print("Krotka: ");
-            for (Object o : rawData[current = iter.next()])
-                System.out.print(o + " ");
-            System.out.println("");
-            new RuleCreatorThread(dataFile, current).start();
+            new RuleCreatorThread(dataFile, iter.next()).start();
             try {
                 waitForResponse();
             }
@@ -462,6 +447,19 @@ public class RuleAcquisition {
     }
 
     public synchronized void addComplex(Complex c, int i) {
+        tempRuleName = JOptionPane.showInputDialog(
+                            null, "Podaj nazwę reguły (bez polskich liter, z małej litery)",
+                            "regula_uzupelniajaca_nr_" + (userRulesCount + 1)
+                       );
+        if (tempRuleName != null) {
+            userRulesCount++;
+            Rule temp = new Rule(tempRuleName, advisor.getSamples());
+            temp.addIfComplex(c);
+            Complex then = getUniversalComplex();
+            then.alterSelector(SelectorForNominal.getSelSet(classAttrId, (String)rawData[i][classAttrId]));
+            temp.addThenComplex(then);
+            advisor.addRule(temp);
+        }
         hasToWait = false;
         notifyAll();
     }
@@ -486,9 +484,25 @@ public class RuleAcquisition {
             java.awt.EventQueue.invokeLater(
                 new Runnable() {
                     public void run() {
-                        new ComplexCreatorFrame(dataFile, currentSample, RuleAcquisition.this).setVisible(true);
+                        new ComplexCreatorFrame(dataFile, currentSample, RuleAcquisition.this)
+                                .setVisible(true);
                     }
             });
+        }
+    }
+
+    private void savePrologRepresentationToFile() {
+        StringBuilder sb = new StringBuilder();
+        for (Rule rule : advisor.getRules()) {
+            rule.translate();
+            sb.append(rule.translator.prologRepresentation() + "\n");
+        }
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter("results.pl"));
+            bw.write(sb.toString());
+            bw.close();
+        } catch (IOException ex) {
+            Logger.getLogger(RuleAcquisition.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

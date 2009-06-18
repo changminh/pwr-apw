@@ -25,7 +25,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel1" alignment="0" pref="482" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="jLabel9" pref="203" max="32767" attributes="0"/>
+                      <Component id="jLabel9" pref="233" max="32767" attributes="0"/>
                       <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
                       <Component id="jrb_comma" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
@@ -43,10 +43,10 @@
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel3" pref="216" max="32767" attributes="0"/>
+                          <Component id="jLabel3" pref="217" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
                               <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="jLabel4" alignment="1" pref="216" max="32767" attributes="0"/>
+                                  <Component id="jLabel4" alignment="1" pref="217" max="32767" attributes="0"/>
                                   <Group type="103" alignment="1" groupAlignment="0" max="-2" attributes="0">
                                       <Component id="jLabel7" alignment="1" max="32767" attributes="1"/>
                                       <Component id="jLabel8" alignment="1" pref="165" max="32767" attributes="1"/>
@@ -66,7 +66,7 @@
                               <Component id="jtf_nullValueTag" alignment="0" max="32767" attributes="1"/>
                           </Group>
                       </Group>
-                      <EmptySpace pref="228" max="32767" attributes="0"/>
+                      <EmptySpace pref="229" max="32767" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -134,7 +134,7 @@
     </Component>
     <Component class="javax.swing.JTextField" name="jtf_filePath">
       <Properties>
-        <Property name="text" type="java.lang.String" value="/home/nitric/data/iris.data"/>
+        <Property name="text" type="java.lang.String" value="C:\Documents and Settings\Nitric\My Documents\data\iris.data"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="jb_browse">
