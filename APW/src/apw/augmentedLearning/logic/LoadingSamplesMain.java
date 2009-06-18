@@ -30,6 +30,8 @@ public class LoadingSamplesMain {
     private HashSet<Integer> bannedSamples = new HashSet<Integer>();
     private Samples samples;
     private DataFile dataFile;
+    private int[] rulesCounter = new int[3];        // rules: main, acquired, additional
+    private int mode = 0;                           // indicates which type of rules are currently added
 //    private HashMap<Integer, Double> minValues = new HashMap<Integer, Double>();
 //    private HashMap<Integer, Double> maxValues = new HashMap<Integer, Double>();
 
@@ -51,10 +53,15 @@ public class LoadingSamplesMain {
 
     public void addRule(Rule rule) {
         rules.add(rule);
+        rulesCounter[mode]++;
     }
 
     public ArrayList<Rule> getRules() {
         return rules;
+    }
+
+    public int[] getRulesCounter() {
+        return rulesCounter;
     }
 
     public LoadingSamples_Step1 getStep1() {
@@ -105,8 +112,13 @@ public class LoadingSamplesMain {
 
     public void step4() {
         step3.dispose();
+        mode++;                                             // We're going now to acquire rules wiht AQ algorithm;
         RuleAcquisition aquisition = new RuleAcquisition(this);
         aquisition.doJob();
+    }
+
+    public void aqFinished() {
+        mode++;
     }
 
     /*

@@ -93,6 +93,7 @@ public class RuleTranslator {
         sb.delete(sb.length() - 2, sb.length());
     }
 }
+
 class ClauseTranslator {
     boolean isAssumptionClause;
     Rule rule;

@@ -3,6 +3,7 @@ package apw.augmentedLearning.logic;
 import apw.augmentedLearning.gui.ComplexCreatorFrame;
 import apw.augmentedLearning.gui.ProgressIndicator;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,6 +40,9 @@ public class RuleAcquisition {
     private boolean hasToWait = false;
     private String tempRuleName;
     private int userRulesCount = 0;
+    private String htmlFileName = "wyniki.html";
+    private Iterator<Integer> leftSamplesWithNulls;
+    private int currentSampleWithNulls;
 
     public RuleAcquisition(LoadingSamplesMain advisor) {
         this.advisor = advisor;
@@ -100,7 +104,7 @@ public class RuleAcquisition {
         progress.dispose();
         // Check the rules correctness (?)
         outer:
-        for (int i = 0; i < rawData.length; i++) {
+        for (int i : validSamples) {
             for (Object o : rawData[i])
                 System.out.print(o + " ");
             System.out.print(" --> \n");
@@ -113,8 +117,11 @@ public class RuleAcquisition {
             }
             System.out.println("");
         }
+        advisor.aqFinished();
+        finalComplexesCheck();
         acquireRulesForRestSamples();
         savePrologRepresentationToFile();
+        showRulesInHtmlDocument();
         System.out.println("Dziękujemy, zapraszamy ponownie.");
     }
     
@@ -410,8 +417,6 @@ public class RuleAcquisition {
     }
 
     private void finalComplexCheck(Complex c) {
-        // System.out.println("Finall complex check");
-        // System.out.println(c);
         for (int i : validSamples) {
             // System.out.print(sample[classAttrId] + " =?= " + currentPositiveSeedCategory);
             if (c.covers(rawData[i])) {
@@ -421,6 +426,20 @@ public class RuleAcquisition {
                 }
             }
         }
+    }
+
+    private void finalComplexesCheck() {
+        int errors = 0;
+        for (Rule check : advisor.getRules()) {
+            String classOfRule = ((SelectorForNominal) check.thenClause.get(0).getSelector(classAttrId)).getUniqueValue();
+            for (int i : validSamples) {
+                if (check.covers(rawData[i])) {
+                    if (!(rawData[i][classAttrId].equals(classOfRule)))
+                        errors++;
+                }
+            }
+        }
+        System.err.println("!!!!!!!!!!!!!!!!!!!!! errors = " + errors + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!") ;
     }
 
     public void acquireRulesForRestSamples() {
@@ -434,9 +453,10 @@ public class RuleAcquisition {
         if (answer == JOptionPane.NO_OPTION)
             return;
 
-        Iterator<Integer> iter = accessors.iterator();
-        while (iter.hasNext()) {
-            new RuleCreatorThread(dataFile, iter.next()).start();
+        leftSamplesWithNulls = accessors.iterator();
+        currentSampleWithNulls = leftSamplesWithNulls.hasNext() ? leftSamplesWithNulls.next() : -1;
+        while (currentSampleWithNulls != -1) {
+            new RuleCreatorThread(dataFile, currentSampleWithNulls).start();
             try {
                 waitForResponse();
             }
@@ -446,20 +466,39 @@ public class RuleAcquisition {
         }
     }
 
+    /**
+     *
+     * @param c Complex that the new user's rule consist of. If null, then user resigned to insert new rule so we can
+     * skip the $currentSampleWithNulls. If not null, we must check whether the rule covers the sample. If it doesn't,
+     * we don't switch to next sample
+     * @param i Now I don't now what the parameter is for :D But I'm 99% sure that it's equal to $currentSampleWithNulls
+     */
     public synchronized void addComplex(Complex c, int i) {
-        tempRuleName = JOptionPane.showInputDialog(
-                            null, "Podaj nazwę reguły (bez polskich liter, z małej litery)",
-                            "regula_uzupelniajaca_nr_" + (userRulesCount + 1)
-                       );
-        if (tempRuleName != null) {
-            userRulesCount++;
-            Rule temp = new Rule(tempRuleName, advisor.getSamples());
-            temp.addIfComplex(c);
-            Complex then = getUniversalComplex();
-            then.alterSelector(SelectorForNominal.getSelSet(classAttrId, (String)rawData[i][classAttrId]));
-            temp.addThenComplex(then);
-            advisor.addRule(temp);
+        boolean switchToNext = true;
+        if (c != null) {
+            if (!c.covers(rawData[i])) {
+                    JOptionPane.showMessageDialog(null, "Reguła nie pokrywa przykładu!");
+                    switchToNext = false;
+            }
+            else {
+                tempRuleName = JOptionPane.showInputDialog(
+                                null, "Podaj nazwę reguły (bez polskich liter, z małej litery)",
+                                "regula_uzupelniajaca_nr_" + (userRulesCount + 1)
+                               );
+                if (tempRuleName != null) {
+                    userRulesCount++;
+                    Rule temp = new Rule(tempRuleName, advisor.getSamples());
+                    temp.addIfComplex(c);
+                    Complex then = getUniversalComplex();
+                    then.alterSelector(SelectorForNominal.getSelSet(classAttrId, (String)rawData[i][classAttrId]));
+                    temp.addThenComplex(then);
+                    advisor.addRule(temp);
+                }
+            }
         }
+        // User resigned of inserting rule, so we can switch to next example if exists.
+        if (switchToNext)
+            currentSampleWithNulls = leftSamplesWithNulls.hasNext() ? leftSamplesWithNulls.next() : -1;
         hasToWait = false;
         notifyAll();
     }
@@ -501,6 +540,53 @@ public class RuleAcquisition {
             BufferedWriter bw = new BufferedWriter(new FileWriter("results.pl"));
             bw.write(sb.toString());
             bw.close();
+        } catch (IOException ex) {
+            Logger.getLogger(RuleAcquisition.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void showRulesInHtmlDocument() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html>\n");
+        sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" " +
+                "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+        sb.append("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
+        sb.append(" <head>\n");
+        sb.append(" <meta http-equiv=\"Content-Type\" content=\"text/html; charset=cp-1250\" />");
+        sb.append("     <title>Wygenerowane reguły</title>\n");
+        sb.append(" </head>\n");
+        sb.append("");
+        sb.append(" <body>\n");
+        sb.append("     <center><h1>Otrzymane reguły klasyfikacji</h1></center>\n");
+        int counter = 0;
+        if (advisor.getRulesCounter()[0] > 0) {
+            sb.append(" <h2>Pierwotne reguły użytkownika</h2>\n");
+            for (int i = 0; i < advisor.getRulesCounter()[0]; i++) {
+                sb.append(advisor.getRules().get(counter++).translateToHtml());
+                sb.append("\n");
+            }
+        }
+        sb.append(" <h2>Reguły wygenerowane przez algorytm AQ</h2>\n");
+        for (int i = 0; i < advisor.getRulesCounter()[1]; i++) {
+            sb.append(advisor.getRules().get(counter++).translateToHtml());
+            sb.append("\n");
+        }
+        if (advisor.getRulesCounter()[2] > 0) {
+            sb.append(" <h2>Uzupełniające reguły użytkownika</h2>\n");
+            for (int i = 0; i < advisor.getRulesCounter()[2]; i++) {
+                sb.append(advisor.getRules().get(counter++).translateToHtml());
+                sb.append("\n");
+            }
+        }
+        sb.append(" </body>\n");
+        sb.append("</html>\n");
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(htmlFileName));
+            bw.write(sb.toString());
+            bw.close();
+            String path = new File(".").getAbsolutePath();
+            path = path.substring(0, path.length() - 1);
+            BrowserLaunch.openURL("file://localhost/" + path + htmlFileName);
         } catch (IOException ex) {
             Logger.getLogger(RuleAcquisition.class.getName()).log(Level.SEVERE, null, ex);
         }

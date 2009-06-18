@@ -28,6 +28,8 @@
                   <Component id="jsp_ccpScrollPane" alignment="0" pref="753" max="32767" attributes="0"/>
                   <Component id="jl_title" alignment="0" pref="753" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
+                      <Component id="jb_cancel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="jb_nextComplex" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jb_ok" min="-2" max="-2" attributes="0"/>
@@ -48,6 +50,7 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jb_ok" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jb_nextComplex" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jb_cancel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
@@ -89,6 +92,14 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jb_nextComplexActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="jb_cancel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Anuluj"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jb_cancelActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

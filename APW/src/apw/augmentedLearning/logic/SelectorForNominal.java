@@ -46,15 +46,42 @@ public class SelectorForNominal extends Selector {
         return values.contains(attributeValue);
     }
 
+    @Override
+    public String textRepresetation() {
+        switch (type) {
+            case EMPTY: return "Ojeju... :(";
+            case SET: {
+                StringBuilder sb = new StringBuilder();
+                sb.append("należy do zbioru: {");
+                Iterator<String> iter = values.iterator();
+                while (iter.hasNext()) {
+                    sb.append(iter.next() + "; ");
+                }
+                RuleTranslator.deleteLast2Letters(sb);
+                sb.append("}");
+                return sb.toString();
+            }
+            case UNIVERSAL: return "jest dowolna";
+            default: return "";
+        }
+    }
+
     public void setValues(HashSet<String> values) {
         this.values = values;
         this.type = SelectorTypeForNominal.SET;
     }
 
+    public String getUniqueValue() {
+        if (values.size() != 1)
+            throw new RuntimeException("This method should never be invoked when 'values' set has more than one object!");
+        else
+            return values.iterator().next();
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("id = " + attributeId + ", ");
+        // sb.append("id = " + attributeId + ", ");
         switch (type) {
             case EMPTY : return sb.append("empty").toString();
             case UNIVERSAL: return sb.append("universal " + values).toString();
