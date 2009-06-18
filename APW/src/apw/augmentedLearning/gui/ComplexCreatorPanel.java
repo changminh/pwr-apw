@@ -43,18 +43,14 @@ public class ComplexCreatorPanel extends javax.swing.JPanel {
     }
 
     public void setSample(int sample) {
-        Object o;
         Object[] objects = dataFile.getRawObjects()[sample];
-        System.out.print("Krotka w CCP: ");
         for (int i = 0; i < dataFile.getAttributesCount(); i++) {
-            if ((o = objects[i]) == null)
+            if (objects[i] == null)
                 panels[i].setEnabled(false);
-            System.out.print(o + " ");
         }
         SelectorForNominalCreatorPanel panel = (SelectorForNominalCreatorPanel) panels[dataFile.getClassAttributeIndex()];
         panel.setSingleValue(((String) objects[dataFile.getClassAttributeIndex()]));
         panel.setEnabled(false);
-        System.out.println("");
     }
 
     private void initPanels() {

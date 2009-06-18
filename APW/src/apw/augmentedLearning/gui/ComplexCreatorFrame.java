@@ -15,6 +15,7 @@ import apw.augmentedLearning.logic.Complex;
 import javax.swing.JComponent;
 import apw.augmentedLearning.logic.DataFile;
 import apw.augmentedLearning.logic.RuleAcquisition;
+import java.util.ArrayList;
 
 /**
  *
@@ -27,6 +28,7 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
     private LoadingSamples_Step3 parent = null;
     private RuleAcquisition acqusitor;
     private int currentSample;
+    private PreviewOfSample preview;
 
     public ComplexCreatorFrame() {
         myInitComponents(false);
@@ -55,6 +57,15 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
         jb_nextComplex.setEnabled(false);
         jb_ok.setText("Gotowe");
         complexCreatorPanel.setSample(currentSample);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Numer linijki pliku z danymi: " + currentSample + "\n");
+        Object[] sample = dataFile.getRawObjects()[currentSample];
+        ArrayList<String> names = dataFile.getAttributesNames();
+        for (int i = 0; i < dataFile.getAttributesCount(); i++) {
+            sb.append(names.get(i) + " = " + sample[i] + "\n");
+        }
+        preview = new PreviewOfSample(sb.toString());
     }
 
     private void myInitComponents(boolean conclusionMode) {
@@ -202,18 +213,13 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
             parent.addComplex(getComplex(), true, conclusionMode);
         else {
             acqusitor.addComplex(getComplex(), currentSample);
+            preview.dispose();
             dispose();
         }
 }//GEN-LAST:event_jb_okActionPerformed
 
     private void jb_nextComplexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_nextComplexActionPerformed
-        // parent == null -> means that inserted rule is for particular sample with nulls
-        if (parent != null)
-            parent.addComplex(getComplex(), conclusionMode, false);
-        else {
-            acqusitor.addComplex(getComplex(), currentSample);
-            dispose();
-        }
+        parent.addComplex(getComplex(), conclusionMode, false);
     }//GEN-LAST:event_jb_nextComplexActionPerformed
 
     /**
