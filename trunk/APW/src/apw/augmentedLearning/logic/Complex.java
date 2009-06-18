@@ -36,6 +36,10 @@ public class Complex {
         return result;
     }
 
+    public int size() {
+        return selectors.size();
+    }
+
     public Selector getSelector(int attributeNumber) {
         return selectors.get(attributeNumber);
     }

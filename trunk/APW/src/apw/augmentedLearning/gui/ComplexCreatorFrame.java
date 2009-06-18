@@ -43,6 +43,7 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
         this.conclusionMode = conclusionMode;
         this.parent = parent;
         myInitComponents(conclusionMode);
+        jb_cancel.setVisible(false);
         setLocationRelativeTo(parent);
     }
 
@@ -75,6 +76,7 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
         jl_title = new javax.swing.JLabel();
         jb_ok = new javax.swing.JButton();
         jb_nextComplex = new javax.swing.JButton();
+        jb_cancel = new javax.swing.JButton();
 
         JComponent component = complexCreatorPanel.amount > 6 ?
             jsp_ccpScrollPane : complexCreatorPanel;
@@ -107,6 +109,12 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
                 jb_nextComplexActionPerformed(evt);
             }
         });
+        jb_cancel.setText("Anuluj");
+        jb_cancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jb_cancelActionPerformed(evt);
+            }
+        });
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -117,6 +125,8 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
                     .addComponent(component, javax.swing.GroupLayout.DEFAULT_SIZE, 732, Short.MAX_VALUE)
                     .addComponent(jl_title, javax.swing.GroupLayout.DEFAULT_SIZE, 732, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jb_cancel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jb_nextComplex)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jb_ok)))
@@ -131,6 +141,7 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
                 .addComponent(component, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jb_cancel)
                     .addComponent(jb_ok)
                     .addComponent(jb_nextComplex))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -152,6 +163,7 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
         jl_title = new javax.swing.JLabel();
         jb_ok = new javax.swing.JButton();
         jb_nextComplex = new javax.swing.JButton();
+        jb_cancel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -175,6 +187,13 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
             }
         });
 
+        jb_cancel.setText("Anuluj");
+        jb_cancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jb_cancelActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -185,6 +204,8 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
                     .addComponent(jsp_ccpScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 753, Short.MAX_VALUE)
                     .addComponent(jl_title, javax.swing.GroupLayout.DEFAULT_SIZE, 753, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jb_cancel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jb_nextComplex)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jb_ok)))
@@ -200,7 +221,8 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jb_ok)
-                    .addComponent(jb_nextComplex))
+                    .addComponent(jb_nextComplex)
+                    .addComponent(jb_cancel))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -211,17 +233,24 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
         // parent == null -> means that inserted rule is for particular sample with nulls
         if (parent != null)
             parent.addComplex(getComplex(), true, conclusionMode);
-        else {
-            acqusitor.addComplex(getComplex(), currentSample);
-            preview.dispose();
-            dispose();
-        }
+        else 
+            additionalRuleConfirmed(getComplex());
 }//GEN-LAST:event_jb_okActionPerformed
 
     private void jb_nextComplexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_nextComplexActionPerformed
         parent.addComplex(getComplex(), conclusionMode, false);
     }//GEN-LAST:event_jb_nextComplexActionPerformed
 
+    private void jb_cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_cancelActionPerformed
+        additionalRuleConfirmed(null);
+    }//GEN-LAST:event_jb_cancelActionPerformed
+
+    private void additionalRuleConfirmed(Complex c) {
+        preview.dispose();
+        dispose();
+        acqusitor.addComplex(c, currentSample);
+    }
+    
     /**
     * @param args the command line arguments
     */
@@ -235,6 +264,7 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private apw.augmentedLearning.gui.ComplexCreatorPanel complexCreatorPanel;
+    private javax.swing.JButton jb_cancel;
     private javax.swing.JButton jb_nextComplex;
     private javax.swing.JButton jb_ok;
     private javax.swing.JLabel jl_title;

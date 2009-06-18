@@ -161,6 +161,7 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
             Logger.getLogger(LoadingSamples_Step3.class.getName()).log(Level.SEVERE, null, ex);
         }
         checkRules(advisor.getRules());
+        advisor.step4();
 }//GEN-LAST:event_jb_nextActionPerformed
 
     private void checkRule(Rule rule) {
@@ -237,7 +238,6 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
             System.out.println("Poprawność reguły " + rules.get(i).getName() +
                     ": " + ruleResults[i] + " / " + advisor.getConvertedTerms().size());
         }
-        advisor.step4();
     }
 
     private void deleteIncorrectSamples() {

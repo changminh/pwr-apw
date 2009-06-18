@@ -26,6 +26,8 @@ public abstract class Selector {
         return isNegated;
     }
 
+    public abstract String textRepresetation();
+
     public abstract boolean isUniversal();
     public abstract boolean isEmpty();
     public abstract Selector getNegation();

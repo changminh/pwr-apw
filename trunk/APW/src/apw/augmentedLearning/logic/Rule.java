@@ -98,4 +98,29 @@ public class Rule {
         SolveInfo info = prolog.solve(query);
         return info.isSuccess();
     }
+
+    public String translateToHtml() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" <h3>Reguła <i>" + name + "</i> dla klasy <i> ");
+        /* DANGER!  At this moment of the project development 'thenClause' is assumed to have only one complex
+         * (altough it is not always true). So we can derive the amount of selectors from the ${thenClause.get(0).size()} */
+        Complex cx = thenClause.get(0);
+        for (int i = 0; i < cx.size(); i++)
+            if (!cx.getSelector(i).isUniversal()) {        // This selector contains the class name ;D
+                sb.append(cx.getSelector(i));
+            }
+        sb.append(" </i></h3>\n");
+        sb.append(" <b>Warunki</b><br />\n");
+        sb.append(" wartość atrybutu:<ul>");
+        Selector s;
+        for (Complex c: ifClause) {
+            for (int i = 0; i < c.size(); i++) {
+                s = c.getSelector(i);
+                if (!s.isUniversal())
+                    sb.append("<li>" + samples.getAtts().get(i).getName() + " " + s.textRepresetation() + "</li>\n");
+            }
+        }
+        sb.append(" </ul>");
+        return sb.toString();
+    }
 }

@@ -40,6 +40,19 @@ public class SelectorForNumber extends Selector {
         this.upperLimit = upperLimit;
     }
 
+    @Override
+    public String textRepresetation() {
+        switch (type) {
+            case EQUAL: return "jest równa " + lowerLimit;
+            case ALL_VALUES: return "jest dowolna";
+            case BELONGS_RIGHT_INCLUDING: return "należy do przedziału (" + lowerLimit + "; " + upperLimit + "]";
+            case GREATER_THAN: return "jest większa od " + lowerLimit;
+            case LOWER_OR_EQUAL: return "jest mniejsza lub równa " + upperLimit;
+            case NONE_VALUE: return "Ojeju... :(";
+            default: return "";
+        }
+    }
+
     protected SelectorForNumber(int attributeId, SelectorTypeForNumbers type, double lower, double upper) {
         if (lower > upper)
             throw new IllegalArgumentException("Fatal error: lower > upper... :/");
