@@ -400,7 +400,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     public Classifier copy() {
         try {
             FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier(samples);
-            fuzzy.setOptions(getOptions());
+            fuzzy.setOptions(getOptions().clone());
             fuzzy.bestResult = new Genom(bestResult);
             return fuzzy;
         } catch (Exception ex) {
