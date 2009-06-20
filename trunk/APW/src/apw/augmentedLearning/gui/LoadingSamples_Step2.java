@@ -437,14 +437,6 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         createAttributes();
         createSamples();
     }
-    
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new LoadingSamples_Step2(null, null).setVisible(true);
-            }
-        });
-    }
 
     private synchronized void checkForConflictingSamples() {
         final HashSet<Integer> accessorsToRemove = new HashSet<Integer>();
@@ -557,11 +549,11 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
 
         @Override
         public void run() {
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                public void run() {
+            // java.awt.EventQueue.invokeLater(new Runnable() {
+            //    public void run() {
                     new ConflictsResolvingFrame(sample, categories, samples, classAttId, parent).setVisible(true);
-                }
-            });
+            //     }
+            //});
         }
     }
 }

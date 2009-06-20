@@ -60,6 +60,10 @@ public class LoadingSamplesMain {
         return rules;
     }
 
+    public void setRules(ArrayList<Rule> rules) {
+        this.rules = rules;
+    }
+
     public int[] getRulesCounter() {
         return rulesCounter;
     }

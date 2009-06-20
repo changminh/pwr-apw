@@ -6,16 +6,36 @@
 
 package apw.augmentedLearning.gui;
 
+import apw.augmentedLearning.logic.DataFile;
+import java.util.ArrayList;
+import java.util.HashSet;
+
 /**
  *
  * @author Nitric
  */
 public class PreviewOfSample extends javax.swing.JFrame {
 
-    /** Creates new form PreviewOfSample */
     public PreviewOfSample() {
         initComponents();
         jta.setEditable(false);
+    }
+
+    public PreviewOfSample(DataFile dataFile, HashSet<Integer>samples) {
+        final StringBuilder sb = new StringBuilder();
+        for (int currentSample : samples) {
+            sb.append("Numer linijki pliku z danymi: " + (currentSample + 1) + "\n");
+            Object[] sample = dataFile.getRawObjects()[currentSample];
+            ArrayList<String> names = dataFile.getAttributesNames();
+            for (int i = 0; i < dataFile.getAttributesCount(); i++) {
+                sb.append(names.get(i) + " = " + sample[i] + "\n");
+            }
+            sb.append("------------------------------ \n");
+        }
+        initComponents();
+        jta.setEditable(false);
+        jta.setText(sb.toString());
+        setVisible(true);
     }
 
     public PreviewOfSample(String s) {
@@ -44,7 +64,6 @@ public class PreviewOfSample extends javax.swing.JFrame {
 
         jta.setColumns(20);
         jta.setRows(5);
-        jta.setText("Szaba da");
         jsp.setViewportView(jta);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -67,19 +86,7 @@ public class PreviewOfSample extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new PreviewOfSample().setVisible(true);
-            }
-        });
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jsp;
     private javax.swing.JTextArea jta;
     // End of variables declaration//GEN-END:variables

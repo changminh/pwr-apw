@@ -1,7 +1,9 @@
 package apw.augmentedLearning.logic;
 
 import apw.augmentedLearning.gui.ComplexCreatorFrame;
+import apw.augmentedLearning.gui.PreviewOfSample;
 import apw.augmentedLearning.gui.ProgressIndicator;
+import apw.augmentedLearning.gui.WrongRuleWarning;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -10,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -37,12 +40,15 @@ public class RuleAcquisition {
     private ArrayList<Integer> validSamples = new ArrayList<Integer>();
     private HashSet<Integer> bannedSamples;
     private HashSet<Integer> samplesWithNull;
+    private HashSet<Integer> samplesWithNullCoveredByAdditionalRules;           // Variable name FAIL
     private boolean hasToWait = false;
+    private boolean switchToNext = false;           // Will be used when user will input additional rules
     private String tempRuleName;
     private int userRulesCount = 0;
     private String htmlFileName = "wyniki.html";
     private Iterator<Integer> leftSamplesWithNulls;
     private int currentSampleWithNulls;
+    private TreeMap<Integer, HashSet<Integer>> rulesCoveringStats = new TreeMap<Integer, HashSet<Integer>>();
 
     public RuleAcquisition(LoadingSamplesMain advisor) {
         this.advisor = advisor;
@@ -93,16 +99,12 @@ public class RuleAcquisition {
                 break;
             }
             else {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(RuleAcquisition.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                throw new RuntimeException("Huston, we have a problem...");
+                System.out.println("Wygenerowano pusty kompleks...");
             }
         }
         progress.dispose();
-        // Check the rules correctness (?)
+        // Show the rules covering:
+        /* *
         outer:
         for (int i : validSamples) {
             for (Object o : rawData[i])
@@ -116,9 +118,9 @@ public class RuleAcquisition {
                 }
             }
             System.out.println("");
-        }
+        } /* */
         advisor.aqFinished();
-        finalComplexesCheck();
+        finalRulesCheck();
         acquireRulesForRestSamples();
         savePrologRepresentationToFile();
         showRulesInHtmlDocument();
@@ -173,7 +175,6 @@ public class RuleAcquisition {
         /* Since current $star is universal complex, we need to determine which samples belongs
          * to class other than $positiveSeed. */
         for (Integer i : validSamples) {
-        // for (Integer i : accessors) {
             if (!((String) rawData[i][classAttrId]).equals(currentPositiveSeedCategory))
                 negativeSeeds.add(i);
         }
@@ -195,13 +196,15 @@ public class RuleAcquisition {
             removeUncoveredNegativeSeeds();
         }
 
-        finalComplexCheck(star.get(0));
+        if (!finalComplexCheck(star.get(0), positiveSeed))                      // Complex doesn't cover positive seed!
+            return null;
         Rule rule = new Rule(rulePrefix + ++found, advisor.getSamples());
         rule.addIfComplex(star.get(0));
+        /**
         System.out.println("==========================================================");
         System.out.println("Wybrany kompleks:");
         System.out.println(star.get(0));
-        System.out.println("==========================================================");
+        System.out.println("=========================================================="); /* */
         Complex then = getUniversalComplex();
         HashSet<String> pseudoSet = new HashSet<String>();
         pseudoSet.add(currentPositiveSeedCategory);
@@ -214,9 +217,8 @@ public class RuleAcquisition {
     private Complex getUniversalComplex() {
         Complex result = new Complex();
         for (int i = 0; i < attributesCount; i++)
-            if (dataFile.isNominalAttribute(i)) {
+            if (dataFile.isNominalAttribute(i))
                 result.addSelector(SelectorForNominal.getSelUniversal(i, dataFile.getNominalValuesOfAttribute(i)));
-            }
             else
                 result.addSelector(SelectorForNumber.getUniversalSelector(i));
         return result;
@@ -416,30 +418,57 @@ public class RuleAcquisition {
         }
     }
 
-    private void finalComplexCheck(Complex c) {
+    private boolean finalComplexCheck(Complex c, int positiveSeed) {
+        if (!c.covers(rawData[positiveSeed]))                           // Rule doesn't cover positive seed?!
+            return false;
         for (int i : validSamples) {
             // System.out.print(sample[classAttrId] + " =?= " + currentPositiveSeedCategory);
             if (c.covers(rawData[i])) {
                 if (!rawData[i][classAttrId].equals(currentPositiveSeedCategory)) {
                     System.out.println("Ale gafa... :(");
-                    System.exit(-1);
+                    return false;                                       // Rule covers at least one negative seed!
                 }
             }
         }
+        return true;
     }
 
-    private void finalComplexesCheck() {
+    private void finalRulesCheck() {
         int errors = 0;
-        for (Rule check : advisor.getRules()) {
+        int success;
+        HashSet<Integer> temp;
+        Rule check;
+        for (int ruleIndex = 0; ruleIndex < advisor.getRules().size(); ruleIndex++) {
+            check = advisor.getRules().get(ruleIndex);
+            success = 0;
             String classOfRule = ((SelectorForNominal) check.thenClause.get(0).getSelector(classAttrId)).getUniqueValue();
             for (int i : validSamples) {
                 if (check.covers(rawData[i])) {
-                    if (!(rawData[i][classAttrId].equals(classOfRule)))
+                    if (rawData[i][classAttrId].equals(classOfRule))
+                        success++;
+                    else
                         errors++;
                 }
             }
+            // Save the amount of samples covered by rules
+            if ((temp = rulesCoveringStats.get(success)) == null)
+                temp = new HashSet<Integer>();
+            temp.add(ruleIndex);
+            rulesCoveringStats.put(success, temp);
         }
-        System.err.println("!!!!!!!!!!!!!!!!!!!!! errors = " + errors + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!") ;
+        Iterator<Integer> iter = rulesCoveringStats.descendingKeySet().iterator();
+        Iterator<Integer> ruleIter;
+        ArrayList<Rule> orderedRules = new ArrayList<Rule>();
+        while (iter.hasNext()) {
+            ruleIter = rulesCoveringStats.get(success = iter.next()).iterator();
+            while (ruleIter.hasNext()) {
+                check = advisor.getRules().get(ruleIter.next());
+                System.out.println("Reguła " + check.getName() + " pokrywa " + success + " krotek");
+                orderedRules.add(check);
+            }
+        }
+        // Now we have ordered list of rules, so we can alter rules list in advisor's object:
+        advisor.setRules(orderedRules);
     }
 
     public void acquireRulesForRestSamples() {
@@ -474,25 +503,49 @@ public class RuleAcquisition {
      * @param i Now I don't now what the parameter is for :D But I'm 99% sure that it's equal to $currentSampleWithNulls
      */
     public synchronized void addComplex(Complex c, int i) {
-        boolean switchToNext = true;
+        switchToNext = true;
+        HashSet<Integer> coveredPositive = new HashSet<Integer>();
+        HashSet<Integer> coveredNegative = new HashSet<Integer>();
+        Object classAttributeValue = rawData[i][classAttrId];
         if (c != null) {
             if (!c.covers(rawData[i])) {
                     JOptionPane.showMessageDialog(null, "Reguła nie pokrywa przykładu!");
                     switchToNext = false;
             }
             else {
-                tempRuleName = JOptionPane.showInputDialog(
-                                null, "Podaj nazwę reguły (bez polskich liter, z małej litery)",
-                                "regula_uzupelniajaca_nr_" + (userRulesCount + 1)
-                               );
-                if (tempRuleName != null) {
-                    userRulesCount++;
-                    Rule temp = new Rule(tempRuleName, advisor.getSamples());
-                    temp.addIfComplex(c);
-                    Complex then = getUniversalComplex();
-                    then.alterSelector(SelectorForNominal.getSelSet(classAttrId, (String)rawData[i][classAttrId]));
-                    temp.addThenComplex(then);
-                    advisor.addRule(temp);
+                // We're checking whether the new rule will cover other positive samples; also when it covers wrong samples,
+                // user will be shown these negative samples and the rule won't be added to the result set.
+                for (Integer sample : samplesWithNull) {
+                    if (c.covers(rawData[sample]))
+                        if (rawData[sample][classAttrId].equals(classAttributeValue))
+                            coveredPositive.add(sample);
+                        else
+                            coveredNegative.add(sample);
+                }
+                if (coveredNegative.size() > 0) {
+                    java.awt.EventQueue.invokeLater(new WrongRuleWarningThread(this, coveredNegative));
+                    try {
+                        waitForResponse();
+                    }
+                    catch(InterruptedException ex) { }
+                }
+                else {
+                    tempRuleName = JOptionPane.showInputDialog(
+                                    null, "Podaj nazwę reguły (bez polskich liter, z małej litery)",
+                                    "regula_uzupelniajaca_nr_" + (userRulesCount + 1)
+                                   );
+                    if (tempRuleName != null) {
+                        userRulesCount++;
+                        Rule temp = new Rule(tempRuleName, advisor.getSamples());
+                        temp.addIfComplex(c);
+                        Complex then = getUniversalComplex();
+                        then.alterSelector(SelectorForNominal.getSelSet(
+                                            classAttrId,
+                                            (String)rawData[i][classAttrId])
+                                            );
+                        temp.addThenComplex(then);
+                        advisor.addRule(temp);
+                    }
                 }
             }
         }
@@ -503,31 +556,16 @@ public class RuleAcquisition {
         notifyAll();
     }
 
+    public synchronized void ruleCorrection (boolean b) throws InterruptedException {
+        switchToNext = !b;
+        hasToWait = false;
+        notifyAll();
+    }
+
     private synchronized void waitForResponse() throws InterruptedException {
         hasToWait = true;
         while (hasToWait)
             wait();
-    }
-
-    class RuleCreatorThread extends Thread {
-        DataFile dataFile;
-        int currentSample;
-
-        public RuleCreatorThread(DataFile dataFile, int currentSample) {
-            this.dataFile = dataFile;
-            this.currentSample = currentSample;
-        }
-
-        @Override
-        public void run() {
-            java.awt.EventQueue.invokeLater(
-                new Runnable() {
-                    public void run() {
-                        new ComplexCreatorFrame(dataFile, currentSample, RuleAcquisition.this)
-                                .setVisible(true);
-                    }
-            });
-        }
     }
 
     private void savePrologRepresentationToFile() {
@@ -591,4 +629,37 @@ public class RuleAcquisition {
             Logger.getLogger(RuleAcquisition.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    class RuleCreatorThread extends Thread {
+        DataFile dataFile;
+        int currentSample;
+
+        public RuleCreatorThread(DataFile dataFile, int currentSample) {
+            this.dataFile = dataFile;
+            this.currentSample = currentSample;
+        }
+
+        @Override
+        public void run() {
+            new ComplexCreatorFrame(dataFile, currentSample, RuleAcquisition.this).setVisible(true);
+        }
+    }
+
+    class WrongRuleWarningThread implements Runnable {
+        private RuleAcquisition parent;
+        private PreviewOfSample preview;
+        private HashSet<Integer> coveredNegative;
+
+        public WrongRuleWarningThread(RuleAcquisition parent, HashSet<Integer> coveredNegative) {
+            this.parent = parent;
+            this.coveredNegative = coveredNegative;
+        }
+
+        @Override
+        public void run() {
+            preview = new PreviewOfSample(dataFile, coveredNegative);
+            new WrongRuleWarning(parent, preview);
+        }
+    }
 }
+

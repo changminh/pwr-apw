@@ -76,17 +76,6 @@ public class ConflictsResolvingFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ConflictsResolvingFrame().setVisible(true);
-            }
-        });
-    }
-
     public void valueChosen(String s) {
         parent.setValue(s);
         dispose();

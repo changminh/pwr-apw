@@ -233,8 +233,14 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
         // parent == null -> means that inserted rule is for particular sample with nulls
         if (parent != null)
             parent.addComplex(getComplex(), true, conclusionMode);
-        else 
-            additionalRuleConfirmed(getComplex());
+        else {
+            new Thread() {
+                @Override
+                public void run() {
+                    additionalRuleConfirmed(getComplex());
+                }
+            }.start();
+        }
 }//GEN-LAST:event_jb_okActionPerformed
 
     private void jb_nextComplexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_nextComplexActionPerformed
@@ -251,16 +257,6 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
         acqusitor.addComplex(c, currentSample);
     }
     
-    /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ComplexCreatorFrame().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private apw.augmentedLearning.gui.ComplexCreatorPanel complexCreatorPanel;
