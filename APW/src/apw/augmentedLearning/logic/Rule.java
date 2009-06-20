@@ -110,8 +110,7 @@ public class Rule {
                 sb.append(cx.getSelector(i));
             }
         sb.append(" </i></h3>\n");
-        sb.append(" <b>Warunki</b><br />\n");
-        sb.append(" wartość atrybutu:<ul>");
+        sb.append(" Wartość atrybutu:<ul>\n");
         Selector s;
         for (Complex c: ifClause) {
             for (int i = 0; i < c.size(); i++) {
@@ -120,7 +119,8 @@ public class Rule {
                     sb.append("<li>" + samples.getAtts().get(i).getName() + " " + s.textRepresetation() + "</li>\n");
             }
         }
-        sb.append(" </ul>");
+        sb.append(" </ul>\n");
+        sb.append(" <hr /><hr />\n");
         return sb.toString();
     }
 }

@@ -258,14 +258,6 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
             case 4: deleteTempRule(); break;
         }
     }
-    
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new LoadingSamples_Step3(null, null).setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;

@@ -281,16 +281,7 @@ public class NominalValuesChooser extends javax.swing.JFrame {
         dispose();
 }//GEN-LAST:event_jb_cancelActionPerformed
 
-    /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new NominalValuesChooser().setVisible(true);
-            }
-        });
-    }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jb_cancel;
