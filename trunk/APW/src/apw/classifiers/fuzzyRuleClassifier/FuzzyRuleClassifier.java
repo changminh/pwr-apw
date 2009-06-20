@@ -220,7 +220,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             rPro = Double.parseDouble(data);
         }
 
-        data = Utils.getOption("N", options);
+        data = Utils.getOption("n", options);
 
         if (data.length() != 0) {
             this.normilize = (Integer.parseInt(data) == 0)?false:true;
@@ -267,8 +267,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             if (!data.containsKey(str)) {
                 data.put(str, 0);
             } else {
-                int value = data.get(str).intValue();
-                data.put(str, value + 1);
+                data.put(str, data.get(str).intValue() + 1);
             }
         }
 
@@ -292,20 +291,18 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     }
 
     @Override
-    public double[] classifySample(Sample s) {
-        if (bestResult == null) {
-            return null;
-        }
+    public double[] classifySample(Sample _sample) {
+        if (bestResult != null) {
+            String _class = bestResult.classifySample(_sample);
 
-        String result = bestResult.classify(s);
+            if(_class != null){
+                double[] result = new double[_class.length()];
 
-        if(result != null){
-            double[] r = new double[result.length()];
-
-            for (int i = 0; i < r.length; i++) {
-                r[i] = (double) (result.charAt(i));
+                for (int i = 0; i < result.length; i++) {
+                    result[i] = (double) (_class.charAt(i));
+                }
+                return result;
             }
-            return r;
         }
         
         return null;
@@ -539,7 +536,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             gens.get(i).setUnClass(0);
 
             for (int j = 0; j < samples.size(); j++) {
-                String result = gens.get(i).classify(samples.get(j));
+                String result = gens.get(i).classifySample(samples.get(j));
 
                 if (result == null) {
                     gens.get(i).setUnClass(gens.get(i).getUnClass() + 1);
@@ -588,7 +585,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             parants = roulette(gens, size);
 
             for (int i = 0; i < size / 2; i++) {
-                if (Math.random() <= crossProb) {
+                if (RandomClass.nextDouble() <= crossProb) {
                     Genom o1 = parants.get(2 * i);     //0,2,4
                     Genom o2 = parants.get(2 * i + 1); //1,3,5
                     Genom[] result = o1.crossWith(o2);
@@ -598,7 +595,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             }
 
             for (int i = 0; i < gens.size(); i++) {
-                if (Math.random() <= mutationProb) {
+                if (RandomClass.nextDouble() <= mutationProb) {
                     gens.add(gens.get(i).mutate());
                 }
             }
