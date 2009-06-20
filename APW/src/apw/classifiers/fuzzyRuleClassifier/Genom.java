@@ -48,16 +48,27 @@ class Genom implements Comparable<Genom> {
 
     private ArrayList<FuzzyRule> rules = new ArrayList<FuzzyRule>();
     private ArrayList<FuzzySet[]> sets = new ArrayList<FuzzySet[]>();
-    private double corr = 0,  incorr = 0,  unclass = 0,  prem = 0,  fsets = 0;
+
+    private double corr = 0,
+                   incorr = 0,
+                   unclass = 0,
+                   prem = 0,
+                   fsets = 0;
+
     public static int numberOfSets = 6;
-    public static double beta = 0.75,  delta = 0.1,  eps = 0.1,  dzeta = 0.8;
+
+    public static double beta = 0.75,
+                         delta = 0.1,
+                         eps = 0.1,
+                         dzeta = 0.8;
+
     public static int setType = 0;
 
     private void setValues(int factor, int _sets, Object[] classes) {
 
-        Object[] set = classes;
+        //Object[] set = classes;
 
-        for (int i = 0; i < set.length; i++) {
+        for (int i = 0; i < classes.length; i++) {
             for (int j = 0; j < factor; j++) {
                 Pair<Boolean, Integer>[] con = new Pair[_sets];
 
@@ -67,19 +78,18 @@ class Genom implements Comparable<Genom> {
                     con[c].setSecond(RandomClass.nextInt(0, numberOfSets));
                 }
 
-                FuzzyRule r = new FuzzyRule(con, set[i].toString(), sets);
+                FuzzyRule r = new FuzzyRule(con, classes[i].toString(), sets);
                 rules.add(r);
             }
         }
 
         int nSet;
 
-        Random rand = new Random();
+        //Random rand = new Random();
 
         for (int i = 0; i < _sets; i++) {
 
             if (setType > 2) {
-                //nSet = rand.nextInt(3);
                 nSet = i % 3;
             } else {
                 nSet = setType;
@@ -98,9 +108,10 @@ class Genom implements Comparable<Genom> {
 
                             public int compare(TriangleSet o1, TriangleSet o2) {
                                 double d1 = o1.getParams()[0],
-                                        d2 = o2.getParams()[0];
+                                       d2 = o2.getParams()[0];
                                 return (d1 == d2) ? 0 : ((d1 > d2) ? 1 : -1);
                             }
+                            
                         }
 
                         Arrays.sort(_set, new Comp());
@@ -108,7 +119,7 @@ class Genom implements Comparable<Genom> {
                         _set[0].setRight(_set[1]);
 
                         for (int j = 1; j < _set.length - 1; j++) {
-                            _set[j].setLeft(_set[j - 1]);
+                            _set[j].setLeft (_set[j - 1]);
                             _set[j].setRight(_set[j + 1]);
                         }
 
@@ -136,14 +147,15 @@ class Genom implements Comparable<Genom> {
                         _set[0].setParam(liczby.get(0), liczby.get(1));
 
                         for (int j = 1; j < _set.length - 1; j++) {
-                            _set[j].setLeft(_set[j - 1]);
+                            _set[j].setLeft (_set[j - 1]);
                             _set[j].setRight(_set[j + 1]); // 2,3,4,5,6,7
                             _set[j].setParam(liczby.get(2 * j), liczby.get(2 * j + 1));
                         }
 
                         _set[_set.length - 1].setLeft(_set[_set.length - 2]);
+
                         _set[_set.length - 1].setParam(liczby.get(liczby.size() - 2),
-                                liczby.get(liczby.size() - 1));
+                                                       liczby.get(liczby.size() - 1));
 
                         sets.add(_set);
                     }
@@ -258,13 +270,13 @@ class Genom implements Comparable<Genom> {
         unclass = x;
     }
 
-    public String classify(Sample s) {
+    public String classifySample(Sample _sample) {
         double max = 0.0;
         int index = -1;
 
-        for (int i = 0; i < this.rules.size(); i++) {
+        for (int i = 0; i < rules.size(); i++) {
             if (rules.get(i).isActive()) {
-                double value = this.rules.get(i).classiify(s);
+                double value = rules.get(i).classiify(_sample);
 
                 if (max < value) {
                     max = value;
@@ -316,7 +328,7 @@ class Genom implements Comparable<Genom> {
     }
 
     public double fitness() {
-        double result = corr * (beta * k(incorr) + dzeta * k(unclass)) + delta * k(prem) + eps * k(fsets);
+        double result = corr * (beta * k(incorr) + delta * k(unclass)) + dzeta * k(prem) + eps * k(fsets);
         return result;
     }
 
