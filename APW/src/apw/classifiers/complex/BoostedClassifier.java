@@ -48,7 +48,6 @@ import java.util.List;
  */
 public class BoostedClassifier extends Classifier {
     final static Class[] CLASSIFIER_CONSTRUCTOR_PARAMETERS = new Class[]{Samples.class};
-    final int SAMPLE_LAST_ATTRIBUTE_INDEX;
     
     private Class<Classifier>[] baseClassifiersClasses;
     private Classifier[] complexClassifier;
@@ -69,8 +68,6 @@ public class BoostedClassifier extends Classifier {
         this.samples = samples;
         this.samplesProbabilities = new double[samples.size()];
         this.rebuildNeeded = true;
-
-        SAMPLE_LAST_ATTRIBUTE_INDEX = samples.getAtts().size() - 1;
     }
 
     @Override
@@ -253,13 +250,13 @@ public class BoostedClassifier extends Classifier {
         for (int sampleIndex = 0; sampleIndex < samplesCount; ++sampleIndex) {
             final Sample sample = samples.get(sampleIndex);
 
-            final Object targetValue = sample.get(SAMPLE_LAST_ATTRIBUTE_INDEX);
-            final Object calculatedValue = classifierInstance.classifySampleAsObject(sample);
+            final double targetValue = (double) (Double) sample.classAttributeRepr();
+            final double calculatedValue = (double) (Double) classifierInstance.classifySampleAsObject(sample);
 
             /* Compare the expected classification class with the calculated one;
              * if they're different, add the probability of the current sample
              * to the current base classifier's error value */
-            if (!targetValue.toString().equals(calculatedValue.toString())) {
+            if (targetValue != calculatedValue) {
                 classifierError += samplesProbabilities[sampleIndex];
                 classificationCorrectness[sampleIndex] = 1;
             } else {
