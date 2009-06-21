@@ -3,6 +3,7 @@ package apw.augmentedLearning.logic;
 import apw.augmentedLearning.gui.ComplexCreatorFrame;
 import apw.augmentedLearning.gui.PreviewOfSample;
 import apw.augmentedLearning.gui.ProgressIndicator;
+import apw.augmentedLearning.gui.SampleInputFrame;
 import apw.augmentedLearning.gui.WrongRuleWarning;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -124,7 +125,7 @@ public class RuleAcquisition {
         acquireRulesForRestSamples();
         savePrologRepresentationToFile();
         showRulesInHtmlDocument();
-        System.out.println("Dziękujemy, zapraszamy ponownie.");
+        new SampleInputFrame(advisor).setVisible(true);
     }
     
     private void removeCoveredSamples(Rule rule) {
@@ -597,14 +598,13 @@ public class RuleAcquisition {
         sb.append(" <body>\n");
         sb.append("     <center><h1>Otrzymane reguły klasyfikacji</h1></center>\n");
         int counter = 0;
+        sb.append(" <h2>Pierwotne reguły użytkownika i reguły wygenerowane</h2>\n");
         if (advisor.getRulesCounter()[0] > 0) {
-            sb.append(" <h2>Pierwotne reguły użytkownika</h2>\n");
             for (int i = 0; i < advisor.getRulesCounter()[0]; i++) {
                 sb.append(advisor.getRules().get(counter++).translateToHtml());
                 sb.append("\n");
             }
         }
-        sb.append(" <h2>Reguły wygenerowane przez algorytm AQ</h2>\n");
         for (int i = 0; i < advisor.getRulesCounter()[1]; i++) {
             sb.append(advisor.getRules().get(counter++).translateToHtml());
             sb.append("\n");

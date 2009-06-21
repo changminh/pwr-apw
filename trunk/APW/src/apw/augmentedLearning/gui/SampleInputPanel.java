@@ -1,10 +1,11 @@
-/* 
- * Created on 2009-05-21, 10:06:34
+/*
+ * SampleInputPanel.java
+ *
+ * Created on 2009-06-20, 21:00:06
  */
 
 package apw.augmentedLearning.gui;
 
-import apw.augmentedLearning.logic.Complex;
 import apw.augmentedLearning.logic.DataFile;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -17,40 +18,25 @@ import javax.swing.GroupLayout.SequentialGroup;
  *
  * @author Nitric
  */
-public class ComplexCreatorPanel extends javax.swing.JPanel {
+public class SampleInputPanel extends javax.swing.JPanel {
 
-    int amount = 1;
-    DataFile dataFile = null;
-    private ComplexCreatorFrame parentFrame;
-    private SelectorCreatorPanel[] panels;
+    private DataFile dataFile;
+    private ValueInputPanel[] panels;
+    private int amount = 3;
 
-    public ComplexCreatorPanel() {
-        initPanels();
+    /** Creates new form SampleInputPanel */
+    public SampleInputPanel() {
+        initComponents();
     }
 
-    public ComplexCreatorPanel(ComplexCreatorFrame parentFrame, DataFile dataFile) {
+    public SampleInputPanel(DataFile dataFile) {
         this.dataFile = dataFile;
         amount = dataFile.getAttributesCount();
         initPanels();
     }
 
-    public Complex getComplex() {
-        Complex complex = new Complex();
-        for (SelectorCreatorPanel panel : panels) {
-            complex.addSelector(panel.getSelector());
-        }
-        return complex;
-    }
-
-    public void setSample(int sample) {
-        Object[] objects = dataFile.getRawObjects()[sample];
-        for (int i = 0; i < dataFile.getAttributesCount(); i++) {
-            if (objects[i] == null)
-                panels[i].setEnabled(false);
-        }
-        SelectorForNominalCreatorPanel panel = (SelectorForNominalCreatorPanel) panels[dataFile.getClassAttributeIndex()];
-        panel.setSingleValue(((String) objects[dataFile.getClassAttributeIndex()]));
-        panel.setEnabled(false);
+    public Object getValue(int i) throws NumberFormatException {
+        return panels[i].getValue();
     }
 
     private void initPanels() {
@@ -68,24 +54,23 @@ public class ComplexCreatorPanel extends javax.swing.JPanel {
 
         /***** Horizontal *****/
         pg1 = layout.createParallelGroup(Alignment.LEADING);
-        panels = new SelectorCreatorPanel[amount];
+        panels = new ValueInputPanel[amount - 1];
+        int panelCounter = 0;
 
         for (int i = 0; i < amount; i++) {
+            if (i == dataFile.getClassAttributeIndex())
+                continue;
             if (dataFile != null) {
                 if (nominals.contains(i))
-                    panels[i] = 
-                            new SelectorForNominalCreatorPanel(
-                            i,
-                            names.get(i),
-                            dataFile.getNominalValuesOfAttribute(i),
-                            parentFrame);
+                    panels[panelCounter] =
+                            new NominalValueInput(names.get(i), dataFile.getNominalValuesOfAttribute(i));
                 else
-                    panels[i] = new SelectorForNumberCreatorPanel(i, names.get(i));
+                    panels[panelCounter] = new NumberValueInput(names.get(i));
             }
             else
-                panels[i] = new SelectorForNumberCreatorPanel(i, "Atr " + i);
+                panels[panelCounter] = new NumberValueInput("Attrybut " + i); // dummy, in fact this should never happen in program
             pg1.addComponent(
-                    panels[i],
+                    panels[panelCounter++],
                     javax.swing.GroupLayout.PREFERRED_SIZE,
                     javax.swing.GroupLayout.DEFAULT_SIZE,
                     javax.swing.GroupLayout.PREFERRED_SIZE
@@ -100,12 +85,12 @@ public class ComplexCreatorPanel extends javax.swing.JPanel {
                 layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(sg1)
                 );
-
+        
         /***** Vertical *****/
 
         sg2 = layout.createSequentialGroup();
         sg2.addContainerGap();
-        for (int i = 0; i < amount - 1; i++) {
+        for (int i = 0; i < amount - 2; i++) {
             sg2.addComponent(
                     panels[i],
                     javax.swing.GroupLayout.PREFERRED_SIZE,
@@ -114,7 +99,7 @@ public class ComplexCreatorPanel extends javax.swing.JPanel {
                 );
             sg2.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED);
         }
-        sg2.addComponent(panels[amount - 1],
+        sg2.addComponent(panels[amount - 2],
                 javax.swing.GroupLayout.PREFERRED_SIZE,
                 javax.swing.GroupLayout.DEFAULT_SIZE,
                 javax.swing.GroupLayout.PREFERRED_SIZE
@@ -124,6 +109,12 @@ public class ComplexCreatorPanel extends javax.swing.JPanel {
             layout.createParallelGroup(Alignment.LEADING)
             .addGroup(sg2));
     }
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -135,20 +126,18 @@ public class ComplexCreatorPanel extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(nominalValueInput1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(numberValueInput1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(nominalValueInput1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(numberValueInput1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(nominalValueInput1, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(nominalValueInput1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(numberValueInput1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))

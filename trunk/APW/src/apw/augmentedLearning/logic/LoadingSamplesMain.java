@@ -11,8 +11,9 @@ import apw.augmentedLearning.gui.LoadingSamples_Step1;
 import apw.augmentedLearning.gui.LoadingSamples_Step3;
 import apw.augmentedLearning.gui.LoadingSamples_Step2;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -123,6 +124,48 @@ public class LoadingSamplesMain {
 
     public void aqFinished() {
         mode++;
+    }
+
+    public void classify(Object[] sample) {
+        Object type = null;
+        Rule winner = null;
+        int support = 0;
+        LinkedList<Rule> miss = new LinkedList<Rule>();
+        for (Rule r : rules) {
+            if (r.covers(sample)) {
+                if (type == null) {
+                    winner = r;
+                    type = ((SelectorForNominal)r.getThenClause().get(0).getSelector(dataFile.getClassAttributeIndex()))
+                            .getUniqueValue();
+                }
+                else {
+                    if (!(((SelectorForNominal)r.getThenClause().get(0).getSelector(dataFile.getClassAttributeIndex()))
+                            .getUniqueValue().equals(type)))
+                        miss.add(r);
+                    else
+                        support++;
+                }
+            }
+        }
+        if (winner == null) {
+            JOptionPane.showMessageDialog(null, "Brak reguł pokrywających przykład!");
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html><body>");
+        sb.append("Przewidywany typ: <b>" + type + "</b><br>");
+        sb.append("Zwycięska reguła: <b>" + winner.name + "</b><br>");
+        if (support > 0)
+            sb.append("Innych reguł pokrywających: <b>" + support + "</b><br>");
+        if (miss.size() > 0) {
+            sb.append("Reguły sprzeczne: <b>");
+            for (int i = 0; i < miss.size() - 1; i++) {
+                sb.append("" + miss.get(i).name + ", ");
+            }
+            sb.append("" + miss.get(miss.size() - 1).name);
+        }
+        sb.append("</b></body></html>");
+        JOptionPane.showMessageDialog(null, sb.toString());
     }
 
     /*
