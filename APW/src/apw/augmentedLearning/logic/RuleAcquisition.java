@@ -41,7 +41,6 @@ public class RuleAcquisition {
     private ArrayList<Integer> validSamples = new ArrayList<Integer>();
     private HashSet<Integer> bannedSamples;
     private HashSet<Integer> samplesWithNull;
-    private HashSet<Integer> samplesWithNullCoveredByAdditionalRules;           // Variable name FAIL
     private boolean hasToWait = false;
     private boolean switchToNext = false;           // Will be used when user will input additional rules
     private String tempRuleName;
@@ -303,7 +302,6 @@ public class RuleAcquisition {
     }
 
     private void removeLessGeneralComplexes () {
-        // System.out.println("Przed odchudzaniem kompleksów = " + star.size());
         boolean[] skip = new boolean[star.size()];
         boolean interrupt = false;
         for (int i = 0; i < star.size() - 1; i++) {
@@ -322,7 +320,6 @@ public class RuleAcquisition {
             if (skip[i])
                 star.remove(i);
         }
-        // System.out.println("Po odchudzaniu kompleksów = " + star.size());
     }
 
     private void removeUncoveredNegativeSeeds() {
@@ -349,8 +346,6 @@ public class RuleAcquisition {
         int[] negativeSamplesNotCovered = new int[star.size()];
         int[] bonus = new int[star.size()];
         int[] fail = new int[star.size()];
-        // int positiveSamplesCovered;
-        // int negativeSamplesNotCovered;
         double weightP = 1.d, weightN = 1.d, weightB = 10.d;
         /* Below: count of samples, that so far are not covered by any rule and are correctly classified
          by the complex. */
@@ -383,10 +378,9 @@ public class RuleAcquisition {
             notes[i] = weightB * bonus[i]
                     + weightN * negativeSamplesNotCovered[i]
                     + weightP * positiveSamplesCovered[i];
-            // System.out.print(" " + notes[i] + ", " + fail[i] + "\n");
         }
 
-        // System.out.println("");
+
         // Choose the best complexes:
         Double max;
         int index = 0;                                                          
@@ -408,7 +402,6 @@ public class RuleAcquisition {
     }
 
     private void checkComplexes(ArrayList<Complex> complexes, Integer negativeSeed) {
-        // TODO: Remove later
         // Assert, that all created complexes doesn't cover negative seed:
         Object[] negativeSample = rawData[negativeSeed];
         for (Complex c : complexes) {
@@ -423,7 +416,6 @@ public class RuleAcquisition {
         if (!c.covers(rawData[positiveSeed]))                           // Rule doesn't cover positive seed?!
             return false;
         for (int i : validSamples) {
-            // System.out.print(sample[classAttrId] + " =?= " + currentPositiveSeedCategory);
             if (c.covers(rawData[i])) {
                 if (!rawData[i][classAttrId].equals(currentPositiveSeedCategory)) {
                     System.out.println("Ale gafa... :(");
@@ -591,7 +583,8 @@ public class RuleAcquisition {
                 "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
         sb.append("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
         sb.append(" <head>\n");
-        sb.append(" <meta http-equiv=\"Content-Type\" content=\"text/html; charset=cp-1250\" />");
+        String enc = System.getProperties().getProperty("file.encoding");
+        sb.append(" <meta http-equiv=\"Content-Type\" content=\"text/html; charset=" + enc + "\" />");
         sb.append("     <title>Wygenerowane reguły</title>\n");
         sb.append(" </head>\n");
         sb.append("");
@@ -616,8 +609,7 @@ public class RuleAcquisition {
                 sb.append("\n");
             }
         }
-        sb.append(" </body>\n");
-        sb.append("</html>\n");
+        sb.append(" </body>\n</html>\n");
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(htmlFileName));
             bw.write(sb.toString());
@@ -662,4 +654,3 @@ public class RuleAcquisition {
         }
     }
 }
-
