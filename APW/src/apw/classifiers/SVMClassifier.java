@@ -465,13 +465,22 @@ public class SVMClassifier extends Classifier {
 
             System.out.print(svm.svm_predict(model, x));
 
-            return new double[]{svm.svm_predict(model, x)};
+            double[] data = new double[]{svm.svm_predict(model, x)};
+            String _result = this.convert(data);
+            
+            double[] result = new double[_result.length()];
+
+            for(int i =0; i < _result.length(); i++){
+                result[i] = (double)_result.charAt(i);
+            }
+
+            return result;
         }
         return null;
 
     }
 
-    public String interprate(double[] data) {
+    private String convert(double[] data) {
         String result = null;
 
         for (Sample s : samples) {
@@ -488,6 +497,15 @@ public class SVMClassifier extends Classifier {
             }
         }
 
+        return result;
+    }
+    
+    public String interprate(double[] data) {
+        String result = new String("");
+
+        for (int i = 0; i < data.length; i++) {
+            result += (char) (data[i]);
+        }
         return result;
     }
 
