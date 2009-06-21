@@ -31,8 +31,9 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-
 package apw.core;
+
+import apw.classifiers.Classifier;
 
 /**
  *
@@ -40,4 +41,201 @@ package apw.core;
  */
 public class Evaluator {
 
+    private int N;
+
+
+    // Experimental
+    public class Measure {
+
+        public double ratio;
+        public int value;
+    }
+
+    public class Instance {
+
+        public int positive;
+        public int negative;
+    }
+    public Measures[] classes;
+    public Measures weighted;
+    public int confMtx[][];
+
+    public class Measures {
+
+        public Instance correct;
+        public Instance incorrect;
+        public String className;
+        public double TP;
+        public double FP;
+        public double TN;
+        public double FN;
+        public double accuracy;
+        public double recall;
+        public double precision;
+        public double fScore;
+        public int instances;
+
+        public Measures() {
+            correct = new Instance();
+            incorrect = new Instance();
+        }
+    }
+
+    public Evaluator(Classifier c, Samples ss) {
+        this(getConfusionMatrix(c, ss), getNames(ss));
+    }
+
+    private static String[] getNames(Samples ss) {
+        return ((Nominal) ss.getClassAttribute()).getKeys().toArray(new String[]{});
+    }
+
+    private static int[][] getConfusionMatrix(Classifier c, Samples ss) {
+        int n = ((Nominal) ss.getClassAttribute()).getKeys().size();
+        int[][] cm = new int[n][n];
+
+        // fill cm
+        for (Sample s : ss) {
+            int i = (int) (double) ((Double) s.classAttributeRepr());
+            int j = argmax(c.classifySample(s));
+
+            /** wiersz i-ty,       kolumna j-ta */
+            /** i-ty - oczekiwany, j-uzyskany   */
+            cm[i][j]++;
+        }
+
+        return cm;
+    }
+    public int instances;
+
+    public Evaluator(int[][] confusionMatrix) {
+        this(confusionMatrix, new String [confusionMatrix.length]);
+    }
+
+    private static int argmax(double[] d) {
+        int m = 0;
+        for (int i = 0; i < d.length; i++)
+            if (d[i] > d[m])
+                m = i;
+        return m;
+    }
+
+    public Evaluator(int[][] confusionMatrix,
+            String[] classNames) {
+        // Assertions
+        if (confusionMatrix == null || classNames == null)
+            throw new NullPointerException();
+        if (confusionMatrix.length != confusionMatrix[0].length)
+            throw new IllegalArgumentException(
+                    "Confusion Matrix must be a square matrix");
+        if (classNames.length != confusionMatrix.length)
+            throw new IllegalArgumentException(
+                    "For each row in Confusion Matrix there must " +
+                    "exist a name in classNames array");
+
+        // Initialization
+        N = confusionMatrix.length;
+        confMtx = confusionMatrix;
+        classes = new Measures[N];
+        weighted = new Measures();
+        for (int i = 0; i < N; i++)
+            classes[i] = new Measures();
+
+        // count instances
+        for (int i = 0; i < N; i++)
+            for (int j = 0; j < N; j++)
+                instances += confusionMatrix[i][j];
+
+        // count class distribution
+        for (int i = 0; i < N; i++)
+            for (int j = 0; j < N; j++)
+                classes[i].instances += confusionMatrix[i][j];
+
+        // name classes
+        for (int i = 0; i < N; i++)
+            classes[i].className = classNames[i];
+
+        // count number of correct predictions that an instance is positive
+        for (int i = 0; i < N; i++)
+            classes[i].correct.positive = confusionMatrix[i][i];
+
+        // number of incorrect predictions that an instance is Positive % Negative
+        for (int i = 0; i < N; i++)
+            for (int j = 0; j < N; j++)
+                if (i != j) { // exclude correct Positives
+                    classes[i].incorrect.positive +=
+                            confusionMatrix[j][i];
+                    classes[i].incorrect.negative +=
+                            confusionMatrix[i][j];
+                }
+
+        // evaluate number of correct predictions that an instance is negative
+        Measures m;
+        for (int i = 0; i < N; i++) {
+            m = classes[i];
+            m.correct.negative = instances -
+                    (m.correct.positive +
+                    m.incorrect.negative +
+                    m.incorrect.positive);
+        }
+
+        // count True(& False) Positive (& Negative) ratios
+        double positiveCases, negativeCases;
+        for (int i = 0; i < N; i++) {
+            m = classes[i];
+            positiveCases = m.correct.positive + m.incorrect.negative;
+            negativeCases = m.correct.negative + m.incorrect.positive;
+            // (TP) is the proportion of positive cases
+            // that were correctly identified
+            // TPR = TP / P = TP / (TP + FN)
+            m.TP = m.correct.positive / positiveCases;
+
+            // (FP) is the proportion of negatives cases
+            // that were incorrectly classified as positive
+            // FPR = FP / N = FP / (FP + TN)
+            m.FP = m.incorrect.positive / negativeCases;
+
+            // (TN) is defined as the proportion of negatives
+            // cases that were classified correctly
+            m.TN = m.correct.negative / negativeCases;
+
+            // (FN) is the proportion of positives cases
+            // that were incorrectly classified as negative
+            m.FN = m.incorrect.negative / positiveCases;
+
+            // recall is the same as true positive ratio
+            m.recall = m.TP;
+
+            // precision (P) is the proportion of the predicted positive
+            // cases that were correct
+            m.precision = (double) m.correct.positive /
+                    (m.incorrect.positive + m.correct.positive);
+
+            // f Score
+            m.fScore = 2 * (m.precision * m.recall) / (m.precision + m.recall);
+
+            m.accuracy = (double) m.correct.positive / m.instances;
+        }
+
+        // Count weighted values
+        for (int i = 0; i < N; i++) {
+            m = classes[i];
+            weighted.TP += m.TP * m.instances;
+            weighted.FP += m.FP * m.instances;
+            weighted.TN += m.TN * m.instances;
+            weighted.FN += m.FN * m.instances;
+            weighted.accuracy += m.accuracy * m.instances;
+            weighted.recall += m.recall * m.instances;
+            weighted.precision += m.precision * m.instances;
+            weighted.fScore += m.fScore * m.instances;
+
+        }
+        weighted.TP /= instances;
+        weighted.FP /= instances;
+        weighted.TN /= instances;
+        weighted.FN /= instances;
+        weighted.accuracy /= instances;
+        weighted.recall /= instances;
+        weighted.precision /= instances;
+        weighted.fScore /= instances;
+    }
 }

@@ -31,17 +31,19 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-
 package apw.classifiers;
 
+import apw.core.Evaluator;
 import apw.core.Sample;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
+import apw.gui.ResultPanel;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -49,12 +51,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import libsvm.*;
 
-
 /**
  *
  * @author Przemek Woś
  */
-
 public class SVMClassifier extends Classifier {
 
     protected Samples samples = null;
@@ -73,27 +73,22 @@ public class SVMClassifier extends Classifier {
         }
 
         public static int getOptionPos(String flag, String[] options) {
-            if (options == null) {
+            if (options == null)
                 return -1;
-            }
 
-            for (int i = 0; i < options.length; i++) {
-                if ((options[i].length() > 0) && (options[i].charAt(0) == '-')) {
+            for (int i = 0; i < options.length; i++)
+                if ((options[i].length() > 0) && (options[i].charAt(0) == '-'))
                     // Check if it is a negative number
                     try {
                         Double.valueOf(options[i]);
                     } catch (NumberFormatException e) {
                         // found?
-                        if (options[i].equals("-" + flag)) {
+                        if (options[i].equals("-" + flag))
                             return i;
-                        }
                         // did we reach "--"
-                        if (options[i].charAt(1) == '-') {
+                        if (options[i].charAt(1) == '-')
                             return -1;
-                        }
                     }
-                }
-            }
 
             return -1;
         }
@@ -112,17 +107,15 @@ public class SVMClassifier extends Classifier {
 
             if (i > -1) {
                 if (options[i].equals("-" + flag)) {
-                    if (i + 1 == options.length) {
+                    if (i + 1 == options.length)
                         throw new Exception("No value given for -" + flag + " option.");
-                    }
                     options[i] = "";
                     newString = new String(options[i + 1]);
                     options[i + 1] = "";
                     return newString;
                 }
-                if (options[i].charAt(1) == '-') {
+                if (options[i].charAt(1) == '-')
                     return "";
-                }
             }
 
             return "";
@@ -154,7 +147,7 @@ public class SVMClassifier extends Classifier {
     }
 
     @Override
-    public void addSamples(Samples s)  {
+    public void addSamples(Samples s) {
         samples.addAll(s);
     }
 
@@ -167,7 +160,7 @@ public class SVMClassifier extends Classifier {
     public void rebuild() {
         try {
             // throw new UnsupportedOperationException("Not supported yet.");
-           // setOptions(options);
+            // setOptions(options);
             buildClassifier();
 
         } catch (Exception ex) {
@@ -194,7 +187,7 @@ public class SVMClassifier extends Classifier {
         double length;
         Samples _samples = new Samples(nSamples.getAtts());
 
-       // System.out.println(nSamples.getAtts());
+        // System.out.println(nSamples.getAtts());
 
         for (int i = 0; i < nSamples.size(); i++) {
             length = 0.0;
@@ -214,20 +207,20 @@ public class SVMClassifier extends Classifier {
                 data /= length;
                 String str = Double.toString(data);
                 Object obj = nSamples.getAtts().get(j).getRepresentation(str);
-              
+
                 list.add(obj);
             }
 
             Object obj = nSamples.getAtts().get(size).
                     getRepresentation(nSamples.get(i).get(size).toString());
 
-            
+
             list.add(obj);
             Sample newSample = new Sample(new Samples(nSamples.getAtts()), list.toArray());
-    
+
             _samples.add(newSample);
 
-           
+
         }
 
         return _samples;
@@ -237,97 +230,84 @@ public class SVMClassifier extends Classifier {
         param = new svm_parameter();
 
         String svmtypeString = Utils.getOption('S', options);
-        if (svmtypeString.length() != 0) {
+        if (svmtypeString.length() != 0)
             param.svm_type = Integer.parseInt(svmtypeString);
-        } else {
+        else
             param.svm_type = svm_parameter.C_SVC;
-        }
 
         String kerneltypeString = Utils.getOption('K', options);
-        if (kerneltypeString.length() != 0) {
+        if (kerneltypeString.length() != 0)
             param.kernel_type = Integer.parseInt(kerneltypeString);
-        } else {
+        else
             param.kernel_type = svm_parameter.RBF;
-        }
 
 
 
         String degreeString = Utils.getOption('D', options);
-        if (degreeString.length() != 0) {
+        if (degreeString.length() != 0)
             param.degree = (new Double(degreeString)).doubleValue();
-        } else {
+        else
             param.degree = 3;
-        }
 
         String gammaString = Utils.getOption('G', options);
-        if (gammaString.length() != 0) {
+        if (gammaString.length() != 0)
             param.gamma = (new Double(gammaString)).doubleValue();
-        } else {
+        else
             param.gamma = 0;
-        }
 
         String coef0String = Utils.getOption('R', options);
-        if (coef0String.length() != 0) {
+        if (coef0String.length() != 0)
             param.coef0 = (new Double(coef0String)).doubleValue();
-        } else {
+        else
             param.coef0 = 0;
-        }
 
         String nuString = Utils.getOption('N', options);
-        if (nuString.length() != 0) {
+        if (nuString.length() != 0)
             param.nu = (new Double(nuString)).doubleValue();
-        } else {
+        else
             param.nu = 0.5;
-        }
 
         String cacheString = Utils.getOption('M', options);
-        if (cacheString.length() != 0) {
+        if (cacheString.length() != 0)
             param.cache_size = (new Double(cacheString)).doubleValue();
-        } else {
+        else
             param.cache_size = 40;
-        }
 
         String costString = Utils.getOption('C', options);
-        if (costString.length() != 0) {
+        if (costString.length() != 0)
             param.C = (new Double(costString)).doubleValue();
-        } else {
+        else
             param.C = 1;
-        }
 
         String epsString = Utils.getOption('E', options);
-        if (epsString.length() != 0) {
+        if (epsString.length() != 0)
             param.eps = (new Double(epsString)).doubleValue();
-        } else {
+        else
             param.eps = 1e-3;
-        }
 
         String normString = Utils.getOption('Z', options);
-        if (normString.length() != 0) {
+        if (normString.length() != 0)
             normalize = Integer.parseInt(normString);
-        } else {
+        else
             normalize = 0;
-        }
 
         String lossString = Utils.getOption('P', options);
-        if (lossString.length() != 0) {
+        if (lossString.length() != 0)
             param.p = (new Double(lossString)).doubleValue();
-        } else {
+        else
             param.p = 0.1;
-        }
 
         String shrinkingString = Utils.getOption('H', options);
-        if (shrinkingString.length() != 0) {
+        if (shrinkingString.length() != 0)
             param.shrinking = Integer.parseInt(shrinkingString);
-        } else {
+        else
             param.shrinking = 1;
-        }
 
         String probString = Utils.getOption('B', options);
-        if (probString.length() != 0) {
+        if (probString.length() != 0)
             param.probability = Integer.parseInt(probString);
-        } else {
+        else
             param.probability = 0;
-        }
 
         String weightsString = Utils.getOption('W', options);
         if (weightsString.length() != 0) {
@@ -344,9 +324,8 @@ public class SVMClassifier extends Classifier {
             }
             param.nr_weight = count;
             param.weight_label[0] = -1; // label of first class
-            for (int i = 1; i < count; i++) {
+            for (int i = 1; i < count; i++)
                 param.weight_label[i] = i;
-            }
         } else {
             param.nr_weight = 0;
             param.weight_label = new int[0];
@@ -365,9 +344,9 @@ public class SVMClassifier extends Classifier {
      */
     protected String samplesToSparse(Sample sample) {
         String line = new String();
-       
-        Object _c = samples.getAtts().get(sample.size()-1).
-                               getRepresentation(sample.get(sample.size()-1).toString());
+
+        Object _c = samples.getAtts().get(sample.size() - 1).
+                getRepresentation(sample.get(sample.size() - 1).toString());
 
         double c = Double.parseDouble(_c.toString());
 
@@ -375,26 +354,25 @@ public class SVMClassifier extends Classifier {
         //   c = -1.0;
         //}
 
-        c-=1.0;
+        c -= 1.0;
 
         line = c + " ";
         for (int j = 1; j < sample.size(); j++) {
             //int tmpI = (int) Double.parseDouble(sample.classAttributeRepr().toString());
-            
+
             //System.out.println(tmpI);
 
             //if (j - 1 == tmpI) {
-               // continue;
+            // continue;
             //}
 
-            double value = Double.parseDouble(sample.get(j-1).toString());
+            double value = Double.parseDouble(sample.get(j - 1).toString());
 
-            if (value != 0.0) {
+            if (value != 0.0)
                 line += " " + j + ":" + value;
-            }
         }
 
-       // System.out.println(line);
+        // System.out.println(line);
         return (line + "\n");
     }
 
@@ -407,15 +385,18 @@ public class SVMClassifier extends Classifier {
     protected Vector dataToSparse(Samples data) {
         Vector sparse = new Vector(data.size() + 1);
 
-        for (int i = 0; i < data.size(); i++) { // for each instance
+        for (int i = 0; i < data.size(); i++) // for each instance
             sparse.add(samplesToSparse(data.get(i)));
-        }
         return sparse;
     }
 
-    public boolean getDebug() {return debug;}
-    
-    public void setDebug(boolean _debug){debug = _debug;}
+    public boolean getDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean _debug) {
+        debug = _debug;
+    }
 
     private double atof(String str) {
         return Double.valueOf(str).doubleValue();
@@ -429,9 +410,8 @@ public class SVMClassifier extends Classifier {
     // @SuppressWarnings("empty-statement")
     public double[] classifySample(Sample s) {
 
-        if (s == null) {
+        if (s == null)
             return null;
-        }
 
         Vector sparseData = new Vector();
         Vector vy = new Vector();
@@ -458,9 +438,9 @@ public class SVMClassifier extends Classifier {
                     x[j] = new svm_node();
                     x[j].index = atoi(st.nextToken());
                     x[j].value = atof(st.nextToken());
-                    //System.out.print(x[j].index + ":" + x[j].value + " ");
+                //System.out.print(x[j].index + ":" + x[j].value + " ");
                 }
-                //vx.addElement(x);
+            //vx.addElement(x);
             }
 
             System.out.print(svm.svm_predict(model, x));
@@ -475,6 +455,7 @@ public class SVMClassifier extends Classifier {
             }
 
             return result;
+
         }
         return null;
 
@@ -488,11 +469,11 @@ public class SVMClassifier extends Classifier {
             String _str;
 
             int index = str.indexOf(' ', 0);
-            
+
             _str = str.substring(0, index);
 
             if (Double.valueOf(_str).doubleValue() == data[0]) {
-                result = s.get(s.size()-1).toString();
+                result = s.get(s.size() - 1).toString();
                 return result;
             }
         }
@@ -514,33 +495,27 @@ public class SVMClassifier extends Classifier {
     }
 
     public void buildClassifier() {
-       // Samples _samples = new Samples(samples);
+        // Samples _samples = new Samples(samples);
         Samples _samples = this.samples;
 
         if (normalize == 1) {
-            if (getDebug()) {
+            if (getDebug())
                 System.err.println("Normalizing...");
-            }
             _samples = samples = normalize(samples);
-            //_samples = samples;
-        }else{
-            if(this.normalize != 0){
-                System.err.println("Not defined value for normailizing...");
-            }
-        }
+        //_samples = samples;
+        } else if (this.normalize != 0)
+            System.err.println("Not defined value for normailizing...");
 
-        if (getDebug()) {
+        if (getDebug())
             System.err.println("Converting to libsvm format...");
-        }
 
         Vector sparseData = dataToSparse(_samples);
         Vector vy = new Vector();
         Vector vx = new Vector();
         int max_index = 0;
 
-        if (getDebug()) {
+        if (getDebug())
             System.err.println("Tokenizing libsvm data...");
-        }
 
         for (int d = 0; d < sparseData.size(); d++) {
             String line = (String) sparseData.get(d);
@@ -554,30 +529,26 @@ public class SVMClassifier extends Classifier {
                 x[j] = new svm_node();
                 x[j].index = atoi(st.nextToken());
                 x[j].value = atof(st.nextToken());
-                //System.out.print(x[j].index + ":" + x[j].value + " ");
+            //System.out.print(x[j].index + ":" + x[j].value + " ");
             }
             //System.out.println();
-            if (m > 0) {
+            if (m > 0)
                 max_index = Math.max(max_index, x[m - 1].index);
-            }
             vx.addElement(x);
         }
 
         prob = new svm_problem();
         prob.l = vy.size();
         prob.x = new svm_node[prob.l][];
-        for (int i = 0; i < prob.l; i++) {
+        for (int i = 0; i < prob.l; i++)
             prob.x[i] = (svm_node[]) vx.elementAt(i);
-        }
 
         prob.y = new double[prob.l];
-        for (int i = 0; i < prob.l; i++) {
+        for (int i = 0; i < prob.l; i++)
             prob.y[i] = atof((String) vy.elementAt(i));
-        }
 
-        if (param.gamma == 0) {
+        if (param.gamma == 0)
             param.gamma = 1.0 / max_index;
-        }
 
         error_msg = svm.svm_check_parameter(prob, param);
 
@@ -586,10 +557,9 @@ public class SVMClassifier extends Classifier {
             System.exit(1);
         }
 
-        if (getDebug()) {
+        if (getDebug())
             System.err.println("Training model");
-        }
-        
+
         try {
             model = svm.svm_train(prob, param);
         } catch (Exception e) {
@@ -600,13 +570,13 @@ public class SVMClassifier extends Classifier {
     public static void main(String[] args) {
 
         try {
-            String dataFile = "c:/svm/data/iris.arff";  // input arff file
+            String dataFile = "data/iris.arff";  // input arff file
 
             String[] ops = {new String("-t"),
                 dataFile,
                 
                 new String("-S"), // WLSVM options
-                new String("0"),  // Classification problem
+                new String("0"), // Classification problem
                 new String("-K"), // RBF kernel
                 new String("0"),
                 new String("-G"), // gamma
@@ -619,20 +589,20 @@ public class SVMClassifier extends Classifier {
                 new String("100")
             };
 
-            SVMClassifier svm = new SVMClassifier("c:/svm/data/iris.arff");
+            SVMClassifier svm = new SVMClassifier("data/iris.arff");
             svm.setOptions(ops);
             svm.setDebug(true);
             svm.buildClassifier();
 
 
-            int x = 100;
-            int index = svm.samples.size()-x;
+            int x = 40;
+            int index = svm.samples.size() - x;
             double[] data = svm.classifySample(svm.getSample(index));
-            String res = svm.getSample(index).get(svm.getSample(index).size()-1).toString();
-            
-         
-            System.out.println("Wynik(Powinno byc " + res+"): " + svm.interprate(data));
+            String res = svm.getSample(index).get(svm.getSample(index).size() - 1).toString();
+            System.out.println("Wynik(Powinno byc " + res + "): " + svm.interprate(data) + ", classify result = " + Arrays.toString(data));
 
+            Evaluator e = new Evaluator(svm, new ARFFLoader(new File(dataFile)).getSamples());
+            ResultPanel.showResultFrame(e);
         } catch (IOException ex) {
             Logger.getLogger(SVMClassifier.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ParseException ex) {

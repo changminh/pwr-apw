@@ -232,7 +232,7 @@ public final class GeneticAlgorithm {
         return n ^ (n >> 1);
     }
 
-    public GeneticAlgorithm() {
+    private GeneticAlgorithm() {
     }
 
     public static final GenotypeBuilder defineGenotype() {

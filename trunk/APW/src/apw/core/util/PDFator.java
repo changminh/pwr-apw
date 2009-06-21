@@ -55,13 +55,13 @@ import java.util.logging.Logger;
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class Evaluator {
+public class PDFator {
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Evaluator ev = new Evaluator();
+        PDFator ev = new PDFator();
         ev.getReport();
         ev.presentUserWithDoc();
     }
@@ -81,11 +81,10 @@ public class Evaluator {
             d.addCreator("My program using iText");
             d.open();
             PdfPTable t = new PdfPTable(40);
-            
+
             for (int i = 0; i < 40; i++)
-                for (int j = 0; j < 40; j++) {
-                    t.addCell(""+ i + "; " + j);
-                }
+                for (int j = 0; j < 40; j++)
+                    t.addCell("" + i + "; " + j);
             d.add(t);
 //            Chunk fox = new Chunk("quick brown fox");
 //            float superscript = 8.0f;
@@ -105,7 +104,7 @@ public class Evaluator {
             File file;
             ConcurrentHashMap<File, File[]> cache = new ConcurrentHashMap<File, File[]>(250, .75f, 2);
 
-                        // make a PdfTemplate with the vertical text
+            // make a PdfTemplate with the vertical text
             PdfTemplate template = writer.getDirectContent().createTemplate(20, 20);
             BaseFont bf = BaseFont.createFont("Helvetica", "winansi", false);
             String text = "Vertical";
@@ -142,9 +141,9 @@ public class Evaluator {
             d.add(table);
             d.close();
         } catch (IOException ex) {
-            Logger.getLogger(Evaluator.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PDFator.class.getName()).log(Level.SEVERE, null, ex);
         } catch (DocumentException dec) {
-            Logger.getLogger(Evaluator.class.getName()).log(Level.SEVERE, null, dec);
+            Logger.getLogger(PDFator.class.getName()).log(Level.SEVERE, null, dec);
         }
 
         return d;
@@ -160,6 +159,13 @@ public class Evaluator {
             return false;
         }
         return true;
+    }
 
+    public static void print(double[][] d) {
+        for (int i = 0; i < d.length; i++) {
+            for (int j = 0; j < d[i].length; j++)
+                System.out.printf("%9.4f ", d[i][j]);
+            System.out.println();
+        }
     }
 }
