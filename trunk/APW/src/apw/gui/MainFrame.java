@@ -159,8 +159,10 @@ public class MainFrame extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
             FileDialog fd = new FileDialog(this);
+            fd.setDirectory(fd.getDirectory() + "/data");
             fd.setVisible(true);
-            s = new ARFFLoader(new File(fd.getDirectory() + "/" + fd.getFile())).getSamples();
+            if (fd != null)
+                s = new ARFFLoader(new File(fd.getDirectory() + "/" + fd.getFile())).getSamples();
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, ex.toString(),
