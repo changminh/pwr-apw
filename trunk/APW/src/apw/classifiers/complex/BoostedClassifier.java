@@ -41,8 +41,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -312,17 +310,11 @@ public class BoostedClassifier extends Classifier {
 
     @Override
     public Classifier copy() {
-        BoostedClassifier result = null;
+        final Object[] baseClasifiersCopy = new Object[baseClassifiersClasses.length];
+        System.arraycopy(baseClassifiersClasses, 0, baseClasifiersCopy, 0, baseClassifiersClasses.length);
 
-        try {
-            final Object[] baseClasifiersCopy = new Object[baseClassifiersClasses.length];
-            System.arraycopy(baseClassifiersClasses, 0, baseClasifiersCopy, 0, baseClassifiersClasses.length);
-
-            result = new BoostedClassifier((Class<Classifier>[]) baseClasifiersCopy, samples);
-            result.rebuild();
-        } catch (Exception ex) {
-            Logger.getLogger(BoostedClassifier.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        BoostedClassifier result = new BoostedClassifier((Class<Classifier>[]) baseClasifiersCopy, samples);
+        result.rebuild();
 
         return result;
     }
