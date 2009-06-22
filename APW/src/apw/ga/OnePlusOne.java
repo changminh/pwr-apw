@@ -33,7 +33,6 @@
  */
 package apw.ga;
 
-import java.util.Arrays;
 import java.util.Random;
 
 /**

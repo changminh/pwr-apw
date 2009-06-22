@@ -40,16 +40,22 @@
 package apw.gui;
 
 import apw.classifiers.Classifier;
-import apw.classifiers.SVMClassifier;
 import apw.classifiers.c4_5.C4_5;
+import apw.classifiers.fuzzyRuleClassifier.FuzzyRuleClassifier;
 import apw.classifiers.id3.ID3;
 import apw.classifiers.knn.KNN;
 import apw.core.Evaluator;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
+import java.awt.Component;
 import java.awt.FileDialog;
 import java.io.File;
+import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.AbstractButton;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 
 /**
  *
@@ -60,6 +66,13 @@ public class MainFrame extends javax.swing.JFrame {
     /** Creates new form MainFrame */
     public MainFrame() {
         initComponents();
+        sampleUpdate();
+        classifierUpdate();
+
+    }
+
+    private void classifierUpdate() {
+        evalBtn.setEnabled(classifier != null);
     }
 
     /** This method is called from within the constructor to
@@ -73,11 +86,14 @@ public class MainFrame extends javax.swing.JFrame {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
         jButton1 = new javax.swing.JButton();
-        jRadioButton1 = new javax.swing.JRadioButton();
-        jRadioButton2 = new javax.swing.JRadioButton();
-        jRadioButton3 = new javax.swing.JRadioButton();
-        jRadioButton4 = new javax.swing.JRadioButton();
-        jButton2 = new javax.swing.JButton();
+        KNN_RB = new javax.swing.JRadioButton();
+        ID3_RB = new javax.swing.JRadioButton();
+        C4_5_RB = new javax.swing.JRadioButton();
+        SVM_RB = new javax.swing.JRadioButton();
+        evalBtn = new javax.swing.JButton();
+        Bag_RB = new javax.swing.JRadioButton();
+        Boost_RB = new javax.swing.JRadioButton();
+        Fuzzy_RB = new javax.swing.JRadioButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -88,33 +104,61 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        buttonGroup1.add(jRadioButton1);
-        jRadioButton1.setSelected(true);
-        jRadioButton1.setText("KNN");
-        jRadioButton1.addActionListener(new java.awt.event.ActionListener() {
+        buttonGroup1.add(KNN_RB);
+        KNN_RB.setText("KNN");
+        KNN_RB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jRadioButton1ActionPerformed(evt);
+                KNN_RBActionPerformed(evt);
             }
         });
 
-        buttonGroup1.add(jRadioButton2);
-        jRadioButton2.setText("ID3");
-        jRadioButton2.addActionListener(new java.awt.event.ActionListener() {
+        buttonGroup1.add(ID3_RB);
+        ID3_RB.setText("ID3");
+        ID3_RB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jRadioButton2ActionPerformed(evt);
+                ID3_RBActionPerformed(evt);
             }
         });
 
-        buttonGroup1.add(jRadioButton3);
-        jRadioButton3.setText("C4.5");
-
-        buttonGroup1.add(jRadioButton4);
-        jRadioButton4.setText("SVM");
-
-        jButton2.setText("Evaluate");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        buttonGroup1.add(C4_5_RB);
+        C4_5_RB.setText("C4.5");
+        C4_5_RB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                C4_5_RBActionPerformed(evt);
+            }
+        });
+
+        buttonGroup1.add(SVM_RB);
+        SVM_RB.setText("SVM");
+
+        evalBtn.setText("Evaluate");
+        evalBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                evalBtnActionPerformed(evt);
+            }
+        });
+
+        buttonGroup1.add(Bag_RB);
+        Bag_RB.setText("bag");
+        Bag_RB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Bag_RBActionPerformed(evt);
+            }
+        });
+
+        buttonGroup1.add(Boost_RB);
+        Boost_RB.setText("boost");
+        Boost_RB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Boost_RBActionPerformed(evt);
+            }
+        });
+
+        buttonGroup1.add(Fuzzy_RB);
+        Fuzzy_RB.setText("Fazi");
+        Fuzzy_RB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Fuzzy_RBActionPerformed(evt);
             }
         });
 
@@ -126,15 +170,21 @@ public class MainFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jRadioButton1)
+                        .addComponent(Bag_RB)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(Boost_RB)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(Fuzzy_RB))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(KNN_RB)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jRadioButton2)
+                        .addComponent(ID3_RB)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jRadioButton3)
+                        .addComponent(C4_5_RB)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jRadioButton4))
+                        .addComponent(SVM_RB))
                     .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(evalBtn))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -144,12 +194,17 @@ public class MainFrame extends javax.swing.JFrame {
                 .addComponent(jButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jRadioButton1)
-                    .addComponent(jRadioButton2)
-                    .addComponent(jRadioButton3)
-                    .addComponent(jRadioButton4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2)
+                    .addComponent(KNN_RB)
+                    .addComponent(ID3_RB)
+                    .addComponent(C4_5_RB)
+                    .addComponent(SVM_RB))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(Bag_RB)
+                    .addComponent(Boost_RB)
+                    .addComponent(Fuzzy_RB))
+                .addGap(5, 5, 5)
+                .addComponent(evalBtn)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -168,51 +223,93 @@ public class MainFrame extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, ex.toString(),
                     "An exception occured", JOptionPane.ERROR_MESSAGE);
         }
+        sampleUpdate();
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jRadioButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jRadioButton1ActionPerformed
+    private void KNN_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_KNN_RBActionPerformed
+        classifier = new KNN(s, neighbours, KNN.RANKING_BASED_VOTING);
+        classifierUpdate();
+}//GEN-LAST:event_KNN_RBActionPerformed
 
-    private void jRadioButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jRadioButton2ActionPerformed
+    private void ID3_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ID3_RBActionPerformed
+        classifier = new ID3(s);
+        classifierUpdate();
+}//GEN-LAST:event_ID3_RBActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        Classifier cl = null;
-        if (jRadioButton1.isSelected())
-            cl = new KNN(s, neighbours, KNN.SIMPLE_VOTING);
-        if (jRadioButton2.isSelected())
-            cl = new ID3(s);
-        if (jRadioButton3.isSelected())
-            cl = new C4_5(s);
-        if (jRadioButton4.isSelected())
-            cl = new SVMClassifier(s);
-        Evaluator e = new Evaluator(cl, s);
-        ResultPanel.showResultDialog(e, this);
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void evalBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_evalBtnActionPerformed
+        if (classifier == null)
+            warn("Classifier not specified.");
+        if (s == null)
+            warn("Samples not loaded.");
+        if (s != null & classifier != null) {
+            Evaluator e = new Evaluator(classifier, s);
+            ResultPanel.showResultDialog(e, this, classifier.getClass().getCanonicalName());
+        }
+}//GEN-LAST:event_evalBtnActionPerformed
+
+    private void Bag_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Bag_RBActionPerformed
+        warn("Not yet implemented");
+        classifierUpdate();
+}//GEN-LAST:event_Bag_RBActionPerformed
+
+    private void Boost_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Boost_RBActionPerformed
+        warn("Not yet implemented");
+        classifierUpdate();
+}//GEN-LAST:event_Boost_RBActionPerformed
+
+    private void Fuzzy_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Fuzzy_RBActionPerformed
+        classifier = new FuzzyRuleClassifier(s);
+        classifierUpdate();
+}//GEN-LAST:event_Fuzzy_RBActionPerformed
+
+    private void C4_5_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_C4_5_RBActionPerformed
+        classifier = new C4_5(s);
+        classifierUpdate();
+}//GEN-LAST:event_C4_5_RBActionPerformed
     Samples s;
-    int neighbours = 1;
+    int neighbours = 4;
+    Classifier classifier = null;
 
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            java.awt.EventQueue.invokeLater(new Runnable() {
 
-            public void run() {
-                new MainFrame().setVisible(true);
-            }
-        });
+                public void run() {
+                    new MainFrame().setVisible(true);
+                }
+            });
+        } catch (Exception ex) {
+            warn(null, "Troubles setting LAF");
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
+    public void sampleUpdate() {
+        for (AbstractButton a : Collections.list(buttonGroup1.getElements()))
+            a.setEnabled(s != null);
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JRadioButton Bag_RB;
+    private javax.swing.JRadioButton Boost_RB;
+    private javax.swing.JRadioButton C4_5_RB;
+    private javax.swing.JRadioButton Fuzzy_RB;
+    private javax.swing.JRadioButton ID3_RB;
+    private javax.swing.JRadioButton KNN_RB;
+    private javax.swing.JRadioButton SVM_RB;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton evalBtn;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JRadioButton jRadioButton1;
-    private javax.swing.JRadioButton jRadioButton2;
-    private javax.swing.JRadioButton jRadioButton3;
-    private javax.swing.JRadioButton jRadioButton4;
     // End of variables declaration//GEN-END:variables
+
+    private static void warn(Component c, String string) {
+        JOptionPane.showMessageDialog(c, string, "Exception", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void warn(String string) {
+        JOptionPane.showMessageDialog(this, string, "Exception", JOptionPane.ERROR_MESSAGE);
+    }
 }
