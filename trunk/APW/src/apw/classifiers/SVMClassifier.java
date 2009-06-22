@@ -171,7 +171,7 @@ public class SVMClassifier extends Classifier {
         try {
            
             buildClassifier();
-            this._builded = true;
+          
 
         } catch (Exception ex) {
             Logger.getLogger(SVMClassifier.class.getName()).log(Level.SEVERE, null, ex);
@@ -202,9 +202,12 @@ public class SVMClassifier extends Classifier {
         for (int i = 0; i < nSamples.size(); i++) {
             length = 0.0;
             int size = nSamples.get(i).size() - 1;
+            double data;
 
             for (int j = 0; j < size; j++) {
-                double data = atof(nSamples.get(i).get(j).toString());
+                String str = nSamples.getAtts().get(j).getRepresentation(nSamples.get(i).get(j)).toString();
+                //System.out.println();
+                data = atof(str);
                 length += data * data;
             }
 
@@ -213,12 +216,16 @@ public class SVMClassifier extends Classifier {
             List<Object> list = new ArrayList<Object>();
 
             for (int j = 0; j < size; j++) {
-                double data = atof(nSamples.get(i).get(j).toString());
-                data /= length;
-                String str = Double.toString(data);
-                Object obj = nSamples.getAtts().get(j).getRepresentation(str);
-
-                list.add(obj);
+                if(!nSamples.getAtts().get(j).isNominal()){
+                    String str = nSamples.getAtts().get(j).getRepresentation(nSamples.get(i).get(j)).toString();
+                    data = atof(str);
+                    data /= length;
+                    str = Double.toString(data);
+                    Object obj = nSamples.getAtts().get(j).getRepresentation(str);
+                    list.add(obj);
+                }else{
+                    list.add(nSamples.getAtts().get(j).getRepresentation(nSamples.get(i).get(j)));
+                }
             }
 
             Object obj = nSamples.getAtts().get(size).
@@ -227,7 +234,7 @@ public class SVMClassifier extends Classifier {
 
             list.add(obj);
             Sample newSample = new Sample(new Samples(nSamples.getAtts()), list.toArray());
-
+            System.out.println(newSample.toString());
             _samples.add(newSample);
 
 
@@ -374,30 +381,16 @@ public class SVMClassifier extends Classifier {
 
         double c = Double.parseDouble(_c.toString());
 
-        //if(c == 0.0){
-        //   c = -1.0;
-        //}
-
         c -= 1.0;
 
         line = c + " ";
         for (int j = 1; j < sample.size(); j++) {
-            //int tmpI = (int) Double.parseDouble(sample.classAttributeRepr().toString());
-
-            //System.out.println(tmpI);
-
-            //if (j - 1 == tmpI) {
-            // continue;
-            //}
-
-            double value = Double.parseDouble(sample.get(j - 1).toString());
-
-            if (value != 0.0) {
-                line += " " + j + ":" + value;
-            }
+            String str = this.samples.getAtts().get(j-1).getRepresentation(sample.get(j-1)).toString();
+            double value =  Double.parseDouble(str);   
+            line += " " + j + ":" + value;
         }
 
-        // System.out.println(line);
+        System.out.println(line);
         return (line + "\n");
     }
 
@@ -466,6 +459,8 @@ public class SVMClassifier extends Classifier {
             return result;
         }
 
+        //System.out.println(_builded);
+        
         Vector sparseData = new Vector();
         Vector vy = new Vector();
 
@@ -492,6 +487,7 @@ public class SVMClassifier extends Classifier {
             Collections.sort(_classes);
             String clasyfication = convert(new double[]{svm.svm_predict(model, x)});
 
+            System.out.println(clasyfication);
             for (int i = 0; i < _classes.size(); i++) {
                 if (_classes.get(i).compareTo(clasyfication) == 0) {
                     result[i] = 1.0;
@@ -500,6 +496,7 @@ public class SVMClassifier extends Classifier {
                 }
             }
         }
+        //System.out.println("dfsdf");
         return result;
     }
 
@@ -604,16 +601,18 @@ public class SVMClassifier extends Classifier {
 
         try {
             model = svm.svm_train(prob, param);
+            this._builded = true;
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public static void main(String[] args) {
-
+        
         try {
+            
             String dataFile = "data/iris.arff";  // input arff file
-
+/*
             String[] ops = {new String("-t"),
                 dataFile,
                 new String("-S"), // WLSVM options
@@ -629,21 +628,30 @@ public class SVMClassifier extends Classifier {
                 new String("-M"), // cache size in MB
                 new String("100")
             };
-
-            SVMClassifier svm = new SVMClassifier("data/iris.arff");
-            svm.setOptions(ops);
+*/
+            SVMClassifier svm = new SVMClassifier("data/weather.arff");
+//          svm.setOptions(ops);
             svm.setDebug(true);
             svm.buildClassifier();
 
 
-            int x = 40;
+            int x = 2;
             int index = svm.samples.size() - x;
             double[] data = svm.classifySample(svm.getSample(index));
             String res = svm.getSample(index).get(svm.getSample(index).size() - 1).toString();
             
 
-            Evaluator e = new Evaluator(svm, new ARFFLoader(new File(dataFile)).getSamples());
-            ResultPanel.showResultFrame(e);
+            System.out.println(data[0] + " " + data[1]);
+            //Evaluator e = new Evaluator(svm, new ARFFLoader(new File(dataFile)).getSamples());
+            //ResultPanel.showResultFrame(e);
+            
+
+            //Samples data = new ARFFLoader(new File("c:/svm/data/weather.arff")).getSamples();
+
+
+            //System.out.println(data.getAtts().get(3).getRepresentation(data.get(1).get(3)));
+
+
         } catch (IOException ex) {
             Logger.getLogger(SVMClassifier.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ParseException ex) {
@@ -651,5 +659,10 @@ public class SVMClassifier extends Classifier {
         } catch (Exception ex) {
             Logger.getLogger(SVMClassifier.class.getName()).log(Level.SEVERE, null, ex);
         }
+      
+         
+       
+        
+
     }
 }
