@@ -48,23 +48,18 @@ import static apw.core.algorithms.DistanceMetrics.getEuclideanDistance;
  */
 public final class KMeansAlgorithm {
 	public static double[][] findClusterCentres(final Samples samples, final int noOfCentres) {
+		System.out.print("Looking for " + noOfCentres + " cluster centres: ");
 		final Centroid[] centroids = new Centroid[noOfCentres];
 
-		/* Randomly pick k means/centroids/cluster centres */
-		final Set<Integer> randomSamples = new HashSet<Integer>();
-		final int samplesCount = samples.size();
-		do {
-			randomSamples.add((int) (Math.random() * samplesCount));
-		} while (randomSamples.size() != noOfCentres);
-
 		int centroidId = 0;
-		for (final Integer sampleId : randomSamples) {
+		for (final Integer sampleId : getRandomSampleIds(samples, noOfCentres)) {
 			centroids[centroidId++] = new Centroid(samples.get(sampleId).toDoubleArray());
 		}
 
 		boolean centroidsChanged;
 		do {
 			centroidsChanged = false;
+			System.out.print(".");
 
 			/* Assign each input vector to the nearest centroid */
 			for (final Sample sample : samples) {
@@ -93,6 +88,19 @@ public final class KMeansAlgorithm {
 		for (int i = 0; i < noOfCentres; i++) {
 			result[i] = centroids[i].centre;
 		}
+
+		System.out.println(" done.");
+
+		return result;
+	}
+
+	private static Set<Integer> getRandomSampleIds(final Samples samples, final int noOfCentres) {
+		final Set<Integer> result = new HashSet<Integer>();
+		final int samplesCount = samples.size();
+
+		do {
+			result.add((int) (Math.random() * samplesCount));
+		} while (result.size() != noOfCentres);
 
 		return result;
 	}
