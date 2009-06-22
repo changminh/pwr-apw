@@ -292,34 +292,33 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
     @Override
     public double[] classifySample(Sample _sample) {
+
+        Object[] _class = this.howManyClasses();
+        double[] result = new double[_class.length];
+
+        ArrayList<String> _classes = new ArrayList(_class.length);
+        
+        for (int i = 0; i < _class.length; i++) {
+            _classes.add(_class[i].toString());
+            result[i] = 0.0;
+        }
+
         if (bestResult != null) {
             String clasyfication = bestResult.classifySample(_sample);
-            Object[] _class = this.howManyClasses();
-            double[] result = new double[_class.length];
-            ArrayList<String> _classes = new ArrayList(_class.length);
-
-            for (int i = 0; i < _class.length; i++) {
-                _classes.add(_class[i].toString());
-            }
-
             Collections.sort(_classes);
 
-            for (int i = 0; i < _classes.size(); i++) {
-                if (_class != null) {
+            if (clasyfication != null) {
+                for (int i = 0; i < _classes.size(); i++) {
                     if (_classes.get(i).compareTo(clasyfication) == 0) {
                         result[i] = 1.0;
                     } else {
                         result[i] = 0.0;
                     }
-                }else{
-                    result[i] = 0.0;
                 }
             }
-
-            return result;
         }
 
-        return null;
+        return result;
     }
 
     public String interprate(double[] data) {
