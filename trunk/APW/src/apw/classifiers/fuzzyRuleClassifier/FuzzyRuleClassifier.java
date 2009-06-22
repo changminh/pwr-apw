@@ -62,7 +62,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     protected int rulesPerClass = 5;
     protected double mutationProb = 0.05;
     protected double crossProb = 0.2;
-    protected double porcent = 100.0;
+    protected double porcent = 90.0;
     protected int generetionWiat = 500;
     protected int maxEpos = 1000;
     protected double rebuildProcent = 0;
