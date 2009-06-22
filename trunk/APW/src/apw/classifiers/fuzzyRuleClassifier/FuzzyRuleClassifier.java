@@ -55,7 +55,6 @@ import java.util.logging.Logger;
  * @author Przemek Woś
  */
 public class FuzzyRuleClassifier extends RuleClassifier {
-
     protected Samples samples = null;
     protected String[] options;
     protected Genom bestResult = null;
@@ -297,7 +296,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         double[] result = new double[_class.length];
 
         ArrayList<String> _classes = new ArrayList(_class.length);
-        
+
         for (int i = 0; i < _class.length; i++) {
             _classes.add(_class[i].toString());
             result[i] = 0.0;
@@ -321,91 +320,91 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         return result;
     }
 
-    public String interprate(double[] data) {
-        String result = new String("");
-
-        for (int i = 0; i < data.length; i++) {
-            result += (char) (data[i]);
-        }
-        return result;
-    }
+  
+    private boolean _rebuild = false;
 
     @Override
     public void rebuild() {
-        if (bestResult == null) {
-            return;
-        }
 
-        rebuildProcent += rPro;
+        if (_rebuild == false) {
+            this.buildClassifier();
+            _rebuild = true;
+        } else {
 
-        if (rebuildProcent > 100.0) {
-            rebuildProcent = 100.0;
-        }
-
-        ArrayList<Genom> gens = new ArrayList<Genom>();
-
-        gens.add(bestResult);
-
-        for (int i = 1; i < defaultNumber; i++) {
-            gens.add(bestResult.mutate());
-        }
-
-        int generation = 0;
-        boolean best = false;
-
-        ArrayList<Genom> parants;
-
-        gradeFunction(gens, rebuildProcent);
-        Collections.sort(gens);
-
-        Pair<Genom, Integer> resultGen = new Pair<Genom, Integer>(gens.get(0), 0);
-
-        do {
-            int size = gens.size() / 2;
-            parants = roulette(gens, size);
-
-            for (int i = 0; i < size / 2; i++) {
-                if (Math.random() <= crossProb) {
-                    Genom o1 = parants.get(2 * i);     //0,2,4
-                    Genom o2 = parants.get(2 * i + 1); //1,3,5
-                    Genom[] result = o1.crossWith(o2);
-                    gens.add(result[0]);
-                    gens.add(result[1]);
-                }
+            if (bestResult == null) {
+                return;
             }
 
-            for (int i = 0; i < gens.size(); i++) {
-                if (Math.random() <= mutationProb) {
-                    gens.add(gens.get(i).mutate());
-                }
+            rebuildProcent += rPro;
+
+            if (rebuildProcent > 100.0) {
+                rebuildProcent = 100.0;
             }
 
-            if (!gradeFunction(gens, rebuildProcent)) {
-                Collections.sort(gens);
-                gens = getNewPapulation(gens, defaultNumber);
+            ArrayList<Genom> gens = new ArrayList<Genom>();
+            gens.add(bestResult);
 
-                if (resultGen.getFirst().compareTo(gens.get(0)) == 0) {
-                    resultGen.setSecond(resultGen.getSecond().intValue() + 1);
+            for (int i = 1; i < defaultNumber; i++) {
+                gens.add(bestResult.mutate());
+            }
+
+            int generation = 0;
+            boolean best = false;
+
+            ArrayList<Genom> parants;
+
+            gradeFunction(gens, rebuildProcent);
+            Collections.sort(gens);
+
+            Pair<Genom, Integer> resultGen = new Pair<Genom, Integer>(gens.get(0), 0);
+
+            do {
+                int size = gens.size() / 2;
+                parants = roulette(gens, size);
+
+                for (int i = 0; i < size / 2; i++) {
+                    if (Math.random() <= crossProb) {
+                        Genom o1 = parants.get(2 * i);     //0,2,4
+                        Genom o2 = parants.get(2 * i + 1); //1,3,5
+                        Genom[] result = o1.crossWith(o2);
+                        gens.add(result[0]);
+                        gens.add(result[1]);
+                    }
+                }
+
+                for (int i = 0; i < gens.size(); i++) {
+                    if (Math.random() <= mutationProb) {
+                        gens.add(gens.get(i).mutate());
+                    }
+                }
+
+                if (!gradeFunction(gens, rebuildProcent)) {
+                    Collections.sort(gens);
+                    gens = getNewPapulation(gens, defaultNumber);
+
+                    if (resultGen.getFirst().compareTo(gens.get(0)) == 0) {
+                        resultGen.setSecond(resultGen.getSecond().intValue() + 1);
+                    } else {
+                        resultGen.setFirst(gens.get(0));
+                        resultGen.setSecond(0);
+                    }
+
                 } else {
-                    resultGen.setFirst(gens.get(0));
-                    resultGen.setSecond(0);
+                    generation = maxEpos;
+                    best = true;
                 }
 
-            } else {
-                generation = maxEpos;
-                best = true;
+            } while ((++generation < maxEpos) &&
+                    resultGen.getSecond().intValue() < generetionWiat);
+
+
+            if (!best) {
+                this.rebuildProcent -= this.rPro;
             }
 
-        } while ((++generation < maxEpos) &&
-                resultGen.getSecond().intValue() < generetionWiat);
-
-
-        if (!best) {
-            this.rebuildProcent -= this.rPro;
+            Collections.sort(gens);
+            bestResult = gens.get(0);
         }
-
-        Collections.sort(gens);
-        bestResult = gens.get(0);
     }
 
     @Override
