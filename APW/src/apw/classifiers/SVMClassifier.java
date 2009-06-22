@@ -536,7 +536,6 @@ public class SVMClassifier extends Classifier {
     }
 
     public void buildClassifier() {
-        // Samples _samples = new Samples(samples);
         Samples _samples = this.samples;
 
         if (normalize == 1) {
