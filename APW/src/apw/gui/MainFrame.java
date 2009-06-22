@@ -40,6 +40,7 @@
 package apw.gui;
 
 import apw.classifiers.Classifier;
+import apw.classifiers.SVMClassifier;
 import apw.classifiers.c4_5.C4_5;
 import apw.classifiers.fuzzyRuleClassifier.FuzzyRuleClassifier;
 import apw.classifiers.id3.ID3;
@@ -55,6 +56,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractButton;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButton;
 import javax.swing.UIManager;
 
 /**
@@ -62,6 +64,8 @@ import javax.swing.UIManager;
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
 public class MainFrame extends javax.swing.JFrame {
+
+    private JRadioButton last;
 
     /** Creates new form MainFrame */
     public MainFrame() {
@@ -130,6 +134,11 @@ public class MainFrame extends javax.swing.JFrame {
 
         buttonGroup1.add(SVM_RB);
         SVM_RB.setText("SVM");
+        SVM_RB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SVM_RBActionPerformed(evt);
+            }
+        });
 
         evalBtn.setText("Evaluate");
         evalBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -216,7 +225,7 @@ public class MainFrame extends javax.swing.JFrame {
             FileDialog fd = new FileDialog(this);
             fd.setDirectory(fd.getDirectory() + "/data");
             fd.setVisible(true);
-            if (fd != null)
+            if (fd.getFile() != null)
                 s = new ARFFLoader(new File(fd.getDirectory() + "/" + fd.getFile())).getSamples();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -227,45 +236,95 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void KNN_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_KNN_RBActionPerformed
-        classifier = new KNN(s, neighbours, KNN.RANKING_BASED_VOTING);
+        try {
+            classifier = new KNN(s, neighbours, KNN.RANKING_BASED_VOTING);
+            last = (JRadioButton) evt.getSource();
+        } catch (Exception e) {
+            warn(e.getMessage());
+            if (last != null)
+                last.setSelected(true);
+        }
         classifierUpdate();
 }//GEN-LAST:event_KNN_RBActionPerformed
 
     private void ID3_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ID3_RBActionPerformed
-        classifier = new ID3(s);
+        try {
+            classifier = new ID3(s);
+            last = (JRadioButton) evt.getSource();
+        } catch (Exception e) {
+            warn(e.getMessage());
+            if (last != null)
+                last.setSelected(true);
+        }
         classifierUpdate();
 }//GEN-LAST:event_ID3_RBActionPerformed
 
     private void evalBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_evalBtnActionPerformed
-        if (classifier == null)
-            warn("Classifier not specified.");
-        if (s == null)
-            warn("Samples not loaded.");
-        if (s != null & classifier != null) {
-            Evaluator e = new Evaluator(classifier, s);
-            ResultPanel.showResultDialog(e, this, classifier.getClass().getCanonicalName());
+        try {
+            if (classifier == null)
+                warn("Classifier not specified.");
+            if (s == null)
+                warn("Samples not loaded.");
+            if (s != null & classifier != null) {
+                Evaluator e = new Evaluator(classifier, s);
+                ResultPanel.showResultDialog(e, this,
+                        classifier.getClass().getCanonicalName() + " classifying \"" + s.getName() + "\"");
+            }
+        } catch (Exception e) {
+            warn(e.toString());
+            e.printStackTrace();
         }
 }//GEN-LAST:event_evalBtnActionPerformed
 
     private void Bag_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Bag_RBActionPerformed
         warn("Not yet implemented");
+        if (last != null)
+            last.setSelected(true);
         classifierUpdate();
 }//GEN-LAST:event_Bag_RBActionPerformed
 
     private void Boost_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Boost_RBActionPerformed
         warn("Not yet implemented");
+        if (last != null)
+            last.setSelected(true);
         classifierUpdate();
 }//GEN-LAST:event_Boost_RBActionPerformed
 
     private void Fuzzy_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Fuzzy_RBActionPerformed
-        classifier = new FuzzyRuleClassifier(s);
+        try {
+            classifier = new FuzzyRuleClassifier(s);
+            last = (JRadioButton) evt.getSource();
+        } catch (Exception e) {
+            warn(e.getMessage());
+            if (last != null)
+                last.setSelected(true);
+        }
         classifierUpdate();
 }//GEN-LAST:event_Fuzzy_RBActionPerformed
 
     private void C4_5_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_C4_5_RBActionPerformed
-        classifier = new C4_5(s);
+        try {
+            classifier = new C4_5(s);
+            last = (JRadioButton) evt.getSource();
+        } catch (Exception e) {
+            warn(e.getMessage());
+            if (last != null)
+                last.setSelected(true);
+        }
         classifierUpdate();
 }//GEN-LAST:event_C4_5_RBActionPerformed
+
+    private void SVM_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SVM_RBActionPerformed
+        try {
+            classifier = new SVMClassifier(s);
+            last = (JRadioButton) evt.getSource();
+        } catch (Exception e) {
+            warn(e.getMessage());
+            if (last != null)
+                last.setSelected(true);
+        }
+        classifierUpdate();
+    }//GEN-LAST:event_SVM_RBActionPerformed
     Samples s;
     int neighbours = 4;
     Classifier classifier = null;
@@ -291,6 +350,8 @@ public class MainFrame extends javax.swing.JFrame {
     public void sampleUpdate() {
         for (AbstractButton a : Collections.list(buttonGroup1.getElements()))
             a.setEnabled(s != null);
+        if(s==null) setTitle("Classifier tester.");
+        else setTitle("Classifier tester. Ralation \"" + s.getName() + "\"");
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton Bag_RB;

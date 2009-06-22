@@ -149,6 +149,7 @@ public class ARFFLoader {
             parseAttribute(k);
         }
         samples = new Samples(atts);
+        samples.setName(name);
     // System.out.println(atts.toString());
     }
     private static final char delimeter = ',';
