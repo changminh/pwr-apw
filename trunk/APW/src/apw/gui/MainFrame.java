@@ -238,6 +238,7 @@ public class MainFrame extends javax.swing.JFrame {
     private void KNN_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_KNN_RBActionPerformed
         try {
             classifier = new KNN(s, neighbours, KNN.RANKING_BASED_VOTING);
+            classifier.rebuild();
             last = (JRadioButton) evt.getSource();
         } catch (Exception e) {
             warn(e.getMessage());
@@ -250,6 +251,7 @@ public class MainFrame extends javax.swing.JFrame {
     private void ID3_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ID3_RBActionPerformed
         try {
             classifier = new ID3(s);
+            classifier.rebuild();
             last = (JRadioButton) evt.getSource();
         } catch (Exception e) {
             warn(e.getMessage());
@@ -293,6 +295,7 @@ public class MainFrame extends javax.swing.JFrame {
     private void Fuzzy_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Fuzzy_RBActionPerformed
         try {
             classifier = new FuzzyRuleClassifier(s);
+            classifier.rebuild();
             last = (JRadioButton) evt.getSource();
         } catch (Exception e) {
             warn(e.getMessage());
@@ -305,6 +308,7 @@ public class MainFrame extends javax.swing.JFrame {
     private void C4_5_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_C4_5_RBActionPerformed
         try {
             classifier = new C4_5(s);
+            classifier.rebuild();
             last = (JRadioButton) evt.getSource();
         } catch (Exception e) {
             warn(e.getMessage());
@@ -317,6 +321,7 @@ public class MainFrame extends javax.swing.JFrame {
     private void SVM_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SVM_RBActionPerformed
         try {
             classifier = new SVMClassifier(s);
+            classifier.rebuild();
             last = (JRadioButton) evt.getSource();
         } catch (Exception e) {
             warn(e.getMessage());
