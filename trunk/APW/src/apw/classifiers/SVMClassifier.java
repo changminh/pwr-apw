@@ -67,6 +67,7 @@ public class SVMClassifier extends Classifier {
     protected String error_msg;
     protected String[] options = null;
     protected boolean debug = false;
+    protected boolean _builded = false;
 
     private static class Utils {
 
@@ -168,9 +169,9 @@ public class SVMClassifier extends Classifier {
     @Override
     public void rebuild() {
         try {
-            // throw new UnsupportedOperationException("Not supported yet.");
-            // setOptions(options);
+           
             buildClassifier();
+            this._builded = true;
 
         } catch (Exception ex) {
             Logger.getLogger(SVMClassifier.class.getName()).log(Level.SEVERE, null, ex);
@@ -461,7 +462,7 @@ public class SVMClassifier extends Classifier {
             result[i] = 0.0;
         }
 
-        if (s == null) {
+        if ((s == null) || !_builded) {
             return result;
         }
 
