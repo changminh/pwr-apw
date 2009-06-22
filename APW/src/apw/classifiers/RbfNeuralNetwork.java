@@ -53,7 +53,7 @@ import static apw.core.util.MiscUtils.copyMatrix;
  * @author Waldemar Szostak < wszostak@wp.pl >
  */
 public class RbfNeuralNetwork extends Classifier {
-    final static double MAX_ACCEPTABLE_ERROR = 0.4;
+	final static double MAX_ACCEPTABLE_ERROR = 0.1;
 
     private double[][] weights;
     private double[][] centres;
@@ -78,9 +78,9 @@ public class RbfNeuralNetwork extends Classifier {
 		/* If the class attribute is numeric, we want to output just one value,
 		 * but if we have nominal class attribute, let's have as many  */
 		this.noOfOutputNodes = samples.getClassAttribute().isNominal()
-				? ((Nominal) samples.getClassAttribute()).getKeys().size() : 1;
+				? ((Nominal) samples.getClassAttribute()).getKeys().size() : 2;
 
-		this.noOfHiddenNodes = noOfCentres == -1 ? noOfOutputNodes : noOfCentres;
+		this.noOfHiddenNodes = noOfCentres == -1 ? 2 * noOfOutputNodes : noOfCentres;
 		this.samples = samples;
 
         this.rebuildNeeded = true;
@@ -110,11 +110,17 @@ public class RbfNeuralNetwork extends Classifier {
     }
 
     public static void main(String[] args) throws Exception {
-        // Ta sekcja jest po to, żeby móc wybrać łatwo zbiór testowy
-        JFileChooser jf = new JFileChooser("data/");
-        jf.showOpenDialog(null);
-        if (jf.getSelectedFile()!=null) {
-            File f = jf.getSelectedFile();
+		File f = null;
+		if (args.length > 0 && !args[0].isEmpty()) {
+			f = new File(args[0]);
+		} else {
+			// Ta sekcja jest po to, żeby móc wybrać łatwo zbiór testowy
+			JFileChooser jf = new JFileChooser("data/");
+			jf.showOpenDialog(null);
+			f = jf.getSelectedFile();
+		}
+
+        if (f != null) {
             Samples samples = new ARFFLoader(f).getSamples();
 
             RbfNeuralNetwork network = new RbfNeuralNetwork(samples);
@@ -127,7 +133,6 @@ public class RbfNeuralNetwork extends Classifier {
             // To metoda statyczna prezentująca miary jakości w oknie Swing
             ResultPanel.showResultFrame(e);
         }
-
     }
 
     @Override
@@ -184,13 +189,15 @@ public class RbfNeuralNetwork extends Classifier {
     }
 
 	private void findDeviations() {
+		System.out.print("Calculating standard deviations...");
 		if (centres.length == 1) {
-			deviations[0] = 0.5;	// how this should be handled??
+			deviations[0] = 0.5;	// TODO: how this should be handled??
+			return;
 		}
 
 		
 		for (int i = 0; i < deviations.length; i++) {
-			double minDistance = 9999999;
+			double minDistance = Double.MAX_VALUE;
 			for (int j = 0; j < deviations.length; j++) {
 				if (i != j) {
 					final double tmpDistance = getEuclideanDistance(centres[i], centres[j]);
@@ -203,37 +210,53 @@ public class RbfNeuralNetwork extends Classifier {
 
 			deviations[i] = minDistance;
 		}
+
+		System.out.println(" done.");
 	}
 
     private void findWeights() {
-        double error;
+		System.out.print("Calculating network's weights: ");
+
+        double error = Double.MAX_VALUE;
+		double oldError;
 
         do {
-            error = 0;
+			System.out.print(".");
+			oldError = error;
+			error = 0;
 
             for (final Sample sample : samples) {
 				final double targetValue = (Double) sample.classAttributeRepr();
 				final double[] hiddenOutputs = getHiddenOutputs(sample);
 
 				for (int k = 0; k < noOfOutputNodes; k++) {
-					double outputNode = 0;
+//System.out.println("output node no.: " + k);
+					double singleNodeOuput = 0;
 
 					for (int j = 0; j < noOfHiddenNodes; j++) {
-						outputNode += weights[j][k] * hiddenOutputs[j];
+						singleNodeOuput += weights[j][k] * hiddenOutputs[j];
 					}
 
-					double tmp = (targetValue == k ? 1 : 0) - outputNode;
+					double tmp = (targetValue == k ? 1 : 0) - singleNodeOuput;
+//System.out.println("\ttarget value: " + (targetValue == k ? 1 : 0) + "; calculated: " + singleNodeOuput);
+
 					error += tmp * tmp;	// this line has to stay here, because tmp is going to change...
 
-					tmp *= learningRate;	// now: tmp = outputDiff * learningRate
+					tmp *= learningRate;	// now: tmp = (targetValue - outputNode) * learningRate
 					for (int j = 0; j < noOfHiddenNodes; j++) {
-						weights[j][k] = (weights[j][k] + tmp * hiddenOutputs[j]) % 1;
+//System.out.print("\t\tw[" + j + "][" + k + "]: " + weights[j][k]);
+						weights[j][k] = weights[j][k] + tmp * hiddenOutputs[j];
+//System.out.println(" -> " + weights[j][k]);
 					}
 				}
 				
 				error *= 0.5;
 			}
-        } while (error > MAX_ACCEPTABLE_ERROR);
+
+//System.out.println("\tError: " + error);
+        } while (error < oldError && error > MAX_ACCEPTABLE_ERROR);
+
+		System.out.println(" done.");
     }
 
     @Override
