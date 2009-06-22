@@ -38,7 +38,6 @@ import apw.core.algorithms.KMeansAlgorithm;
 import apw.core.Nominal;
 import apw.core.Sample;
 import apw.core.Samples;
-import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
 import apw.gui.ResultPanel;
 import java.io.File;
@@ -194,7 +193,6 @@ public class RbfNeuralNetwork extends Classifier {
 			double minDistance = 9999999;
 			for (int j = 0; j < deviations.length; j++) {
 				if (i != j) {
-System.out.println("i: " + i + "; j: " + j);
 					final double tmpDistance = getEuclideanDistance(centres[i], centres[j]);
 
 					if (tmpDistance < minDistance) {
