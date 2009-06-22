@@ -123,13 +123,7 @@ public class BoostedClassifier extends Classifier {
             }
 
             public boolean equals(final double[] decisionToFind) {
-                for (int i = 0; i < decision.length; ++i) {
-                    if (decision[i] != decisionToFind[i]) {
-                        return false;
-                    }
-                }
-
-                return true;
+                return Arrays.equals(decision, decisionToFind);
             }
 
             public int compareTo(WeightedDecision other) {
