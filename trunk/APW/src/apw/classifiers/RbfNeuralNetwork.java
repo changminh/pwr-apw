@@ -107,7 +107,7 @@ public class RbfNeuralNetwork extends Classifier {
     }
 
     public static void main(String[] args) throws Exception {
-        RbfNeuralNetwork network = new RbfNeuralNetwork("/home/wsz/NetBeansProjects/pwr-apw/DataSetLoaderGUI/data/iris.arff");
+        RbfNeuralNetwork network = new RbfNeuralNetwork("data/iris.arff");
 
 
 
