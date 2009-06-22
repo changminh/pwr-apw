@@ -39,6 +39,7 @@ public class SampleInputFrame extends javax.swing.JFrame {
         jb_ok = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Wprowadzanie przykładu do klasyfikacji");
 
         jsp.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jsp.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -106,6 +107,7 @@ public class SampleInputFrame extends javax.swing.JFrame {
         jb_ok = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Wprowadzanie przykładu do klasyfikacji");
 
         jsp.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jsp.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -172,7 +174,7 @@ public class SampleInputFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jb_okActionPerformed
 
     private void jb_exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_exitActionPerformed
-
+        System.exit(0);
     }//GEN-LAST:event_jb_exitActionPerformed
 
     /**

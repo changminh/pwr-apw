@@ -278,7 +278,7 @@ public class RuleAcquisition {
         }
         System.out.println("Znalezionych kompleksów: " + result.size());
         if (result.isEmpty())
-            System.out.println("O w mordę jeża, mamy problem z danymi... :/");
+            System.out.println("O nie, mamy problem z danymi... :/");
         return result;
     }
 

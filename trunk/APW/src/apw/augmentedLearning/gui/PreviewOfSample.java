@@ -61,6 +61,7 @@ public class PreviewOfSample extends javax.swing.JFrame {
         jta = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Podgląd przykładu");
 
         jta.setColumns(20);
         jta.setRows(5);

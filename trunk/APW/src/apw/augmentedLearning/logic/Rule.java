@@ -123,4 +123,28 @@ public class Rule {
         sb.append(" <hr /><hr />\n");
         return sb.toString();
     }
+
+    public String translateToText() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Reguła '" + name + "', klasa '");
+        /* DANGER!  At this moment of the project development 'thenClause' is assumed to have only one complex
+         * (altough it is not always true). So we can derive the amount of selectors from the ${thenClause.get(0).size()} */
+        Complex cx = thenClause.get(0);
+        for (int i = 0; i < cx.size(); i++)
+            if (!cx.getSelector(i).isUniversal()) {        // This selector contains the class name ;D
+                sb.append(cx.getSelector(i));
+            }
+        sb.append("'\n");
+        sb.append("Wartość atrybutu:\n");
+        Selector s;
+        for (Complex c: ifClause) {
+            for (int i = 0; i < c.size(); i++) {
+                s = c.getSelector(i);
+                if (!s.isUniversal())
+                    sb.append("- " + samples.getAtts().get(i).getName() + " " + s.textRepresetation() + "\n");
+            }
+        }
+        sb.append("--------------------\n");
+        return sb.toString();
+    }
 }

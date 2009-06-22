@@ -27,10 +27,10 @@
                   <Component id="jrb_showSamples" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="jrb_cancel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="63" max="32767" attributes="0"/>
+                      <EmptySpace pref="81" max="32767" attributes="0"/>
                       <Component id="jb_ok" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="jl_info" alignment="0" pref="267" max="32767" attributes="0"/>
+                  <Component id="jl_info" alignment="0" pref="328" max="32767" attributes="0"/>
                   <Component id="jrb_deleteSamples" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -71,7 +71,7 @@
           <Font name="Tahoma" size="11" style="1"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="&quot;&lt;html&gt;&lt;center&gt;Wprowadzona regu&#x142;a zosta&#x142;a skonfrontowana z&amp;nbsp;przyk&#x142;adami w&amp;nbsp;bazie i&amp;nbsp;zosta&#x142;y znalezione przyk&#x142;ady (&quot; + missclassifiedCount + &quot;), kt&#xf3;re s&#x105; b&#x142;&#x119;dnie przez ni&#x105; klasyfikowane. I co teraz?&lt;/center&gt;&lt;/html&gt;&quot;" type="code"/>
+          <Connection code="&quot;&lt;html&gt;&lt;center&gt;Wprowadzona regu&#x142;a zosta&#x142;a skonfrontowana z&amp;nbsp;przyk&#x142;adami w&amp;nbsp;bazie i&amp;nbsp;zosta&#x142;y znalezione przyk&#x142;ady (&quot; + missclassifiedCount + &quot;), kt&#xf3;re s&#x105; b&#x142;&#x119;dnie przez ni&#x105; klasyfikowane. Co zrobi&#x107;?&lt;/center&gt;&lt;/html&gt;&quot;" type="code"/>
         </Property>
       </Properties>
     </Component>

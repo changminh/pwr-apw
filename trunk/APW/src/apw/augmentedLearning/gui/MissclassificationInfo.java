@@ -43,8 +43,8 @@ public class MissclassificationInfo extends javax.swing.JPanel {
         jrb_showSamples = new javax.swing.JRadioButton();
         jb_ok = new javax.swing.JButton();
 
-        jl_info.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jl_info.setText("<html><center>Wprowadzona reguła została skonfrontowana z&nbsp;przykładami w&nbsp;bazie i&nbsp;zostały znalezione przykłady (" + missclassifiedCount + "), które są błędnie przez nią klasyfikowane. I co teraz?</center></html>");
+        jl_info.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jl_info.setText("<html><center>Wprowadzona reguła została skonfrontowana z&nbsp;przykładami w&nbsp;bazie i&nbsp;zostały znalezione przykłady (" + missclassifiedCount + "), które są błędnie przez nią klasyfikowane. Co zrobić?</center></html>");
 
         bg_action.add(jrb_deleteSamples);
         jrb_deleteSamples.setSelected(true);
@@ -99,9 +99,9 @@ public class MissclassificationInfo extends javax.swing.JPanel {
                     .addComponent(jrb_showSamples)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jrb_cancel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 63, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 81, Short.MAX_VALUE)
                         .addComponent(jb_ok))
-                    .addComponent(jl_info, javax.swing.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)
+                    .addComponent(jl_info, javax.swing.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
                     .addComponent(jrb_deleteSamples))
                 .addContainerGap())
         );
