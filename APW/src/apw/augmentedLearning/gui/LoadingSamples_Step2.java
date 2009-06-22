@@ -323,6 +323,7 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         jt_dataTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Określanie nazw i typów atrybutów");
 
         jl_wprowadzNazwyAtrybutow.setFont(new java.awt.Font("Tahoma", 0, 14));
         jl_wprowadzNazwyAtrybutow.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -549,11 +550,11 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
 
         @Override
         public void run() {
-            // java.awt.EventQueue.invokeLater(new Runnable() {
-            //    public void run() {
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
                     new ConflictsResolvingFrame(sample, categories, samples, classAttId, parent).setVisible(true);
-            //     }
-            //});
+                }
+            });
         }
     }
 }

@@ -70,6 +70,7 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
             setLocationRelativeTo(advisor.getStep2());
             advisor.getStep2().dispose();
         }
+        jta_rulePreview.setEditable(false);
     }
 
     /** This method is called from within the constructor to
@@ -83,9 +84,12 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
 
         jb_next = new javax.swing.JButton();
         jb_newRule = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        jl = new javax.swing.JLabel();
+        jsp = new javax.swing.JScrollPane();
+        jta_rulePreview = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Wprowadzanie i podgląd reguł");
 
         jb_next.setText("Dalej");
         jb_next.addActionListener(new java.awt.event.ActionListener() {
@@ -101,9 +105,13 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14));
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Krok 3: Dodawanie reguł");
+        jl.setFont(new java.awt.Font("Tahoma", 0, 14));
+        jl.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jl.setText("Krok 3: Dodawanie reguł");
+
+        jta_rulePreview.setColumns(20);
+        jta_rulePreview.setRows(5);
+        jsp.setViewportView(jta_rulePreview);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -113,18 +121,25 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jb_newRule)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jb_next, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 589, Short.MAX_VALUE))
-                .addContainerGap())
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jb_newRule)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jb_next, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jl, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE))
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jsp, javax.swing.GroupLayout.PREFERRED_SIZE, 372, Short.MAX_VALUE)
+                        .addGap(14, 14, 14))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 238, Short.MAX_VALUE)
+                .addComponent(jl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jsp, javax.swing.GroupLayout.PREFERRED_SIZE, 218, Short.MAX_VALUE)
+                .addGap(14, 14, 14)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jb_next)
                     .addComponent(jb_newRule))
@@ -202,6 +217,7 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
         }
         else {
             advisor.addRule(tempRule);
+            updateRulesPreview();
         }
     }
 
@@ -245,11 +261,19 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
             advisor.getTermsAccessors().remove(i);
         missclassifiedSamples.clear();
         advisor.addRule(tempRule);
+        updateRulesPreview();
         tempRule = null;
     }
 
     private void deleteTempRule() {
         tempRule = null;
+    }
+
+    private void updateRulesPreview() {
+        StringBuilder sb = new StringBuilder();
+        for (Rule r : advisor.getRules())
+            sb.append(r.translateToText());
+        jta_rulePreview.setText(sb.toString());
     }
 
     public void action(int action) {
@@ -260,9 +284,11 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JButton jb_newRule;
     private javax.swing.JButton jb_next;
+    private javax.swing.JLabel jl;
+    private javax.swing.JScrollPane jsp;
+    private javax.swing.JTextArea jta_rulePreview;
     // End of variables declaration//GEN-END:variables
 
 }

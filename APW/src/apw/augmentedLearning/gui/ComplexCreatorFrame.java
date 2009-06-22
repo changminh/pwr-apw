@@ -44,6 +44,7 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
         this.parent = parent;
         myInitComponents(conclusionMode);
         jb_cancel.setVisible(false);
+        jb_nextComplex.setEnabled(false);
         setLocationRelativeTo(parent);
     }
 
@@ -166,6 +167,7 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
         jb_cancel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Wprowadzanie kompleksu");
 
         jsp_ccpScrollPane.setViewportView(complexCreatorPanel);
 
@@ -181,6 +183,7 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
         });
 
         jb_nextComplex.setText("Jeszcze jeden kompleks");
+        jb_nextComplex.setEnabled(false);
         jb_nextComplex.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jb_nextComplexActionPerformed(evt);

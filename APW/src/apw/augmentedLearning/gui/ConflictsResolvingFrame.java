@@ -57,7 +57,8 @@ public class ConflictsResolvingFrame extends javax.swing.JFrame {
 
         conflictsResolvingPanel = new apw.augmentedLearning.gui.ConflictsResolvingPanel(sample, categories, samples, classAttId, this);
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Znaleziono sprzeczne przykłady");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
