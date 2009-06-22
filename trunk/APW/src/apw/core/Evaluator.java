@@ -88,15 +88,13 @@ public class Evaluator {
     private static String[] getNames(Samples ss) {
         return ((Nominal) ss.getClassAttribute()).getSortedIKeys();
     }
-    
-    private static int indexOf(Object[] arr, Object o)
-    {
-    	for (int i = 0; i < arr.length; i++) {
-			if(arr[i].equals(o))return i;
-		}
-    	return -1;
+
+    private static int indexOf(Object[] arr, Object o) {
+        for (int i = 0; i < arr.length; i++)
+            if (arr[i].equals(o))
+                return i;
+        return -1;
     }
-    
 
     private static int[][] getConfusionMatrix(Classifier c, Samples ss) {
         int n = ((Nominal) ss.getClassAttribute()).getKeys().size();
@@ -104,21 +102,20 @@ public class Evaluator {
 
         // fill cm
         for (Sample s : ss) {
-            int i = indexOf( ((Nominal) ss.getClassAttribute()).getSortedIKeys(), s.classAttributeInt());
-            int j = indexOf( ((Nominal) ss.getClassAttribute()).getSortedIKeys(), c.classifySampleAsObject(s));
+            int i = indexOf(((Nominal) ss.getClassAttribute()).getSortedIKeys(), s.classAttributeInt());
+            int j = indexOf(((Nominal) ss.getClassAttribute()).getSortedIKeys(), c.classifySampleAsObject(s));
 //            	argmax(c.classifySample(s));
 
             /** wiersz i-ty,       kolumna j-ta */
             /** i-ty - oczekiwany, j-uzyskany   */
             cm[i][j]++;
         }
-
         return cm;
     }
     public int instances;
 
     public Evaluator(int[][] confusionMatrix) {
-        this(confusionMatrix, new String [confusionMatrix.length]);
+        this(confusionMatrix, new String[confusionMatrix.length]);
     }
 
     private static int argmax(double[] d) {

@@ -259,11 +259,16 @@ public class ResultPanel extends javax.swing.JPanel {
         frame.pack();
         frame.setVisible(true);
     }
+
     public static void showResultDialog(Evaluator e, Frame fame) {
+        showResultDialog(e, fame, "Result evaluator panel test.");
+    }
+
+    static void showResultDialog(Evaluator e, Frame fame, String name) {
         ResultPanel rp = new ResultPanel(e);
 
         // Swing part
-        JDialog frame = new JDialog(fame, "Result evaluator panel test.");
+        JDialog frame = new JDialog(fame, name);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.getContentPane().add(rp);
         frame.pack();
