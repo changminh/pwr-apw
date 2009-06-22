@@ -76,6 +76,18 @@ public abstract class Classifier implements Serializable {
    	
     }
 
+    /**
+     * Trochę późno na javadoca... Jest jak jest, ale jest!!!!!!!!!! :D
+     *
+     * Ok, zakładamy, że mamy dane klasy:
+     * { A, B, C}, oraz klasyfikator uznał, że Sample s należy do klasy B,
+     * zwraca on wtedy na przykład:
+     * { 0, 1, 0}, lub cokolwiek podobnego, z zaznaczeniem, że największa
+     * wartość odpowiada indeksowi przewidywanej klasy.
+     * 
+     * @param s
+     * @return
+     */
     public abstract double[] classifySample(Sample s);
 
     public abstract void addSamples(Samples s) throws UnsupportedOperationException;
