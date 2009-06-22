@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jnlp codebase="http://pwr-apw.googlecode.com/svn/trunk/APW/" href="launch.jnlp" spec="1.0+">
+    <information>
+        <title>APW</title>
+        <vendor>Wrocław University of Technology</vendor>
+        <homepage href="http://code.google.com/p/pwr-apw/"/>
+        <description>APW</description>
+        <description kind="short">APW</description>
+
+
+    <offline-allowed/>
+</information>
+<security>
+<all-permissions/>
+</security>
+    <resources>
+<j2se java-vm-args="-Xmx128m" version="1.5+"/>
+<jar eager="true" href="APW.jar" main="true"/>
+
+
+    <jar href="lib/2p.jar"/>
+<jar href="lib/libsvm.jar"/>
+<jar href="lib/beansbinding-1.2.1.jar"/>
+<jar href="lib/jmatharray.jar"/>
+<jar href="lib/jmathplot.jar"/>
+<jar href="lib/iText-2.1.5.jar"/>
+</resources>
+    <application-desc main-class="apw.gui.MainFrame">
+
+    </application-desc>
+</jnlp>
