@@ -34,6 +34,7 @@
 package apw.classifiers.fuzzyRuleClassifier;
 
 import apw.core.Sample;
+import apw.core.Samples;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -237,7 +238,7 @@ class Genom implements Comparable<Genom> {
         }
     }
 
-    public double[] classifyWithProb(Sample s) {
+    public double[] classifyWithProb(Samples _samples,Sample s) {
         HashMap<String, ArrayList<Integer>> data = new HashMap();
 
         for (int i = 0; i < this.rules.size(); i++) {
@@ -264,7 +265,7 @@ class Genom implements Comparable<Genom> {
 
             for (int j = 0; j < _indexes.size(); j++) {
                 if (rules.get(_indexes.get(j).intValue()).isActive()) {
-                    double classyfication = rules.get(_indexes.get(j).intValue()).classiify(s);
+                    double classyfication = rules.get(_indexes.get(j).intValue()).classiify(_samples,s);
                     if (max < classyfication) {
                         max = classyfication;
                     }
@@ -303,13 +304,13 @@ class Genom implements Comparable<Genom> {
         unclass = x;
     }
 
-    public String classifySample(Sample _sample) {
+    public String classifySample(Samples _samples, Sample _sample) {
         double max = 0.0;
         int index = -1;
 
         for (int i = 0; i < rules.size(); i++) {
             if (rules.get(i).isActive()) {
-                double value = rules.get(i).classiify(_sample);
+                double value = rules.get(i).classiify(_samples,_sample);
 
                 if (max < value) {
                     max = value;

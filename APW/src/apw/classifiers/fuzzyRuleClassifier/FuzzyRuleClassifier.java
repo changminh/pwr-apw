@@ -304,7 +304,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         }
 
         if (bestResult != null) {
-            String clasyfication = bestResult.classifySample(_sample);
+            String clasyfication = bestResult.classifySample(this.samples,_sample);
             Collections.sort(_classes);
 
             if (clasyfication != null) {
@@ -431,16 +431,29 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         return _options;
     }
 
-    private Samples normalize(Samples nSamples) {
+    private double atof(String str) {
+        return Double.valueOf(str).doubleValue();
+    }
+
+    private int atoi(String str) {
+        return Double.valueOf(str).intValue();
+    }
+
+    public Samples normalize(Samples nSamples) {
         double length;
         Samples _samples = new Samples(nSamples.getAtts());
+
+        // System.out.println(nSamples.getAtts());
 
         for (int i = 0; i < nSamples.size(); i++) {
             length = 0.0;
             int size = nSamples.get(i).size() - 1;
+            double data;
 
             for (int j = 0; j < size; j++) {
-                double data = Double.parseDouble(nSamples.get(i).get(j).toString());
+                String str = nSamples.getAtts().get(j).getRepresentation(nSamples.get(i).get(j)).toString();
+                //System.out.println();
+                data = atof(str);
                 length += data * data;
             }
 
@@ -449,21 +462,28 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             List<Object> list = new ArrayList<Object>();
 
             for (int j = 0; j < size; j++) {
-                double data = Double.parseDouble(nSamples.get(i).get(j).toString());
-                data /= length;
-                String str = Double.toString(data);
-                Object obj = nSamples.getAtts().get(j).getRepresentation(str);
-                list.add(obj);
+                if(!nSamples.getAtts().get(j).isNominal()){
+                    String str = nSamples.getAtts().get(j).getRepresentation(nSamples.get(i).get(j)).toString();
+                    data = atof(str);
+                    data /= length;
+                    str = Double.toString(data);
+                    Object obj = nSamples.getAtts().get(j).getRepresentation(str);
+                    list.add(obj);
+                }else{
+                    list.add(nSamples.getAtts().get(j).getRepresentation(nSamples.get(i).get(j)));
+                }
             }
 
             Object obj = nSamples.getAtts().get(size).
                     getRepresentation(nSamples.get(i).get(size).toString());
 
-            list.add(obj);
 
-            Samples _s = new Samples(nSamples.getAtts());
-            Sample newSample = new Sample(_s, list.toArray());
+            list.add(obj);
+            Sample newSample = new Sample(new Samples(nSamples.getAtts()), list.toArray());
+            System.out.println(newSample.toString());
             _samples.add(newSample);
+
+
         }
 
         return _samples;
@@ -529,8 +549,9 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         double min = Double.MAX_VALUE;
 
         for (int i = 0; i < _s.size(); i++) {
-            for (int j = 0; j < _s.get(i).size() - 1; j++) {
-                double value = Double.valueOf(_s.get(i).get(j).toString()).doubleValue();
+            Sample _ss = _s.get(i);
+            for (int j = 0; j < _ss.size() - 1; j++) {
+                double value = Double.valueOf(_s.getAtts().get(j).getRepresentation(_ss.get(j)).toString()).doubleValue();
                 if (max < value) {
                     max = value;
                 }
@@ -550,7 +571,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             gens.get(i).setUnClass(0);
 
             for (int j = 0; j < samples.size(); j++) {
-                String result = gens.get(i).classifySample(samples.get(j));
+                String result = gens.get(i).classifySample(this.samples,samples.get(j));
 
                 if (result == null) {
                     gens.get(i).setUnClass(gens.get(i).getUnClass() + 1);
@@ -655,7 +676,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     "; Fsets: " + (int) gens.get(0).getFsets() +
     "; Fitness : " + gens.get(0).fitness() +
     "; Statistic: " + (100.0 * gens.get(0).getCorr() / samples.size()));
-     */
+    */
     }
 
     private boolean comapre(Genom a, Genom b) {
@@ -705,7 +726,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     public static void main(String[] arg) {
 
         try {
-            FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("c:/svm/data/iris.arff");
+            FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("data/iris.arff");
 
             String[] data = new String[]{"-o", "10", //liczba osobnikow przypadajaca na populacje
                 "-r", "5", //liczba regul przypadajaca na jedna klase
@@ -740,9 +761,10 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             fuzzy.setOptions(data);
             System.out.println("Zaczynamy uczenie( to moze chwile potrwac :) )");
             fuzzy.buildClassifier();
-            Sample s = new ARFFLoader(new File("c:/svm/data/iris.arff")).getSamples().get(0);
+            fuzzy.printRules(System.out);
+            //Sample s = new ARFFLoader(new File("c:/svm/data/iris.arff")).getSamples().get(0);
 
-            fuzzy.bestResult.classifyWithProb(s);
+            //fuzzy.bestResult.classifyWithProb(fuzzy.samples,s);
 
         } catch (IOException ex) {
             Logger.getLogger(FuzzyRuleClassifier.class.getName()).log(Level.SEVERE, null, ex);

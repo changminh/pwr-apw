@@ -35,6 +35,7 @@
 package apw.classifiers.fuzzyRuleClassifier;
 
 import apw.core.Sample;
+import apw.core.Samples;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -145,7 +146,7 @@ public class FuzzyRule {
     }
 
 
-    public double classiify(Sample s){
+    public double classiify(Samples _samples,Sample s){
         double result = Double.MAX_VALUE;
 
         if(s.size() - 1 != condition.length){
@@ -158,7 +159,8 @@ public class FuzzyRule {
 
                 int index = condition[i].getSecond().intValue();
 
-                double x = Double.valueOf(s.get(i).toString()).doubleValue();
+                double x = Double.valueOf(_samples.getAtts().get(i).getRepresentation(s.get(i)).toString()).doubleValue();
+                //double x = Double.valueOf(s.get(i).toString()).doubleValue();
                 double value = Double.MAX_VALUE;
               
                 if(sets.get(i)[index].isActive()){
