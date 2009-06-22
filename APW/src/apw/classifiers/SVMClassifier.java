@@ -523,15 +523,7 @@ public class SVMClassifier extends Classifier {
         return result;
     }
 
-    public String interprate(double[] data) {
-        String result = new String("");
-
-        for (int i = 0; i < data.length; i++) {
-            result += (char) (data[i]);
-        }
-        return result;
-    }
-
+  
     public Sample getSample(int index) {
         return samples.get(index);
     }
@@ -648,7 +640,7 @@ public class SVMClassifier extends Classifier {
             int index = svm.samples.size() - x;
             double[] data = svm.classifySample(svm.getSample(index));
             String res = svm.getSample(index).get(svm.getSample(index).size() - 1).toString();
-            System.out.println("Wynik(Powinno byc " + res + "): " + svm.interprate(data) + ", classify result = " + Arrays.toString(data));
+            
 
             Evaluator e = new Evaluator(svm, new ARFFLoader(new File(dataFile)).getSamples());
             ResultPanel.showResultFrame(e);

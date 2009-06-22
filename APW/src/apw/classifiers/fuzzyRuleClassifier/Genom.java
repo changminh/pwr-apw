@@ -38,7 +38,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Random;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  *
@@ -48,20 +51,9 @@ class Genom implements Comparable<Genom> {
 
     private ArrayList<FuzzyRule> rules = new ArrayList<FuzzyRule>();
     private ArrayList<FuzzySet[]> sets = new ArrayList<FuzzySet[]>();
-
-    private double corr = 0,
-                   incorr = 0,
-                   unclass = 0,
-                   prem = 0,
-                   fsets = 0;
-
+    private double corr = 0,  incorr = 0,  unclass = 0,  prem = 0,  fsets = 0;
     public static int numberOfSets = 6;
-
-    public static double beta = 0.75,
-                         delta = 0.1,
-                         eps = 0.1,
-                         dzeta = 0.8;
-
+    public static double beta = 0.75,  delta = 0.1,  eps = 0.1,  dzeta = 0.8;
     public static int setType = 0;
 
     private void setValues(int factor, int _sets, Object[] classes) {
@@ -108,10 +100,9 @@ class Genom implements Comparable<Genom> {
 
                             public int compare(TriangleSet o1, TriangleSet o2) {
                                 double d1 = o1.getParams()[0],
-                                       d2 = o2.getParams()[0];
+                                        d2 = o2.getParams()[0];
                                 return (d1 == d2) ? 0 : ((d1 > d2) ? 1 : -1);
                             }
-                            
                         }
 
                         Arrays.sort(_set, new Comp());
@@ -119,7 +110,7 @@ class Genom implements Comparable<Genom> {
                         _set[0].setRight(_set[1]);
 
                         for (int j = 1; j < _set.length - 1; j++) {
-                            _set[j].setLeft (_set[j - 1]);
+                            _set[j].setLeft(_set[j - 1]);
                             _set[j].setRight(_set[j + 1]);
                         }
 
@@ -147,7 +138,7 @@ class Genom implements Comparable<Genom> {
                         _set[0].setParam(liczby.get(0), liczby.get(1));
 
                         for (int j = 1; j < _set.length - 1; j++) {
-                            _set[j].setLeft (_set[j - 1]);
+                            _set[j].setLeft(_set[j - 1]);
                             _set[j].setRight(_set[j + 1]); // 2,3,4,5,6,7
                             _set[j].setParam(liczby.get(2 * j), liczby.get(2 * j + 1));
                         }
@@ -155,7 +146,7 @@ class Genom implements Comparable<Genom> {
                         _set[_set.length - 1].setLeft(_set[_set.length - 2]);
 
                         _set[_set.length - 1].setParam(liczby.get(liczby.size() - 2),
-                                                       liczby.get(liczby.size() - 1));
+                                liczby.get(liczby.size() - 1));
 
                         sets.add(_set);
                     }
@@ -199,13 +190,13 @@ class Genom implements Comparable<Genom> {
                 vec[i] = ss[i].clone();
             }
             vec[0].setRight(vec[1]);
-            
-            for(int i = 1; i < vec.length - 1; i++){
-                vec[i].setLeft(vec[i-1]);
-                vec[i].setRight(vec[i+1]);
+
+            for (int i = 1; i < vec.length - 1; i++) {
+                vec[i].setLeft(vec[i - 1]);
+                vec[i].setRight(vec[i + 1]);
             }
 
-            vec[vec.length-1].setLeft(vec[vec.length-2]);
+            vec[vec.length - 1].setLeft(vec[vec.length - 2]);
             s.add(vec);
         }
 
@@ -244,6 +235,48 @@ class Genom implements Comparable<Genom> {
                 fs[index].setActive(true);
             }
         }
+    }
+
+    public double[] classifyWithProb(Sample s) {
+        HashMap<String, ArrayList<Integer>> data = new HashMap();
+
+        for (int i = 0; i < this.rules.size(); i++) {
+            if (data.containsKey(rules.get(i).getConclusion())) {
+                data.get(rules.get(i).getConclusion()).add(i);
+            } else {
+                ArrayList<Integer> value = new ArrayList<Integer>();
+                value.add(i);
+                data.put(rules.get(i).getConclusion(), value);
+            }
+        }
+
+        double[] result = new double[data.size()];
+        TreeMap<String, Integer> map = new TreeMap(data);
+
+        System.out.println(map.keySet());
+        System.out.println(map.values());
+
+        Object[] _classes = map.keySet().toArray();
+
+        for (int i = 0; i < _classes.length; i++) {
+            ArrayList<Integer> _indexes = data.get(_classes[i].toString());
+            double max = 0.0;
+
+            for (int j = 0; j < _indexes.size(); j++) {
+                if (rules.get(_indexes.get(j).intValue()).isActive()) {
+                    double classyfication = rules.get(_indexes.get(j).intValue()).classiify(s);
+                    if (max < classyfication) {
+                        max = classyfication;
+                    }
+                }
+            }
+            result[i] = max;
+        }
+
+        System.out.println(result[0] + " " + result[1] + " " + result[2]);
+
+
+        return result;
     }
 
     public double getInCorr() {
@@ -375,7 +408,7 @@ class Genom implements Comparable<Genom> {
                         d1 = (dr - dl) * RandomClass.nextDouble() + dl;
 
                         fuzzySet.setParam(d1);
-                        
+
                     } else {
 
                         if (fuzzySet instanceof TrapeziumSet) {
