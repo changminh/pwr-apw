@@ -162,7 +162,12 @@ public class BaggedClassifier extends Classifier {
         }
     }
 
-    private Classifier getClassifierInstance(int baseClassifierIndex) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, SecurityException, IllegalArgumentException, InstantiationException {
+    private Classifier getClassifierInstance(int baseClassifierIndex) throws NoSuchMethodException,
+                                                                             InvocationTargetException,
+                                                                             IllegalAccessException,
+                                                                             SecurityException,
+                                                                             IllegalArgumentException,
+                                                                             InstantiationException {
         /* Build samples set taking into account their probability distribution */
         final Samples samplesWithProbability = getSamplesWithProbability();
 

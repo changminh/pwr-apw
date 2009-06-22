@@ -44,6 +44,8 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -406,6 +408,25 @@ public class SVMClassifier extends Classifier {
         return Double.valueOf(str).intValue();
     }
 
+    private Object[] howManyClasses() {
+        HashMap<String, Integer> data = new HashMap<String, Integer>();
+
+        for (int i = 0; i < this.samples.size(); i++) {
+            int size = samples.get(i).size();
+            String str = samples.get(i).get(size - 1).toString();
+
+            if (!data.containsKey(str)) {
+                data.put(str, 0);
+            } else {
+                data.put(str, data.get(str).intValue() + 1);
+            }
+        }
+
+        return data.keySet().toArray();
+    }
+    
+
+
     @Override
     // @SuppressWarnings("empty-statement")
     public double[] classifySample(Sample s) {
@@ -438,24 +459,29 @@ public class SVMClassifier extends Classifier {
                     x[j] = new svm_node();
                     x[j].index = atoi(st.nextToken());
                     x[j].value = atof(st.nextToken());
-                //System.out.print(x[j].index + ":" + x[j].value + " ");
                 }
-            //vx.addElement(x);
             }
 
-            System.out.print(svm.svm_predict(model, x));
+            Object[] _class = this.howManyClasses();
+            double[] result = new double[_class.length];
+            ArrayList<String> _classes = new ArrayList(_class.length);
 
-            double[] data = new double[]{svm.svm_predict(model, x)};
-            String _result = this.convert(data);
+            for(int i = 0; i < _class.length; i++){
+                _classes.add(_class[i].toString());
+            }
+
+            Collections.sort(_classes);
+            String clasyfication = convert(new double[]{svm.svm_predict(model, x)});
+
+            for(int i = 0; i < _classes.size(); i++){
+                if(_classes.get(i).compareTo(clasyfication) == 0){
+                    result[i] = 1.0;
+                }else{
+                    result[i] = 0.0;
+                }
+            }
             
-            double[] result = new double[_result.length()];
-
-            for(int i =0; i < _result.length(); i++){
-                result[i] = (double)_result.charAt(i);
-            }
-
             return result;
-
         }
         return null;
 
