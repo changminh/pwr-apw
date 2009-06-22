@@ -68,6 +68,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     protected double rebuildProcent = 0;
     protected double rPro = 1;
     protected boolean normilize = false;
+    private boolean _rebuild = false;
 
     private static class Utils {
 
@@ -321,7 +322,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     }
 
   
-    private boolean _rebuild = false;
+   
 
     @Override
     public void rebuild() {
@@ -704,7 +705,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     public static void main(String[] arg) {
 
         try {
-            FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("c:/svm/data/wine.arff");
+            FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("c:/svm/data/iris.arff");
 
             String[] data = new String[]{"-o", "10", //liczba osobnikow przypadajaca na populacje
                 "-r", "5", //liczba regul przypadajaca na jedna klase
@@ -729,7 +730,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
                 "-z", "0.3", //wspolczynnik dzeta w funckji przystosowania
                 //tzn. jak bardzo bierzemy pod uwage brak zaklasyfikowania
 
-                "-rp", "95.0", //procent poprawnej klasyfikacji po jakim
+                "-rp", "90.0", //procent poprawnej klasyfikacji po jakim
                 //osobnik zostanie zakceptowany jako rozwiazanie
 
                 "-gw", "500"};  //liczba epok po ktorej,
@@ -739,11 +740,9 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             fuzzy.setOptions(data);
             System.out.println("Zaczynamy uczenie( to moze chwile potrwac :) )");
             fuzzy.buildClassifier();
-            System.out.println("Wynik: ");
-            fuzzy.printRules(System.out);
-            System.out.println("Trenujemy dalej...)");
-            fuzzy.rebuild();
-            fuzzy.printRules(System.out);
+            Sample s = new ARFFLoader(new File("c:/svm/data/iris.arff")).getSamples().get(0);
+
+            fuzzy.bestResult.classifyWithProb(s);
 
         } catch (IOException ex) {
             Logger.getLogger(FuzzyRuleClassifier.class.getName()).log(Level.SEVERE, null, ex);
