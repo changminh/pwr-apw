@@ -107,7 +107,7 @@ public final class KMeansAlgorithm {
 		}
 
 		public double getDistance(final Sample sample) {
-			return Math.abs(getEuclideanDistance(centre, sample.toDoubleArray()));
+			return getEuclideanDistance(centre, sample.toDoubleArray());
 		}
 
 		public boolean recalculateCentre() {
