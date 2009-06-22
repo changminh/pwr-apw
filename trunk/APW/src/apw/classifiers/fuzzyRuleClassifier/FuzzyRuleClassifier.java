@@ -726,7 +726,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     public static void main(String[] arg) {
 
         try {
-            FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("data/iris.arff");
+            FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier("data/weather.nominal.arff");
 
             String[] data = new String[]{"-o", "10", //liczba osobnikow przypadajaca na populacje
                 "-r", "5", //liczba regul przypadajaca na jedna klase

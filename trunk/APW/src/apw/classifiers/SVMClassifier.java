@@ -33,17 +33,14 @@
  */
 package apw.classifiers;
 
-import apw.core.Evaluator;
 import apw.core.Sample;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
-import apw.gui.ResultPanel;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +58,7 @@ public class SVMClassifier extends Classifier {
 
     protected Samples samples = null;
     protected svm_parameter param;  // LibSVM oprions
-    protected int normalize = 0;      // normalize input data
+    protected int normalize = 0;    // normalize input data
     protected svm_problem prob;     // LibSVM Problem
     protected svm_model model;      // LibSVM Model
     protected String error_msg;
@@ -611,12 +608,10 @@ public class SVMClassifier extends Classifier {
         
         try {
             
-            String dataFile = "data/iris.arff";  // input arff file
 /*
-            String[] ops = {new String("-t"),
-                dataFile,
+            String[] ops = {
                 new String("-S"), // WLSVM options
-                new String("0"), // Classification problem
+                new String("0"),  // Classification problem
                 new String("-K"), // RBF kernel
                 new String("0"),
                 new String("-G"), // gamma
