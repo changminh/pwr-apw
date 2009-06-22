@@ -38,6 +38,7 @@ import apw.core.Sample;
 import apw.core.Samples;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -118,13 +119,7 @@ public class BaggedClassifier extends Classifier {
             }
 
             public boolean equals(final double[] decisionToFind) {
-                for (int i = 0; i < decision.length; ++i) {
-                    if (decision[i] != decisionToFind[i]) {
-                        return false;
-                    }
-                }
-
-                return true;
+	            return Arrays.equals(decision, decisionToFind);
             }
 
             public int compareTo(WeightedDecision other) {
