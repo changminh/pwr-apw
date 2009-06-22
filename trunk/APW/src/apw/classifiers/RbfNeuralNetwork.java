@@ -33,15 +33,19 @@
  */
 package apw.classifiers;
 
+import apw.core.Evaluator;
 import apw.core.algorithms.KMeansAlgorithm;
 import apw.core.Nominal;
 import apw.core.Sample;
 import apw.core.Samples;
+import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
+import apw.gui.ResultPanel;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 
+import javax.swing.JFileChooser;
 import static apw.core.algorithms.DistanceMetrics.getEuclideanDistance;
 import static apw.core.util.MiscUtils.copyMatrix;
 
@@ -107,11 +111,23 @@ public class RbfNeuralNetwork extends Classifier {
     }
 
     public static void main(String[] args) throws Exception {
-        RbfNeuralNetwork network = new RbfNeuralNetwork("data/iris.arff");
+        // Ta sekcja jest po to, żeby móc wybrać łatwo zbiór testowy
+        JFileChooser jf = new JFileChooser("data/");
+        jf.showOpenDialog(null);
+        if (jf.getSelectedFile()!=null) {
+            File f = jf.getSelectedFile();
+            Samples samples = new ARFFLoader(f).getSamples();
+
+            RbfNeuralNetwork network = new RbfNeuralNetwork(samples);
+            network.rebuild();
 
 
+            // Evaluator to obiekt, który liczy miary jakości klasyfikacji
+            Evaluator e = new Evaluator(network, samples);
 
-		network.rebuild();
+            // To metoda statyczna prezentująca miary jakości w oknie Swing
+            ResultPanel.showResultFrame(e);
+        }
 
     }
 
