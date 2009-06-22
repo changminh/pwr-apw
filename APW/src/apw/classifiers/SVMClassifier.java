@@ -234,7 +234,7 @@ public class SVMClassifier extends Classifier {
 
             list.add(obj);
             Sample newSample = new Sample(new Samples(nSamples.getAtts()), list.toArray());
-            System.out.println(newSample.toString());
+            //System.out.println(newSample.toString());
             _samples.add(newSample);
 
 
@@ -390,7 +390,7 @@ public class SVMClassifier extends Classifier {
             line += " " + j + ":" + value;
         }
 
-        System.out.println(line);
+        //System.out.println(line);
         return (line + "\n");
     }
 
@@ -487,7 +487,7 @@ public class SVMClassifier extends Classifier {
             Collections.sort(_classes);
             String clasyfication = convert(new double[]{svm.svm_predict(model, x)});
 
-            System.out.println(clasyfication);
+            //System.out.println(clasyfication);
             for (int i = 0; i < _classes.size(); i++) {
                 if (_classes.get(i).compareTo(clasyfication) == 0) {
                     result[i] = 1.0;
@@ -629,7 +629,7 @@ public class SVMClassifier extends Classifier {
                 new String("100")
             };
 */
-            SVMClassifier svm = new SVMClassifier("data/weather.arff");
+            SVMClassifier svm = new SVMClassifier("data/weather.nominal.arff");
 //          svm.setOptions(ops);
             svm.setDebug(true);
             svm.buildClassifier();
