@@ -250,8 +250,8 @@ public class BoostedClassifier extends Classifier {
         for (int sampleIndex = 0; sampleIndex < samplesCount; ++sampleIndex) {
             final Sample sample = samples.get(sampleIndex);
 
-            final double targetValue = (double) (Double) sample.classAttributeRepr();
-            final double calculatedValue = (double) (Double) classifierInstance.classifySampleAsObject(sample);
+            final double targetValue = (Double) sample.classAttributeRepr();
+            final double calculatedValue = (Double) classifierInstance.classifySampleAsObject(sample);
 
             /* Compare the expected classification class with the calculated one;
              * if they're different, add the probability of the current sample
