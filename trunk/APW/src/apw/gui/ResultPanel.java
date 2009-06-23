@@ -295,6 +295,7 @@ public class ResultPanel extends javax.swing.JPanel {
 
         // Swing part
         JDialog frame = new JDialog(fame, name);
+        frame.setLocationRelativeTo(fame);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.getContentPane().add(rp);
         frame.pack();

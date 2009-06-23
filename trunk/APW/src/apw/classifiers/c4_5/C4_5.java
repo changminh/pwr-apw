@@ -12,11 +12,12 @@ import apw.core.Nominal;
 import apw.core.Numeric;
 import apw.core.Sample;
 import apw.core.Samples;
+import apw.core.meta.ClassifierCapabilities;
 
 /**
  * @author Krzysztof Praszmo
  */
-
+@ClassifierCapabilities(multiClass=true, handlesNumericAtts=true, handlesNominalAtts=true)
 public class C4_5 extends RuleClassifier {
 
 	private C4_5DecisionNode<Object> tree;

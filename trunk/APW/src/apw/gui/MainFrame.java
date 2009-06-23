@@ -40,21 +40,28 @@
 package apw.gui;
 
 import apw.classifiers.Classifier;
-import apw.classifiers.SVMClassifier;
-import apw.classifiers.c4_5.C4_5;
-import apw.classifiers.fuzzyRuleClassifier.FuzzyRuleClassifier;
-import apw.classifiers.id3.ID3;
-import apw.classifiers.knn.KNN;
 import apw.core.Evaluator;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
+import apw.core.meta.ClassifierCapabilities;
+import apw.core.util.ClassList;
 import java.awt.Component;
 import java.awt.FileDialog;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.AbstractButton;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.UIManager;
@@ -65,17 +72,21 @@ import javax.swing.UIManager;
  */
 public class MainFrame extends javax.swing.JFrame {
 
+    private static HashSet<String> toSet(String s) {
+        return new HashSet<String>(Arrays.asList(s.split(",")));
+    }
     private JRadioButton last;
 
     /** Creates new form MainFrame */
     public MainFrame() {
         initComponents();
-        sampleUpdate();
-        classifierUpdate();
-
+        initClassifiersRepr();
+        initClassifiersCBox();
+        updateSample();
+        updateClassifier();
     }
 
-    private void classifierUpdate() {
+    private void updateClassifier() {
         evalBtn.setEnabled(classifier != null);
     }
 
@@ -88,16 +99,9 @@ public class MainFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        buttonGroup1 = new javax.swing.ButtonGroup();
         jButton1 = new javax.swing.JButton();
-        KNN_RB = new javax.swing.JRadioButton();
-        ID3_RB = new javax.swing.JRadioButton();
-        C4_5_RB = new javax.swing.JRadioButton();
-        SVM_RB = new javax.swing.JRadioButton();
         evalBtn = new javax.swing.JButton();
-        Bag_RB = new javax.swing.JRadioButton();
-        Boost_RB = new javax.swing.JRadioButton();
-        Fuzzy_RB = new javax.swing.JRadioButton();
+        jComboBox1 = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -108,38 +112,6 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        buttonGroup1.add(KNN_RB);
-        KNN_RB.setText("KNN");
-        KNN_RB.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                KNN_RBActionPerformed(evt);
-            }
-        });
-
-        buttonGroup1.add(ID3_RB);
-        ID3_RB.setText("ID3");
-        ID3_RB.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ID3_RBActionPerformed(evt);
-            }
-        });
-
-        buttonGroup1.add(C4_5_RB);
-        C4_5_RB.setText("C4.5");
-        C4_5_RB.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                C4_5_RBActionPerformed(evt);
-            }
-        });
-
-        buttonGroup1.add(SVM_RB);
-        SVM_RB.setText("SVM");
-        SVM_RB.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                SVM_RBActionPerformed(evt);
-            }
-        });
-
         evalBtn.setText("Evaluate");
         evalBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -147,29 +119,7 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        buttonGroup1.add(Bag_RB);
-        Bag_RB.setText("bag");
-        Bag_RB.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Bag_RBActionPerformed(evt);
-            }
-        });
-
-        buttonGroup1.add(Boost_RB);
-        Boost_RB.setText("boost");
-        Boost_RB.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Boost_RBActionPerformed(evt);
-            }
-        });
-
-        buttonGroup1.add(Fuzzy_RB);
-        Fuzzy_RB.setText("Fazi");
-        Fuzzy_RB.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Fuzzy_RBActionPerformed(evt);
-            }
-        });
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -177,43 +127,21 @@ public class MainFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(Bag_RB)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Boost_RB)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Fuzzy_RB))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(KNN_RB)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ID3_RB)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(C4_5_RB)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(SVM_RB))
-                    .addComponent(jButton1)
-                    .addComponent(evalBtn))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jButton1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jComboBox1, 0, 153, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(evalBtn)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(KNN_RB)
-                    .addComponent(ID3_RB)
-                    .addComponent(C4_5_RB)
-                    .addComponent(SVM_RB))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(Bag_RB)
-                    .addComponent(Boost_RB)
-                    .addComponent(Fuzzy_RB))
-                .addGap(5, 5, 5)
-                .addComponent(evalBtn)
+                    .addComponent(jButton1)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(evalBtn))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -232,34 +160,8 @@ public class MainFrame extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, ex.toString(),
                     "An exception occured", JOptionPane.ERROR_MESSAGE);
         }
-        sampleUpdate();
+        updateSample();
     }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void KNN_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_KNN_RBActionPerformed
-        try {
-            classifier = new KNN(s, neighbours, KNN.RANKING_BASED_VOTING);
-            classifier.rebuild();
-            last = (JRadioButton) evt.getSource();
-        } catch (Exception e) {
-            warn(e.getMessage());
-            if (last != null)
-                last.setSelected(true);
-        }
-        classifierUpdate();
-}//GEN-LAST:event_KNN_RBActionPerformed
-
-    private void ID3_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ID3_RBActionPerformed
-        try {
-            classifier = new ID3(s);
-            classifier.rebuild();
-            last = (JRadioButton) evt.getSource();
-        } catch (Exception e) {
-            warn(e.getMessage());
-            if (last != null)
-                last.setSelected(true);
-        }
-        classifierUpdate();
-}//GEN-LAST:event_ID3_RBActionPerformed
 
     private void evalBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_evalBtnActionPerformed
         try {
@@ -277,62 +179,54 @@ public class MainFrame extends javax.swing.JFrame {
             e.printStackTrace();
         }
 }//GEN-LAST:event_evalBtnActionPerformed
-
-    private void Bag_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Bag_RBActionPerformed
-        warn("Not yet implemented");
-        if (last != null)
-            last.setSelected(true);
-        classifierUpdate();
-}//GEN-LAST:event_Bag_RBActionPerformed
-
-    private void Boost_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Boost_RBActionPerformed
-        warn("Not yet implemented");
-        if (last != null)
-            last.setSelected(true);
-        classifierUpdate();
-}//GEN-LAST:event_Boost_RBActionPerformed
-
-    private void Fuzzy_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Fuzzy_RBActionPerformed
-        try {
-            classifier = new FuzzyRuleClassifier(s);
-            classifier.rebuild();
-            last = (JRadioButton) evt.getSource();
-        } catch (Exception e) {
-            warn(e.getMessage());
-            if (last != null)
-                last.setSelected(true);
-        }
-        classifierUpdate();
-}//GEN-LAST:event_Fuzzy_RBActionPerformed
-
-    private void C4_5_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_C4_5_RBActionPerformed
-        try {
-            classifier = new C4_5(s);
-            classifier.rebuild();
-            last = (JRadioButton) evt.getSource();
-        } catch (Exception e) {
-            warn(e.getMessage());
-            if (last != null)
-                last.setSelected(true);
-        }
-        classifierUpdate();
-}//GEN-LAST:event_C4_5_RBActionPerformed
-
-    private void SVM_RBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SVM_RBActionPerformed
-        try {
-            classifier = new SVMClassifier(s);
-            classifier.rebuild();
-            last = (JRadioButton) evt.getSource();
-        } catch (Exception e) {
-            warn(e.getMessage());
-            if (last != null)
-                last.setSelected(true);
-        }
-        classifierUpdate();
-    }//GEN-LAST:event_SVM_RBActionPerformed
     Samples s;
     int neighbours = 4;
     Classifier classifier = null;
+
+    private static final Set<Class> DiscoverClassifiers() throws ClassNotFoundException {
+        Map<String, Set<Class>> m = ClassList.findClasses(
+                Thread.currentThread().getContextClassLoader(),
+                null,
+                toSet("apw.classifiers.Classifier"),
+                toSet("apw.classifiers"),
+                null);
+        Set<Class> set = ClassList.flatout(m);
+        return set;
+    }
+    private Map<Class, String> cl2str = new HashMap<Class, String>();
+    private Map<String, Class> str2cl = new HashMap<String, Class>();
+    private Set<Class> classifiers;
+
+    private void initClassifiersRepr() {
+        try {
+            classifiers = DiscoverClassifiers();
+            String name;
+            for (Class c : classifiers) {
+                name = c.getName();
+                name = name.substring(name.lastIndexOf(".") + 1, name.length());
+                if (c.getAnnotation(ClassifierCapabilities.class) != null) {
+                    ClassifierCapabilities caps = (ClassifierCapabilities) c.getAnnotation(ClassifierCapabilities.class);
+                    System.out.println("caps: " + caps);
+                }
+                cl2str.put(c, name);
+                str2cl.put(name, c);
+            }
+        } catch (ClassNotFoundException ex) {
+            warn(this, "Error while discovering classifiers:\n" + ex.getMessage());
+        }
+    }
+
+    private static final String elapsed(long time) {
+        int milliseconds = (int) (time % 1000);
+        int seconds = (int) ((time / 1000) % 60);
+        int minutes = (int) ((time / 60000) % 60);
+        int hours = (int) ((time / 3600000) % 24);
+        String millisecondsStr = (milliseconds < 10 ? "00" : (milliseconds < 100 ? "0" : "")) + milliseconds;
+        String secondsStr = (seconds < 10 ? "0" : "") + seconds;
+        String minutesStr = (minutes < 10 ? "0" : "") + minutes;
+        String hoursStr = (hours < 10 ? "0" : "") + hours;
+        return new String(hoursStr + ":" + minutesStr + ":" + secondsStr + "." + millisecondsStr);
+    }
 
     /**
      * @param args the command line arguments
@@ -352,23 +246,18 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }
 
-    public void sampleUpdate() {
-        for (AbstractButton a : Collections.list(buttonGroup1.getElements()))
-            a.setEnabled(s != null);
-        if(s==null) setTitle("Classifier tester.");
-        else setTitle("Classifier tester. Ralation \"" + s.getName() + "\"");
+    public void updateSample() {
+        jComboBox1.setEnabled(s != null);
+
+        if (s == null)
+            setTitle("Classifier tester.");
+        else
+            setTitle("Classifier tester. Ralation \"" + s.getName() + "\"");
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JRadioButton Bag_RB;
-    private javax.swing.JRadioButton Boost_RB;
-    private javax.swing.JRadioButton C4_5_RB;
-    private javax.swing.JRadioButton Fuzzy_RB;
-    private javax.swing.JRadioButton ID3_RB;
-    private javax.swing.JRadioButton KNN_RB;
-    private javax.swing.JRadioButton SVM_RB;
-    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton evalBtn;
     private javax.swing.JButton jButton1;
+    private javax.swing.JComboBox jComboBox1;
     // End of variables declaration//GEN-END:variables
 
     private static void warn(Component c, String string) {
@@ -377,5 +266,30 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void warn(String string) {
         JOptionPane.showMessageDialog(this, string, "Exception", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void initClassifiersCBox() {
+        List<String> c = new ArrayList(cl2str.values());
+        Collections.sort(c);
+        jComboBox1.setModel(new DefaultComboBoxModel(c.toArray()));
+        jComboBox1.addItemListener(new ItemListener() {
+
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getItem() instanceof String && e.getStateChange() == ItemEvent.SELECTED)
+                    try {
+                        Class c = str2cl.get((String) e.getItem());
+                        Constructor ctor = c.getDeclaredConstructor(Samples.class);
+                        classifier = (Classifier) ctor.newInstance(s);
+                        classifier.rebuild();
+                        System.out.println("new cl " + classifier);
+                    } catch (Exception x) {
+                        classifier = null;
+                        System.out.println("error while instantiating: " + e.getItem());
+                        x.getCause().printStackTrace();
+                        warn("Error while instantiating classifier:\n" + x.getCause());
+                    }
+                updateClassifier();
+            }
+        });
     }
 }
