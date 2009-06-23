@@ -445,8 +445,6 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         double length;
         Samples _samples = new Samples(nSamples.getAtts());
 
-        // System.out.println(nSamples.getAtts());
-
         for (int i = 0; i < nSamples.size(); i++) {
             length = 0.0;
             int size = nSamples.get(i).size() - 1;
@@ -454,7 +452,6 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
             for (int j = 0; j < size; j++) {
                 String str = nSamples.getAtts().get(j).getRepresentation(nSamples.get(i).get(j)).toString();
-                //System.out.println();
                 data = atof(str);
                 length += data * data;
             }

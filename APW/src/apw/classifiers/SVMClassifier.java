@@ -63,7 +63,7 @@ public class SVMClassifier extends Classifier {
     protected int normalize = 0;    // normalize input data
     protected svm_problem prob;     // LibSVM Problem
     protected svm_model model;      // LibSVM Model
-    protected String error_msg;
+    protected String errorMsg;
     protected String[] options = null;
     protected boolean debug = false;
     protected boolean _builded = false;
@@ -520,10 +520,10 @@ public class SVMClassifier extends Classifier {
         if (param.gamma == 0)
             param.gamma = 1.0 / max_index;
 
-        error_msg = svm.svm_check_parameter(prob, param);
+        errorMsg = svm.svm_check_parameter(prob, param);
 
-        if (error_msg != null) {
-            System.err.print("Error: " + error_msg + "\n");
+        if (errorMsg != null) {
+            System.err.print("Error: " + errorMsg + "\n");
             System.exit(1);
         }
 
@@ -558,24 +558,14 @@ public class SVMClassifier extends Classifier {
             new String("100")
             };
              */
-            SVMClassifier svm = new SVMClassifier("data/weather.nominal.arff");
-            //svm.setOptions(ops);
-            svm.setDebug(true);
-            svm.buildClassifier();
+            Classifier svm = new SVMClassifier("data/weather.nominal.arff");
+            svm.rebuild();
 
 
-            int x = 2;
-            int index = svm.samples.size() - x;
-            double[] data = svm.classifySample(svm.getSample(index));
-            //String res = svm.getSample(index).get(svm.getSample(index).size() - 1).toString();
-
-
+            double[] data = svm.classifySample(new ARFFLoader(new File("data/weather.nominal.arff")).getSamples().get(0));
+            
             System.out.println(data[0] + " " + data[1]);
-            //Evaluator e = new Evaluator(svm, new ARFFLoader(new File(dataFile)).getSamples());
-            //ResultPanel.showResultFrame(e);
-            //Samples data = new ARFFLoader(new File("c:/svm/data/weather.arff")).getSamples();
-            //System.out.println(data.getAtts().get(3).getRepresentation(data.get(1).get(3)));
-
+           
 
         } catch (IOException ex) {
             Logger.getLogger(SVMClassifier.class.getName()).log(Level.SEVERE, null, ex);
