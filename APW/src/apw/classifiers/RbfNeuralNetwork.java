@@ -68,7 +68,7 @@ public class RbfNeuralNetwork extends Classifier {
     private boolean rebuildNeeded;
 
 
-    public RbfNeuralNetwork(final Samples samples, final int noOfCentres) {
+    public RbfNeuralNetwork(final Samples samples, int noOfCentres) {
         super(samples);
 
         if (samples.size() == 0) {
@@ -80,7 +80,7 @@ public class RbfNeuralNetwork extends Classifier {
 		this.noOfOutputNodes = samples.getClassAttribute().isNominal()
 				? ((Nominal) samples.getClassAttribute()).getKeys().size() : 2;
 
-		this.noOfHiddenNodes = noOfCentres == -1 ? 2 * noOfOutputNodes : noOfCentres;
+		this.noOfHiddenNodes = noOfCentres == -1 ? Math.min(2 * noOfOutputNodes, samples.size()) : noOfCentres;
 		this.samples = samples;
 
         this.rebuildNeeded = true;
