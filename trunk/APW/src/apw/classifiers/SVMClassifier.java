@@ -57,7 +57,7 @@ import libsvm.*;
 public class SVMClassifier extends Classifier {
 
     protected Samples samples = null;
-    protected svm_parameter param;  // LibSVM oprions
+    protected svm_parameter param;  // LibSVM options
     protected int normalize = 0;    // normalize input data
     protected svm_problem prob;     // LibSVM Problem
     protected svm_model model;      // LibSVM Model
@@ -166,10 +166,7 @@ public class SVMClassifier extends Classifier {
     @Override
     public void rebuild() {
         try {
-           
             buildClassifier();
-          
-
         } catch (Exception ex) {
             Logger.getLogger(SVMClassifier.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -194,8 +191,6 @@ public class SVMClassifier extends Classifier {
         double length;
         Samples _samples = new Samples(nSamples.getAtts());
 
-        // System.out.println(nSamples.getAtts());
-
         for (int i = 0; i < nSamples.size(); i++) {
             length = 0.0;
             int size = nSamples.get(i).size() - 1;
@@ -203,7 +198,6 @@ public class SVMClassifier extends Classifier {
 
             for (int j = 0; j < size; j++) {
                 String str = nSamples.getAtts().get(j).getRepresentation(nSamples.get(i).get(j)).toString();
-                //System.out.println();
                 data = atof(str);
                 length += data * data;
             }
@@ -231,10 +225,8 @@ public class SVMClassifier extends Classifier {
 
             list.add(obj);
             Sample newSample = new Sample(new Samples(nSamples.getAtts()), list.toArray());
-            //System.out.println(newSample.toString());
+           
             _samples.add(newSample);
-
-
         }
 
         return _samples;
@@ -363,13 +355,7 @@ public class SVMClassifier extends Classifier {
         this.options = options;
     }
 
-    /**
-     * Converts an ARFF Instance into a string in the sparse format accepted by
-     * LIBSVM
-     *
-     * @param instance
-     * @return
-     */
+  
     protected String samplesToSparse(Sample sample) {
         String line = new String();
 
@@ -386,22 +372,14 @@ public class SVMClassifier extends Classifier {
             double value =  Double.parseDouble(str);   
             line += " " + j + ":" + value;
         }
-
-        //System.out.println(line);
+        
         return (line + "\n");
     }
 
-    /**
-     * converts an ARFF dataset into sparse format
-     *
-     * @param instances
-     * @return
-     */
     protected Vector dataToSparse(Samples data) {
         Vector sparse = new Vector(data.size() + 1);
 
-        for (int i = 0; i < data.size(); i++) // for each instance
-        {
+        for (int i = 0; i < data.size(); i++){
             sparse.add(samplesToSparse(data.get(i)));
         }
         return sparse;
@@ -423,7 +401,7 @@ public class SVMClassifier extends Classifier {
         return Double.valueOf(str).intValue();
     }
 
-    private Object[] howManyClasses() {
+    private Object[] ClassesInProblem() {
         HashMap<String, Integer> data = new HashMap<String, Integer>();
 
         for (int i = 0; i < this.samples.size(); i++) {
@@ -443,7 +421,7 @@ public class SVMClassifier extends Classifier {
     @Override
     public double[] classifySample(Sample s) {
 
-        Object[] _class = this.howManyClasses();
+        Object[] _class = this.ClassesInProblem();
         double[] result = new double[_class.length];
         ArrayList<String> _classes = new ArrayList(_class.length);
 
@@ -526,7 +504,6 @@ public class SVMClassifier extends Classifier {
                 System.err.println("Normalizing...");
             }
             _samples = samples = normalize(samples);
-        //_samples = samples;
         } else if (this.normalize != 0) {
             System.err.println("Not defined value for normailizing...");
         }
@@ -556,9 +533,8 @@ public class SVMClassifier extends Classifier {
                 x[j] = new svm_node();
                 x[j].index = atoi(st.nextToken());
                 x[j].value = atof(st.nextToken());
-            //System.out.print(x[j].index + ":" + x[j].value + " ");
             }
-            //System.out.println();
+            
             if (m > 0) {
                 max_index = Math.max(max_index, x[m - 1].index);
             }
@@ -604,7 +580,7 @@ public class SVMClassifier extends Classifier {
         
         try {
             
-/*
+            /*
             String[] ops = {
                 new String("-S"), // WLSVM options
                 new String("0"),  // Classification problem
@@ -619,9 +595,9 @@ public class SVMClassifier extends Classifier {
                 new String("-M"), // cache size in MB
                 new String("100")
             };
-*/
+            */
             SVMClassifier svm = new SVMClassifier("data/weather.nominal.arff");
-//          svm.setOptions(ops);
+            //svm.setOptions(ops);
             svm.setDebug(true);
             svm.buildClassifier();
 
@@ -629,17 +605,13 @@ public class SVMClassifier extends Classifier {
             int x = 2;
             int index = svm.samples.size() - x;
             double[] data = svm.classifySample(svm.getSample(index));
-            String res = svm.getSample(index).get(svm.getSample(index).size() - 1).toString();
+            //String res = svm.getSample(index).get(svm.getSample(index).size() - 1).toString();
             
 
             System.out.println(data[0] + " " + data[1]);
             //Evaluator e = new Evaluator(svm, new ARFFLoader(new File(dataFile)).getSamples());
             //ResultPanel.showResultFrame(e);
-            
-
             //Samples data = new ARFFLoader(new File("c:/svm/data/weather.arff")).getSamples();
-
-
             //System.out.println(data.getAtts().get(3).getRepresentation(data.get(1).get(3)));
 
 
