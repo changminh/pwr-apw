@@ -34,13 +34,19 @@
 package apw.classifiers.complex;
 
 import apw.classifiers.Classifier;
+import apw.classifiers.RbfNeuralNetwork;
+import apw.core.Evaluator;
 import apw.core.Sample;
 import apw.core.Samples;
+import apw.core.loader.ARFFLoader;
+import apw.gui.ResultPanel;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.swing.JFileChooser;
 
 /**
  *
@@ -49,9 +55,9 @@ import java.util.List;
 public class BoostedClassifier extends Classifier {
     final static Class[] CLASSIFIER_CONSTRUCTOR_PARAMETERS = new Class[]{Samples.class};
     
-    private Class<Classifier>[] baseClassifiersClasses;
-    private Classifier[] complexClassifier;
-    private double[] baseClassifiersWeights;
+    private Class<Classifier>[] classifiersClasses;	// only the classes of the classifiers to use
+    private Classifier[] classifiers;	// learned classifier instances
+    private double[] classifiersWeights;
     private Samples samples;
     private double[] samplesProbabilities;
     private boolean rebuildNeeded;
@@ -64,7 +70,9 @@ public class BoostedClassifier extends Classifier {
             throw new RuntimeException("The samples object cannot be empty");
         }
 
-        this.baseClassifiersClasses = baseClassifiersClasses;
+        this.classifiersClasses = baseClassifiersClasses;
+		this.classifiersWeights = new double[baseClassifiersClasses.length];
+		this.classifiers = new Classifier[baseClassifiersClasses.length];
         this.samples = samples;
         this.samplesProbabilities = new double[samples.size()];
         this.rebuildNeeded = true;
@@ -78,9 +86,9 @@ public class BoostedClassifier extends Classifier {
         }
 
         final WeightedDecisions decisions = new WeightedDecisions();
-        for (int classifierIndex = 0; classifierIndex < baseClassifiersWeights.length; ++classifierIndex) {
-            final double[] decision = complexClassifier[classifierIndex].classifySample(sample);
-            decisions.addDecision(decision, baseClassifiersWeights[classifierIndex]);
+        for (int classifierIndex = 0; classifierIndex < classifiersWeights.length; ++classifierIndex) {
+            final double[] decision = classifiers[classifierIndex].classifySample(sample);
+            decisions.addDecision(decision, classifiersWeights[classifierIndex]);
         }
 
         return decisions.getFinalDecision();
@@ -137,7 +145,7 @@ public class BoostedClassifier extends Classifier {
         resetSamplesProbabilities();
 
         try {
-            for (int classifierIndex = 0; classifierIndex < baseClassifiersClasses.length; ++classifierIndex) {
+            for (int classifierIndex = 0; classifierIndex < classifiersClasses.length; ++classifierIndex) {
                 /* Create an instance of the current base classifier
                  * by calling its constructor with the modified sample set */
                 final Classifier classifierInstance = getClassifierInstance(classifierIndex);
@@ -147,7 +155,7 @@ public class BoostedClassifier extends Classifier {
 
                 updateClassifierWeightAndSamplesProbabilities(classifierInstance, classifierIndex);
 
-                complexClassifier[classifierIndex] = classifierInstance;
+                classifiers[classifierIndex] = classifierInstance;
             }
 
             rebuildNeeded = false;
@@ -214,7 +222,7 @@ public class BoostedClassifier extends Classifier {
                 sampleIndex++;
             }
 
-            return weightedSamples[sampleIndex].sample;
+            return weightedSamples[--sampleIndex].sample;
         }
 
         private class WeightedSample implements Comparable<WeightedSample> {
@@ -245,7 +253,7 @@ public class BoostedClassifier extends Classifier {
             final Sample sample = samples.get(sampleIndex);
 
             final double targetValue = (Double) sample.classAttributeRepr();
-            final double calculatedValue = (Double) classifierInstance.classifySampleAsObject(sample);
+            final double calculatedValue = (Double) samples.getClassAttribute().getRepresentation(classifierInstance.classifySampleAsObject(sample));
 
             /* Compare the expected classification class with the calculated one;
              * if they're different, add the probability of the current sample
@@ -259,7 +267,7 @@ public class BoostedClassifier extends Classifier {
         }
 
         final double newClassifierWeight = 0.5 * Math.log((1 - classifierError) / classifierError);
-        baseClassifiersWeights[classifierIndex] = newClassifierWeight;
+        classifiersWeights[classifierIndex] = newClassifierWeight;
 
         updateSampleProbabilities(classificationCorrectness, newClassifierWeight);
     }
@@ -287,12 +295,12 @@ public class BoostedClassifier extends Classifier {
 
         /* Create an instance of the current base classifier
          * by calling its constructor with the modified sample set */
-        return (Classifier) baseClassifiersClasses[baseClassifierIndex].getConstructor(CLASSIFIER_CONSTRUCTOR_PARAMETERS).newInstance(samplesWithProbability);
+        return (Classifier) classifiersClasses[baseClassifierIndex].getConstructor(CLASSIFIER_CONSTRUCTOR_PARAMETERS).newInstance(samplesWithProbability);
     }
 
     private void resetSamplesProbabilities() {
         final int samplesCount = samples.size();
-        final double defaultSampleProbability = 1 / samplesCount;
+        final double defaultSampleProbability = 1.0 / samplesCount;
 
         for (int i = 0; i < samplesCount; ++i) {
             samplesProbabilities[i] = defaultSampleProbability;
@@ -301,8 +309,8 @@ public class BoostedClassifier extends Classifier {
 
     @Override
     public Classifier copy() {
-        final Object[] baseClasifiersCopy = new Object[baseClassifiersClasses.length];
-        System.arraycopy(baseClassifiersClasses, 0, baseClasifiersCopy, 0, baseClassifiersClasses.length);
+        final Object[] baseClasifiersCopy = new Object[classifiersClasses.length];
+        System.arraycopy(classifiersClasses, 0, baseClasifiersCopy, 0, classifiersClasses.length);
 
         BoostedClassifier result = new BoostedClassifier((Class<Classifier>[]) baseClasifiersCopy, samples);
         result.rebuild();
@@ -320,5 +328,32 @@ public class BoostedClassifier extends Classifier {
     public void addSample(final Sample s) {
         samples.add(s);
         rebuildNeeded = true;
+    }
+
+	public static void main(String[] args) throws Exception {
+		File f = null;
+		if (args.length > 0 && !args[0].isEmpty()) {
+			f = new File(args[0]);
+		} else {
+			// Ta sekcja jest po to, żeby móc wybrać łatwo zbiór testowy
+			JFileChooser jf = new JFileChooser("data/");
+			jf.showOpenDialog(null);
+			f = jf.getSelectedFile();
+		}
+
+        if (f != null) {
+            Samples samples = new ARFFLoader(f).getSamples();
+
+            BoostedClassifier boostedClassifier = new BoostedClassifier(
+					new Class[] {RbfNeuralNetwork.class, RbfNeuralNetwork.class}, samples);
+
+			boostedClassifier.rebuild();
+
+            // Evaluator to obiekt, który liczy miary jakości klasyfikacji
+            Evaluator e = new Evaluator(boostedClassifier, samples);
+
+            // To metoda statyczna prezentująca miary jakości w oknie Swing
+            ResultPanel.showResultFrame(e);
+        }
     }
 }
