@@ -455,16 +455,13 @@ public class SVMClassifier extends Classifier {
         if ((s == null) || !_builded) {
             return result;
         }
-
-        //System.out.println(_builded);
         
-        Vector sparseData = new Vector();
-        Vector vy = new Vector();
-
-        sparseData.add(samplesToSparse(s));
-
-        if (samples.get(0).size() == s.size()) {
+        if (samples.get(0).size() == s.size() || samples.get(0).size()-1 == s.size()) {
             svm_node[] x = null;
+
+            Vector sparseData = new Vector();
+            Vector vy = new Vector();
+            sparseData.add(samplesToSparse(s));
 
             for (int d = 0; d < sparseData.size(); d++) {
                 String line = (String) sparseData.get(d);
@@ -484,7 +481,6 @@ public class SVMClassifier extends Classifier {
             Collections.sort(_classes);
             String clasyfication = convert(new double[]{svm.svm_predict(model, x)});
 
-            //System.out.println(clasyfication);
             for (int i = 0; i < _classes.size(); i++) {
                 if (_classes.get(i).compareTo(clasyfication) == 0) {
                     result[i] = 1.0;
@@ -493,7 +489,7 @@ public class SVMClassifier extends Classifier {
                 }
             }
         }
-        //System.out.println("dfsdf");
+       
         return result;
     }
 
