@@ -86,6 +86,9 @@ public class Evaluator {
     }
 
     private static String[] getNames(Samples ss) {
+        if (!(ss.getClassAttribute() instanceof Nominal))
+            throw new IllegalArgumentException(
+                    "Evaluator can only be used with nominal class values");
         return ((Nominal) ss.getClassAttribute()).getSortedIKeys();
     }
 
@@ -97,6 +100,9 @@ public class Evaluator {
     }
 
     private static int[][] getConfusionMatrix(Classifier c, Samples ss) {
+        if (!(ss.getClassAttribute() instanceof Nominal))
+            throw new IllegalArgumentException(
+                    "Evaluator can only be used with nominal class values");
         int n = ((Nominal) ss.getClassAttribute()).getKeys().size();
         int[][] cm = new int[n][n];
 
@@ -186,7 +192,7 @@ public class Evaluator {
         }
 
         // count True(& False) Positive (& Negative) ratios
-        double positiveCases, negativeCases;
+        double positiveCases, negativeCases, den;
         for (int i = 0; i < N; i++) {
             m = classes[i];
             positiveCases = m.correct.positive + m.incorrect.negative;
@@ -214,11 +220,19 @@ public class Evaluator {
 
             // precision (P) is the proportion of the predicted positive
             // cases that were correct
-            m.precision = (double) m.correct.positive /
-                    (m.incorrect.positive + m.correct.positive);
+            den = m.incorrect.positive + m.correct.positive;
+            if (den == 0)
+                m.precision = 0;
+            else
+                m.precision = (double) m.correct.positive /
+                        den;
 
             // f Score
-            m.fScore = 2 * (m.precision * m.recall) / (m.precision + m.recall);
+            den = m.precision + m.recall;
+            if (den == 0)
+                m.fScore = 0;
+            else
+                m.fScore = 2 * (m.precision * m.recall) / (den);
 
             m.accuracy = (double) m.correct.positive / m.instances;
         }
@@ -226,15 +240,16 @@ public class Evaluator {
         // Count weighted values
         for (int i = 0; i < N; i++) {
             m = classes[i];
-            weighted.TP += m.TP * m.instances;
-            weighted.FP += m.FP * m.instances;
-            weighted.TN += m.TN * m.instances;
-            weighted.FN += m.FN * m.instances;
-            weighted.accuracy += m.accuracy * m.instances;
-            weighted.recall += m.recall * m.instances;
-            weighted.precision += m.precision * m.instances;
-            weighted.fScore += m.fScore * m.instances;
-
+            if (m.instances > 0) {
+                weighted.TP += m.TP * m.instances;
+                weighted.FP += m.FP * m.instances;
+                weighted.TN += m.TN * m.instances;
+                weighted.FN += m.FN * m.instances;
+                weighted.accuracy += m.accuracy * m.instances;
+                weighted.recall += m.recall * m.instances;
+                weighted.precision += m.precision * m.instances;
+                weighted.fScore += m.fScore * m.instances;
+            }
         }
         weighted.TP /= instances;
         weighted.FP /= instances;
