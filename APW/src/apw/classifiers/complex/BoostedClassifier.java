@@ -34,7 +34,6 @@
 package apw.classifiers.complex;
 
 import apw.classifiers.Classifier;
-import apw.classifiers.RbfNeuralNetwork;
 import apw.core.Evaluator;
 import apw.core.Sample;
 import apw.core.Samples;
@@ -345,7 +344,7 @@ public class BoostedClassifier extends Classifier {
             Samples samples = new ARFFLoader(f).getSamples();
 
             BoostedClassifier boostedClassifier = new BoostedClassifier(
-					new Class[] {RbfNeuralNetwork.class, RbfNeuralNetwork.class}, samples);
+					new Class[] {}, samples);
 
 			boostedClassifier.rebuild();
 
