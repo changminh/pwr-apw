@@ -48,6 +48,10 @@ import static apw.core.algorithms.DistanceMetrics.getEuclideanDistance;
  */
 public final class KMeansAlgorithm {
 	public static double[][] findClusterCentres(final Samples samples, final int noOfCentres) {
+		if (samples.size() < noOfCentres) {
+			throw new RuntimeException("There are too few samples to find " + noOfCentres + " centroids; at least that many samples are needed.");
+		}
+
 		System.out.print("Looking for " + noOfCentres + " cluster centres: ");
 		final Centroid[] centroids = new Centroid[noOfCentres];
 
