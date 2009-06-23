@@ -38,6 +38,7 @@ import apw.classifiers.RuleClassifier;
 import apw.core.Sample;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
+import apw.core.meta.ClassifierCapabilities;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,6 +55,7 @@ import java.util.logging.Logger;
  *
  * @author Przemek Woś
  */
+@ClassifierCapabilities(multiClass=true, handlesNominalAtts=true, handlesNumericAtts=true)
 public class FuzzyRuleClassifier extends RuleClassifier {
     protected Samples samples = null;
     protected String[] options;
