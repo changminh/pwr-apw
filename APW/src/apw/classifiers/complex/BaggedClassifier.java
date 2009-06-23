@@ -34,13 +34,18 @@
 package apw.classifiers.complex;
 
 import apw.classifiers.Classifier;
+import apw.core.Evaluator;
 import apw.core.Sample;
 import apw.core.Samples;
+import apw.core.loader.ARFFLoader;
+import apw.gui.ResultPanel;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.swing.JFileChooser;
 
 /**
  *
@@ -209,5 +214,32 @@ public class BaggedClassifier extends Classifier {
     public void addSample(final Sample s) {
         samples.add(s);
         rebuildNeeded = true;
+    }
+
+	public static void main(String[] args) throws Exception {
+		File f = null;
+		if (args.length > 0 && !args[0].isEmpty()) {
+			f = new File(args[0]);
+		} else {
+			// Ta sekcja jest po to, żeby móc wybrać łatwo zbiór testowy
+			JFileChooser jf = new JFileChooser("data/");
+			jf.showOpenDialog(null);
+			f = jf.getSelectedFile();
+		}
+
+        if (f != null) {
+            Samples samples = new ARFFLoader(f).getSamples();
+
+            BoostedClassifier boostedClassifier = new BoostedClassifier(
+					new Class[] {}, samples);
+
+			boostedClassifier.rebuild();
+
+            // Evaluator to obiekt, który liczy miary jakości klasyfikacji
+            Evaluator e = new Evaluator(boostedClassifier, samples);
+
+            // To metoda statyczna prezentująca miary jakości w oknie Swing
+            ResultPanel.showResultFrame(e);
+        }
     }
 }
