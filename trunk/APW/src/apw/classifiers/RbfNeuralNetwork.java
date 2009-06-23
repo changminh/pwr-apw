@@ -53,9 +53,10 @@ import static apw.core.util.MiscUtils.copyMatrix;
  * @author Waldemar Szostak < wszostak@wp.pl >
  */
 public class RbfNeuralNetwork extends Classifier {
-	final static double MAX_ACCEPTABLE_ERROR = 0.1;
+	final static double MAX_ACCEPTABLE_ERROR = 0.01;
 
     private double[][] weights;
+	private double[] biases;
     private double[][] centres;
 	private double[] deviations;
 
@@ -63,7 +64,7 @@ public class RbfNeuralNetwork extends Classifier {
     private int noOfHiddenNodes;
     private int noOfOutputNodes;
 
-	private double learningRate = 0.01;
+	private double learningRate = 0.05;
 
     private boolean rebuildNeeded;
 
@@ -153,6 +154,7 @@ public class RbfNeuralNetwork extends Classifier {
 			for (int j = 0; j < noOfHiddenNodes; j++) {
 				result[k] += weights[j][k] * hiddenOutputs[j];
 			}
+			result[k] += biases[k];
 		}
 
 		return result;
@@ -176,17 +178,23 @@ public class RbfNeuralNetwork extends Classifier {
         this.centres = KMeansAlgorithm.findClusterCentres(samples, noOfHiddenNodes);
 
 		findDeviations();
-
-        weights = new double[noOfHiddenNodes][noOfOutputNodes];
-		for (double[] row : weights) {
-			for (int i = 0; i < row.length; i++) {
-				row[i] = Math.random();
-			}
-		}
+		initWeights();
         findWeights();
 
         rebuildNeeded = false;
     }
+
+	private void initWeights() {
+        weights = new double[noOfHiddenNodes][noOfOutputNodes];
+		biases = new double[noOfOutputNodes];
+		
+		for (int k = 0; k < noOfOutputNodes; k++) {
+			for (int j = 0; j < noOfHiddenNodes; j++) {
+				weights[j][k] = Math.random();
+			}
+			biases[k] = Math.random();
+		}
+	}
 
 	private void findDeviations() {
 		System.out.print("Calculating standard deviations...");
@@ -231,7 +239,7 @@ public class RbfNeuralNetwork extends Classifier {
 
 				for (int k = 0; k < noOfOutputNodes; k++) {
 //System.out.println("output node no.: " + k);
-					double singleNodeOuput = 0;
+					double singleNodeOuput = biases[k];
 
 					for (int j = 0; j < noOfHiddenNodes; j++) {
 						singleNodeOuput += weights[j][k] * hiddenOutputs[j];
@@ -248,13 +256,14 @@ public class RbfNeuralNetwork extends Classifier {
 						weights[j][k] = weights[j][k] + tmp * hiddenOutputs[j];
 //System.out.println(" -> " + weights[j][k]);
 					}
+					biases[k] = biases[k] + tmp;
 				}
 				
 				error *= 0.5;
 			}
 
 //System.out.println("\tError: " + error);
-        } while (error < oldError && error > MAX_ACCEPTABLE_ERROR);
+        } while (error != oldError && error > MAX_ACCEPTABLE_ERROR);
 
 		System.out.println(" done.");
     }
@@ -265,6 +274,9 @@ public class RbfNeuralNetwork extends Classifier {
 		
 		result.weights = copyMatrix(noOfHiddenNodes, noOfOutputNodes, weights);
 		result.centres = copyMatrix(noOfHiddenNodes, 2, centres);
+
+		result.biases = new double[noOfOutputNodes];
+		System.arraycopy(biases, 0, result.biases, 0, noOfOutputNodes);
 
 		result.deviations = new double[noOfHiddenNodes];
 		System.arraycopy(deviations, 0, result.deviations, 0, noOfHiddenNodes);
