@@ -257,7 +257,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         return (this.samples.get(0).size() - 1);
     }
 
-    private Object[] howManyClasses() {
+    private Object[] classesInProblem() {
         HashMap<String, Integer> data = new HashMap<String, Integer>();
 
         for (int i = 0; i < this.samples.size(); i++) {
@@ -293,7 +293,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     @Override
     public double[] classifySample(Sample _sample) {
 
-        Object[] _class = this.howManyClasses();
+        Object[] _class = this.classesInProblem();
         double[] result = new double[_class.length];
 
         ArrayList<String> _classes = new ArrayList(_class.length);
@@ -603,7 +603,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         ArrayList<Genom> gens = new ArrayList<Genom>();
 
         for (int i = 0; i < defaultNumber; i++) {
-            gens.add(new Genom(rulesPerClass, howManyInputs(), howManyClasses()));
+            gens.add(new Genom(rulesPerClass, howManyInputs(), classesInProblem()));
         }
 
         int generation = 0;
