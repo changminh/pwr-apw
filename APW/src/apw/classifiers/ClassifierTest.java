@@ -20,10 +20,10 @@ public abstract class ClassifierTest {
 	 */
     public static void main(String[] args) {
         // TODO to be removed
-//*      File f = new File("data/weather.nominal.arff");
-      File f = new File("data/weather.arff");
+//      File f = new File("data/weather.nominal.arff");
+//      File f = new File("data/weather.arff");
 //        File f = new File("data/shuttle.arff");
-//        File f = new File("data/iris.arff");
+        File f = new File("data/iris.arff");
 //      File f = new File("data/soybean.arff");
 //*      File f = new File("data/segment-test.arff");
 //        File f = new File("data/labor.arff");

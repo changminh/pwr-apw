@@ -3,51 +3,33 @@ package apw.classifiers.c4_5;
 import apw.core.Nominal;
 import apw.core.Numeric;
 import apw.core.Sample;
+import apw.core.Samples;
 import apw.core.util.Entropy;
 
 import java.util.*;
-public class C4_5NumericNode<T> extends C4_5DecisionNode<T> {
+public class C4_5NumericNode extends C4_5DecisionNode {
 
-	protected C4_5DecisionNode<T> childNode1;
-	protected C4_5DecisionNode<T> childNode2;
+	protected C4_5DecisionNode childNode1;
+	protected C4_5DecisionNode childNode2;
 	protected double divider;
 	protected Numeric ruleAttribute = null;
 
-	public C4_5NumericNode(List<Sample> samples, LinkedList<Numeric> numerics) 
+	public C4_5NumericNode(Samples samples, Numeric attribute, double divider) 
 	{	
 		super(samples);
+	
+		ruleAttribute = attribute;
+		this.divider = divider;
+		
 		if(samples.size()==0)
 			throw new RuntimeException("samples.size()==0 ??? Can not be !!!");
 				
-		double bestEntropy = 0.0;
 		
-		for (Numeric numeric : numerics) 
-		{
-			for (Sample sample : samples) {
-
-				double div = (Double)sample.get(sample.getSamples().getAtts().indexOf(numeric));
-				double entropy = Entropy.numericEntropy(samples, numeric, div);
-				if(entropy>bestEntropy)
-				{
-					divider = div;
-					bestEntropy = entropy;
-					ruleAttribute = numeric;
-				}
-				
-			}
-		}
-//		System.out.println(bestEntropy);
+		int att_num = samples.getAtts().indexOf(ruleAttribute);
 		
-//		LinkedList<Numeri> attributes_new = new LinkedList<Nominal>();
-//		attributes_new.addAll(nominals);
-//		attributes_new.remove(ruleAttribute);
 		
-		int att_num = samples.get(0).getSamples().getAtts().indexOf(ruleAttribute);
-		
-
-		
-		LinkedList<Sample> samplesGroup1 = new LinkedList<Sample>();
-		LinkedList<Sample> samplesGroup2 = new LinkedList<Sample>();
+		Samples samplesGroup1 = samples.copyStructure();
+		Samples samplesGroup2 = samples.copyStructure();
 		
 		for (Sample s : samples) 
 		{
@@ -58,17 +40,13 @@ public class C4_5NumericNode<T> extends C4_5DecisionNode<T> {
 				samplesGroup2.add(s);
 		}
 
-		
-		
-		
-
 		if(samplesGroup1.size()==0)
 		{
-			childNode1 = childNode2 = new C4_5NumericNode<T>(samplesGroup2,numerics);				
+			childNode1 = childNode2 = createNode(samplesGroup2);				
 		}
 		else if(samplesGroup2.size()==0)
 		{
-			childNode1 = childNode2 = new C4_5NumericNode<T>(samplesGroup1,numerics);				
+			childNode1 = childNode2 = createNode(samplesGroup1);				
 		} 
 		else
 		{
@@ -86,11 +64,11 @@ public class C4_5NumericNode<T> extends C4_5DecisionNode<T> {
 				}
 				if(sameClass)
 				{
-					childNode1 = new C4_5DecisionLeaf<T>(samplesGroup1,samplesGroup1.get(0).classAttributeInt());	
+					childNode1 = new C4_5DecisionLeaf(samplesGroup1,samplesGroup1.get(0).classAttributeInt());	
 				}
 				else
 				{
-					childNode1 = new C4_5NumericNode<T>(samplesGroup1,numerics);
+					childNode1 = createNode(samplesGroup1);
 					
 				}
 			}
@@ -108,11 +86,11 @@ public class C4_5NumericNode<T> extends C4_5DecisionNode<T> {
 				}
 				if(sameClass)
 				{
-					childNode2 = new C4_5DecisionLeaf<T>(samplesGroup2,samplesGroup2.get(0).classAttributeInt());	
+					childNode2 = new C4_5DecisionLeaf(samplesGroup2,samplesGroup2.get(0).classAttributeInt());	
 				}
 				else
 				{
-					childNode2 = new C4_5NumericNode<T>(samplesGroup2,numerics);
+					childNode2 = createNode(samplesGroup2);
 					
 				}
 			}
@@ -124,12 +102,12 @@ public class C4_5NumericNode<T> extends C4_5DecisionNode<T> {
 	{
 		LinkedList<String> result = new LinkedList<String>();
 
-		String prefix1 =  "& "+ruleAttribute.getName()+"< "+divider;
+		String prefix1 =  "& "+ruleAttribute.getName()+"< "+divider+"("+childNode1.source.size()+")";
 			List<String> li1 = childNode1.getRules();
 			for (String string : li1) {
 				result.add(prefix1+" "+string);
 			}
-		String prefix2 =  "& "+ruleAttribute.getName()+">="+divider;
+		String prefix2 =  "& "+ruleAttribute.getName()+">="+divider+"("+childNode2.source.size()+")";
 			List<String> li2 = childNode2.getRules();
 			for (String string : li2) {
 				result.add(prefix2+" "+string);

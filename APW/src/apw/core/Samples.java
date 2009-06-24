@@ -88,6 +88,16 @@ public class Samples implements List<Sample> {
     }
 
     // BEGIN View attributes ****************************
+    
+    public Samples copyStructure()
+    {
+    	Samples result = new Samples(atts);
+    	result.classAttributeIndex = this.classAttributeIndex;
+    	result.name = this.name;
+    	result.selected = this.selected;
+    	return result;
+    }
+    
     private void notifySamplesOfViewChange() {
         for (int i = 0; i < data.getSize(); i++)
             ((Sample) data.get(i)).viewObsolete = true;
