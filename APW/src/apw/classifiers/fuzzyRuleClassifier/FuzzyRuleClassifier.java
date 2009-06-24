@@ -307,10 +307,14 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
         for(int i=0; i < _ss.getAtts().size(); i++){
             if(_ss.getAtts().get(i) instanceof Nominal){
-                if(!(samples.getAtts().get(i) instanceof Nominal)){return false;}
+                if(!(samples.getAtts().get(i) instanceof Nominal)){
+                    return false;
+                }
             }else{
                 if(_ss.getAtts().get(i) instanceof Numeric){
-                    if(!(samples.getAtts().get(i) instanceof Numeric)){return false;}
+                    if(!(samples.getAtts().get(i) instanceof Numeric)){
+                        return false;
+                    }
                 }
             }
         }
@@ -353,9 +357,21 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         return result;
     }
 
-  
-   
+    public double[] classifyWithProb(Sample s){
+        if(this.checkSampleIdentity(s)){ 
+            return this.bestResult.classifyWithProb(samples, s);
+        }
+        
+        Object[] _class = this.classesInProblem();
+        double[] result = new double[_class.length];
 
+        for (int i = 0; i < _class.length; i++) {
+            result[i] = 0.0;
+        }
+        
+        return result;
+    }
+  
     @Override
     public void rebuild() {
 
@@ -444,7 +460,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     public Classifier copy() {
         try {
             FuzzyRuleClassifier fuzzy = new FuzzyRuleClassifier(samples);
-            fuzzy.setOptions(getOptions().clone());
+            fuzzy.setOptions(getOptions());
             fuzzy.bestResult = new Genom(bestResult);
             return fuzzy;
         } catch (Exception ex) {
@@ -467,10 +483,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         return Double.valueOf(str).doubleValue();
     }
 
-    private int atoi(String str) {
-        return Double.valueOf(str).intValue();
-    }
-
+   
     public Samples normalize(Samples nSamples) {
         double length;
         Samples _samples = new Samples(nSamples.getAtts());
@@ -791,12 +804,16 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             System.out.println("Zaczynamy uczenie( to moze chwile potrwac :) )");
             fuzzy.buildClassifier();
             //fuzzy.printRules(System.out);
-            Sample s = new ARFFLoader(new File("data/iris.arff")).getSamples().get(0);
+            Sample s = new ARFFLoader(new File("data/weather.nominal.arff")).getSamples().get(0);
             
-            fuzzy.classifySample(s);
+            //fuzzy.classifySample(s);
 
 
-            //fuzzy.bestResult.classifyWithProb(fuzzy.samples,s);
+            double[] _data = fuzzy.bestResult.classifyWithProb(fuzzy.samples,s);
+
+
+            System.out.println(_data[0] + " " + _data[1]);
+
 
         } catch (IOException ex) {
             Logger.getLogger(FuzzyRuleClassifier.class.getName()).log(Level.SEVERE, null, ex);

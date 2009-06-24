@@ -420,7 +420,7 @@ public class SVMClassifier extends Classifier {
     }
 
     @Override
-    public double[] classifySample(Sample s) {
+    public double[] classifySample(Sample _sample) {
 
         Object[] _class = this.ClassesInProblem();
         double[] result = new double[_class.length];
@@ -431,16 +431,16 @@ public class SVMClassifier extends Classifier {
             result[i] = 0.0;
         }
 
-        if ((s == null) || !_builded){
+        if ((_sample == null) || !_builded){
             return result;
         }
         
-        if (this.checkSampleIdentity(s)) {
+        if (this.checkSampleIdentity(_sample)) {
             svm_node[] x = null;
 
             Vector sparseData = new Vector();
             Vector vy = new Vector();
-            sparseData.add(samplesToSparse(s));
+            sparseData.add(samplesToSparse(_sample));
 
             for (int d = 0; d < sparseData.size(); d++) {
                 String line = (String) sparseData.get(d);
