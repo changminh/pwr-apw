@@ -55,6 +55,7 @@ import java.net.*;
  */
 public abstract class ClassList {
 
+
     /**
      * Searches the classpath for all classes matching a specified search criteria,
      * returning them in a map keyed with the interfaces they implement or null if they
@@ -78,7 +79,7 @@ public abstract class ClassList {
             Set<String> parentClassFilter,
             Set<String> packageFilter,
             Set<String> jarFilter)
-            throws ClassNotFoundException {
+            throws ClassNotFoundException, URISyntaxException {
         Map<String, Set<Class>> classTable = new HashMap();
         Object[] classPaths;
         try {
@@ -94,7 +95,7 @@ public abstract class ClassList {
             Enumeration files = null;
             JarFile module = null;
             // for each classpath ...
-            File classPath = new File((URL.class).isInstance(classPaths[h]) ? ((URL) classPaths[h]).getFile() : classPaths[h].toString());
+            File classPath = new File((URL.class).isInstance(classPaths[h]) ? ((URL) classPaths[h]).toURI().getPath() : classPaths[h].toString());
             if (classPath.isDirectory() && jarFilter == null) {   // is our classpath a directory and jar filters are not active?
                 List<String> dirListing = new ArrayList();
                 // get a recursive listing of this classpath
@@ -194,7 +195,6 @@ public abstract class ClassList {
 
         return classTable;
     } // end method
-
     private static boolean qualifies(Set<String> packageFilter, String className) {
         for (String filter : packageFilter)
             if (className.startsWith(filter))

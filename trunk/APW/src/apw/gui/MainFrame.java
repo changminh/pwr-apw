@@ -212,6 +212,7 @@ public class MainFrame extends javax.swing.JFrame {
                 str2cl.put(name, c);
             }
         } catch (ClassNotFoundException ex) {
+            ex.printStackTrace();
             warn(this, "Error while discovering classifiers:\n" + ex.getMessage());
         }
     }
