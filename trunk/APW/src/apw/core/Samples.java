@@ -112,7 +112,20 @@ public class Samples implements List<Sample> {
         notifySamplesOfViewChange();
     }
 
-    public void setSelected(int index, boolean select) {
+	public int getClassAttributeIndex() {
+		return classAttributeIndex;
+	}
+
+    public void setSelected(final boolean[] selected) {
+        this.selected = selected;
+        notifySamplesOfViewChange();
+    }
+
+	public boolean[] getSelected() {
+        return selected;
+    }
+
+	public void setSelected(int index, boolean select) {
         selected[index] = select;
         notifySamplesOfViewChange();
     }
@@ -141,6 +154,19 @@ public class Samples implements List<Sample> {
 
     public ArrayList<Attribute> getAtts() {
         return atts;
+    }
+
+    public ArrayList<Attribute> getSelectedAtts() {
+		/* the size is just a rough estimation; there usually won't be fewer than 50% attributes selected */
+		final ArrayList<Attribute> result = new ArrayList<Attribute>(atts.size() / 2);
+
+		for (int i = 0; i < selected.length; i++) {
+			if (i != classAttributeIndex && selected[i]) {
+				result.add(atts.get(i));
+			}
+		}
+
+		return result;
     }
 
     public void setName(String name) {
