@@ -154,12 +154,14 @@ public class FuzzyRule {
         }
 
 
+     //   System.out.println("------------------------");
         for(int i=0;i < condition.length; i++){
             if(condition[i].getFirst().booleanValue() == true){
 
                 int index = condition[i].getSecond().intValue();
 
-                double x = Double.valueOf(_samples.getAtts().get(i).getRepresentation(s.get(i)).toString()).doubleValue();
+           //     System.out.println(s.get(i).toString());
+                double x = Double.valueOf(_samples.getAtts().get(i).getRepresentation(s.get(i).toString()).toString()).doubleValue();
                 //double x = Double.valueOf(s.get(i).toString()).doubleValue();
                 double value = Double.MAX_VALUE;
               
@@ -173,7 +175,7 @@ public class FuzzyRule {
                 result = and(result, value);
             }
         }
-        
+    //    System.out.println("------------------------");
         return result;
     }
 

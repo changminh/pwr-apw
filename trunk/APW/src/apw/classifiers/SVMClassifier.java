@@ -33,6 +33,8 @@
  */
 package apw.classifiers;
 
+import apw.core.Nominal;
+import apw.core.Numeric;
 import apw.core.Sample;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
@@ -145,6 +147,30 @@ public class SVMClassifier extends Classifier {
 
     public SVMClassifier(String source) throws IOException, ParseException {
         this(new File(source));
+    }
+
+    private boolean checkSampleIdentity(Sample _sample){
+        Samples _ss = _sample.getSamples();
+
+        if(samples.getAtts().size() < _ss.getAtts().size()){
+            return false;
+        }
+
+        if(_ss.getAtts().size() < samples.getAtts().size() - 1){
+            return false;
+        }
+
+        for(int i=0; i < _ss.getAtts().size(); i++){
+            if(_ss.getAtts().get(i) instanceof Nominal){
+                if(!(samples.getAtts().get(i) instanceof Nominal)){return false;}
+            }else{
+                if(_ss.getAtts().get(i) instanceof Numeric){
+                    if(!(samples.getAtts().get(i) instanceof Numeric)){return false;}
+                }
+            }
+        }
+
+        return true;
     }
 
     @Override
@@ -405,10 +431,11 @@ public class SVMClassifier extends Classifier {
             result[i] = 0.0;
         }
 
-        if ((s == null) || !_builded)
+        if ((s == null) || !_builded){
             return result;
-
-        if (samples.get(0).size() == s.size() || samples.get(0).size() - 1 == s.size()) {
+        }
+        
+        if (this.checkSampleIdentity(s)) {
             svm_node[] x = null;
 
             Vector sparseData = new Vector();

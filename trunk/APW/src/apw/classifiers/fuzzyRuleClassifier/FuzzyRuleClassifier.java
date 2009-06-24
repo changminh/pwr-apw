@@ -35,6 +35,8 @@ package apw.classifiers.fuzzyRuleClassifier;
 
 import apw.classifiers.Classifier;
 import apw.classifiers.RuleClassifier;
+import apw.core.Nominal;
+import apw.core.Numeric;
 import apw.core.Sample;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
@@ -292,6 +294,31 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         }
     }
 
+    private boolean checkSampleIdentity(Sample _sample){
+        Samples _ss = _sample.getSamples();
+
+        if(samples.getAtts().size() < _ss.getAtts().size()){
+            return false;
+        }
+        
+        if(_ss.getAtts().size() < samples.getAtts().size() - 1){
+            return false;
+        }
+
+        for(int i=0; i < _ss.getAtts().size(); i++){
+            if(_ss.getAtts().get(i) instanceof Nominal){
+                if(!(samples.getAtts().get(i) instanceof Nominal)){return false;}
+            }else{
+                if(_ss.getAtts().get(i) instanceof Numeric){
+                    if(!(samples.getAtts().get(i) instanceof Numeric)){return false;}
+                }
+            }
+        }
+
+        return true;
+    }
+
+
     @Override
     public double[] classifySample(Sample _sample) {
 
@@ -304,6 +331,9 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             _classes.add(_class[i].toString());
             result[i] = 0.0;
         }
+
+        if(!checkSampleIdentity(_sample)){return result;}
+
 
         if (bestResult != null) {
             String clasyfication = bestResult.classifySample(this.samples,_sample);
@@ -760,8 +790,11 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             fuzzy.setOptions(data);
             System.out.println("Zaczynamy uczenie( to moze chwile potrwac :) )");
             fuzzy.buildClassifier();
-            fuzzy.printRules(System.out);
-            //Sample s = new ARFFLoader(new File("c:/svm/data/iris.arff")).getSamples().get(0);
+            //fuzzy.printRules(System.out);
+            Sample s = new ARFFLoader(new File("data/iris.arff")).getSamples().get(0);
+            
+            fuzzy.classifySample(s);
+
 
             //fuzzy.bestResult.classifyWithProb(fuzzy.samples,s);
 

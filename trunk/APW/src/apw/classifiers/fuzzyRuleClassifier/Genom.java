@@ -259,6 +259,8 @@ class Genom implements Comparable<Genom> {
 
         Object[] _classes = map.keySet().toArray();
 
+        double maxMax = Double.MIN_VALUE;
+
         for (int i = 0; i < _classes.length; i++) {
             ArrayList<Integer> _indexes = data.get(_classes[i].toString());
             double max = 0.0;
@@ -271,7 +273,17 @@ class Genom implements Comparable<Genom> {
                     }
                 }
             }
+
             result[i] = max;
+
+            if(result[i] > maxMax){
+                maxMax = max;
+            }
+        }
+
+
+        for(int i = 0; i < result.length; i++){
+            result[i] /= maxMax;
         }
 
         System.out.println(result[0] + " " + result[1] + " " + result[2]);
