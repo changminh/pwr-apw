@@ -37,6 +37,8 @@ import java.io.*;
 import java.util.*;
 import java.util.jar.*;
 import java.net.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This abstract class can be used to obtain a list of all classes in a classpath.
@@ -79,7 +81,7 @@ public abstract class ClassList {
             Set<String> parentClassFilter,
             Set<String> packageFilter,
             Set<String> jarFilter)
-            throws ClassNotFoundException, URISyntaxException {
+            throws ClassNotFoundException {
         Map<String, Set<Class>> classTable = new HashMap();
         Object[] classPaths;
         try {
@@ -95,7 +97,12 @@ public abstract class ClassList {
             Enumeration files = null;
             JarFile module = null;
             // for each classpath ...
-            File classPath = new File((URL.class).isInstance(classPaths[h]) ? ((URL) classPaths[h]).toURI().getPath() : classPaths[h].toString());
+            File classPath;
+            try {
+                classPath = new File((URL.class).isInstance(classPaths[h]) ? ((URL) classPaths[h]).toURI().getPath() : classPaths[h].toString());
+            } catch (URISyntaxException ex) {
+                throw new ClassNotFoundException("URI syntax exception: " + ex.getMessage());
+            }
             if (classPath.isDirectory() && jarFilter == null) {   // is our classpath a directory and jar filters are not active?
                 List<String> dirListing = new ArrayList();
                 // get a recursive listing of this classpath
