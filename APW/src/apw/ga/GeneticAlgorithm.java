@@ -505,17 +505,19 @@ public final class GeneticAlgorithm {
 
         private Object[] decode() {
             Object[] args = new Object[pos.length];
-            for (int i = 0;
-                    i < args.length; i++)
-                args[i] = min[i] == null ? decodeInt(this, i) : decodeDouble(this, i);
+            for (int i = 0; i < args.length; i++) {
+                if (min[i] == null) {
+					args[i] = decodeInt(this, i);
+				} else {
+					args[i] = decodeDouble(this, i);
+				}
+			}
+
             return args;
         }
 
         private void updateFitness() {
-            Object[] args = new Object[pos.length];
-            for (int i = 0;
-                    i < args.length; i++)
-                args[i] = min[i] == null ? decodeInt(this, i) : decodeDouble(this, i);
+            Object[] args = decode();
             f = ff.evalFitness(args);
         }
     }
