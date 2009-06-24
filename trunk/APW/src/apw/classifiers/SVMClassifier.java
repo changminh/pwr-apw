@@ -175,12 +175,16 @@ public class SVMClassifier extends Classifier {
 
     @Override
     public void addSamples(Samples s) {
-        samples.addAll(s);
+        if(checkSampleIdentity(s.get(0))){
+            samples.addAll(s);
+        }
     }
 
     @Override
     public void addSample(Sample s) {
-        samples.add(s);
+        if(this.checkSampleIdentity(s)){
+            samples.add(s);
+        }
     }
 
     @Override
