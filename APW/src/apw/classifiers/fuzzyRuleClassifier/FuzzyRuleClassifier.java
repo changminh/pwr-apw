@@ -57,8 +57,9 @@ import java.util.logging.Logger;
  *
  * @author Przemek Woś
  */
-@ClassifierCapabilities(multiClass=true, handlesNominalAtts=true, handlesNumericAtts=true)
+@ClassifierCapabilities(multiClass = true, handlesNominalAtts = true, handlesNumericAtts = true)
 public class FuzzyRuleClassifier extends RuleClassifier {
+
     protected Samples samples = null;
     protected String[] options;
     protected Genom bestResult = null;
@@ -280,39 +281,43 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
     @Override
     public void addSamples(Samples s) {
-        this.samples.addAll(s);
-        if (this.normilize == true) {
-            this.samples = this.normalize(samples);
+        if (this.checkSampleIdentity(s.get(0))) {
+            this.samples.addAll(s);
+            if (this.normilize == true) {
+                this.samples = this.normalize(samples);
+            }
         }
     }
 
     @Override
     public void addSample(Sample s) {
-        this.samples.add(s);
-        if (this.normilize == true) {
-            this.samples = this.normalize(samples);
+        if (this.checkSampleIdentity(s)) {
+            this.samples.add(s);
+            if (this.normilize == true) {
+                this.samples = this.normalize(samples);
+            }
         }
     }
 
-    private boolean checkSampleIdentity(Sample _sample){
+    private boolean checkSampleIdentity(Sample _sample) {
         Samples _ss = _sample.getSamples();
 
-        if(samples.getAtts().size() < _ss.getAtts().size()){
-            return false;
-        }
-        
-        if(_ss.getAtts().size() < samples.getAtts().size() - 1){
+        if (samples.getAtts().size() < _ss.getAtts().size()) {
             return false;
         }
 
-        for(int i=0; i < _ss.getAtts().size(); i++){
-            if(_ss.getAtts().get(i) instanceof Nominal){
-                if(!(samples.getAtts().get(i) instanceof Nominal)){
+        if (_ss.getAtts().size() < samples.getAtts().size() - 1) {
+            return false;
+        }
+
+        for (int i = 0; i < _ss.getAtts().size(); i++) {
+            if (_ss.getAtts().get(i) instanceof Nominal) {
+                if (!(samples.getAtts().get(i) instanceof Nominal)) {
                     return false;
                 }
-            }else{
-                if(_ss.getAtts().get(i) instanceof Numeric){
-                    if(!(samples.getAtts().get(i) instanceof Numeric)){
+            } else {
+                if (_ss.getAtts().get(i) instanceof Numeric) {
+                    if (!(samples.getAtts().get(i) instanceof Numeric)) {
                         return false;
                     }
                 }
@@ -321,7 +326,6 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
         return true;
     }
-
 
     @Override
     public double[] classifySample(Sample _sample) {
@@ -336,11 +340,13 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             result[i] = 0.0;
         }
 
-        if(!checkSampleIdentity(_sample)){return result;}
+        if (!checkSampleIdentity(_sample)) {
+            return result;
+        }
 
 
         if (bestResult != null) {
-            String clasyfication = bestResult.classifySample(this.samples,_sample);
+            String clasyfication = bestResult.classifySample(this.samples, _sample);
             Collections.sort(_classes);
 
             if (clasyfication != null) {
@@ -357,21 +363,21 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         return result;
     }
 
-    public double[] classifyWithProb(Sample s){
-        if(this.checkSampleIdentity(s)){ 
+    public double[] classifyWithProb(Sample s) {
+        if (this.checkSampleIdentity(s)) {
             return this.bestResult.classifyWithProb(samples, s);
         }
-        
+
         Object[] _class = this.classesInProblem();
         double[] result = new double[_class.length];
 
         for (int i = 0; i < _class.length; i++) {
             result[i] = 0.0;
         }
-        
+
         return result;
     }
-  
+
     @Override
     public void rebuild() {
 
@@ -483,7 +489,6 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         return Double.valueOf(str).doubleValue();
     }
 
-   
     public Samples normalize(Samples nSamples) {
         double length;
         Samples _samples = new Samples(nSamples.getAtts());
@@ -504,14 +509,14 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             List<Object> list = new ArrayList<Object>();
 
             for (int j = 0; j < size; j++) {
-                if(!nSamples.getAtts().get(j).isNominal()){
+                if (!nSamples.getAtts().get(j).isNominal()) {
                     String str = nSamples.getAtts().get(j).getRepresentation(nSamples.get(i).get(j)).toString();
                     data = atof(str);
                     data /= length;
                     str = Double.toString(data);
                     Object obj = nSamples.getAtts().get(j).getRepresentation(str);
                     list.add(obj);
-                }else{
+                } else {
                     list.add(nSamples.getAtts().get(j).getRepresentation(nSamples.get(i).get(j)));
                 }
             }
@@ -613,7 +618,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             gens.get(i).setUnClass(0);
 
             for (int j = 0; j < samples.size(); j++) {
-                String result = gens.get(i).classifySample(this.samples,samples.get(j));
+                String result = gens.get(i).classifySample(this.samples, samples.get(j));
 
                 if (result == null) {
                     gens.get(i).setUnClass(gens.get(i).getUnClass() + 1);
@@ -718,7 +723,7 @@ public class FuzzyRuleClassifier extends RuleClassifier {
     "; Fsets: " + (int) gens.get(0).getFsets() +
     "; Fitness : " + gens.get(0).fitness() +
     "; Statistic: " + (100.0 * gens.get(0).getCorr() / samples.size()));
-    */
+     */
     }
 
     private boolean comapre(Genom a, Genom b) {
@@ -805,11 +810,11 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             fuzzy.buildClassifier();
             //fuzzy.printRules(System.out);
             Sample s = new ARFFLoader(new File("data/weather.nominal.arff")).getSamples().get(0);
-            
+
             //fuzzy.classifySample(s);
 
 
-            double[] _data = fuzzy.bestResult.classifyWithProb(fuzzy.samples,s);
+            double[] _data = fuzzy.bestResult.classifyWithProb(fuzzy.samples, s);
 
 
             System.out.println(_data[0] + " " + _data[1]);
