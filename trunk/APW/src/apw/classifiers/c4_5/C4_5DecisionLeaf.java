@@ -7,21 +7,22 @@ import java.util.List;
 import apw.core.Attribute;
 import apw.core.Nominal;
 import apw.core.Sample;
+import apw.core.Samples;
 
 /**
  * @author Krzysztof Praszmo
  */
 
-public class C4_5DecisionLeaf<T> extends C4_5DecisionNode<T> {
+public class C4_5DecisionLeaf extends C4_5DecisionNode {
 
 	private Object nodeClass;
 	
-	public C4_5DecisionLeaf(List<Sample> samples)
+	public C4_5DecisionLeaf(Samples samples)
 	{
 		super(samples);
-		Attribute a = samples.get(0).getSamples().getClassAttribute();
+		Attribute a = samples.getClassAttribute();
 		if (a instanceof Nominal) {
-			int class_num = samples.get(0).getSamples().getAtts().indexOf(a);
+			int class_num = samples.getAtts().indexOf(a);
 			Nominal n  = (Nominal) a;
 			String[] keys = n.getSortedIKeys();
 			int[] counts = new int[keys.length];
@@ -46,7 +47,7 @@ public class C4_5DecisionLeaf<T> extends C4_5DecisionNode<T> {
 			throw new IllegalArgumentException("Samples class must be Nominal");
 	}
 	
-	public C4_5DecisionLeaf(List<Sample> samples,Object nodeClass) 
+	public C4_5DecisionLeaf(Samples samples,Object nodeClass) 
 	{
 		super(samples);
 		this.nodeClass = nodeClass;

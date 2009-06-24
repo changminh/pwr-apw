@@ -20,7 +20,7 @@ import apw.core.meta.ClassifierCapabilities;
 @ClassifierCapabilities(multiClass=true, handlesNumericAtts=true, handlesNominalAtts=true)
 public class C4_5 extends RuleClassifier {
 
-	private C4_5DecisionNode<Object> tree;
+	private C4_5DecisionNode tree;
 	
 	
 	public C4_5(Samples s) 
@@ -42,14 +42,7 @@ public class C4_5 extends RuleClassifier {
 		}
 		
 			
-		if(nominals.size()==0)
-		{
-			tree = new C4_5NumericNode<Object>(s,numerics);			
-		}
-		else
-		{
-			tree = new C4_5NominalNode<Object>(s,nominals,numerics);
-		}
+		tree = C4_5DecisionNode.createNode(s);			
 
 		for (String str : getRules()) {
 			System.out.println(str);

@@ -1,51 +1,45 @@
 package apw.classifiers.c4_5;
 
 import apw.classifiers.id3.DecisionLeaf;
+import apw.core.Attribute;
 import apw.core.Nominal;
 import apw.core.Numeric;
 import apw.core.Sample;
+import apw.core.Samples;
 import apw.core.util.Entropy;
 
 import java.util.*;
-public class C4_5NominalNode<T> extends C4_5DecisionNode<T> {
+public class C4_5NominalNode extends C4_5DecisionNode {
 
-	protected C4_5DecisionNode<T>[] childNodes;
+	protected C4_5DecisionNode[] childNodes;
 	protected Nominal ruleAttribute = null;
 
-	public C4_5NominalNode(List<Sample> samples, List<Nominal> nominals, LinkedList<Numeric> numerics) 
+	public C4_5NominalNode(Samples samples, Nominal attribute) 
 	{	
 		super(samples);
+
+		ruleAttribute = attribute;
+
 		if(samples.size()==0)
 			throw new RuntimeException("samples.size()==0 ??? Can not be !!!");
 				
-		double bestEntropy = -1000.0;
-		
-		for (Nominal nominal : nominals) 
-		{
-			double entropy = Entropy.nominalEntropy(samples, nominal);
-			if(entropy>bestEntropy)
-			{
-				bestEntropy = entropy;
-				ruleAttribute = nominal;
-			}
-		}
-		LinkedList<Nominal> attributes_new = new LinkedList<Nominal>();
-		attributes_new.addAll(nominals);
-		attributes_new.remove(ruleAttribute);
+
 		
 		int att_num = samples.get(0).getSamples().getAtts().indexOf(ruleAttribute);
 		
+		//TODO remove (only for emergency)
 		if(ruleAttribute==null)
 		{
+			System.err.println("null attribute ERROR");
 			childNodes = new C4_5DecisionNode[1];
-			childNodes[0] = new C4_5DecisionLeaf<T>(samples);
+			childNodes[0] = new C4_5DecisionLeaf(samples);
 			return;
 		}
 
-		LinkedList<Sample>[] samplesGroups = new LinkedList[ruleAttribute.getSortedIKeys().length];
+		Samples[] samplesGroups = new Samples[ruleAttribute.getSortedIKeys().length];
 		
 		for (int i = 0; i < samplesGroups.length; i++) {
-			samplesGroups[i] = new LinkedList<Sample>();
+			samplesGroups[i] = samples.copyStructure();
 		}
 		
 		for (Sample s : samples) 
@@ -57,10 +51,11 @@ public class C4_5NominalNode<T> extends C4_5DecisionNode<T> {
 				index = Arrays.binarySearch(ruleAttribute.getSortedIKeys(),s.get(att_num));
 			samplesGroups[index].add(s);
 		}
-		LinkedList<Sample> biggestGroup = null;
+		
+		Samples biggestGroup = null;
 		int maxSize = -1;
 		
-		for (LinkedList<Sample> linkedList : samplesGroups) {
+		for (Samples linkedList : samplesGroups) {
 			if(linkedList.size()>maxSize)
 			{
 				maxSize = linkedList.size();
@@ -72,11 +67,11 @@ public class C4_5NominalNode<T> extends C4_5DecisionNode<T> {
 		
 		for (int i = 0; i < samplesGroups.length; i++) 
 		{
-			LinkedList<Sample> group = samplesGroups[i];
+			Samples group = samplesGroups[i];
 			
 			if(group.size()==0)
 			{
-				childNodes[i] = new C4_5DecisionLeaf<T>(group,biggestGroup.get(0).classAttributeInt());
+				childNodes[i] = new C4_5DecisionLeaf(group,biggestGroup.get(0).classAttributeInt());
 				
 			}
 			else
@@ -92,19 +87,12 @@ public class C4_5NominalNode<T> extends C4_5DecisionNode<T> {
 				}
 				if(sameClass)
 				{
-					childNodes[i] = new C4_5DecisionLeaf<T>(group,group.get(0).classAttributeInt());
+					childNodes[i] = new C4_5DecisionLeaf(group,group.get(0).classAttributeInt());
 					
 				}
 				else
 				{
-					if(attributes_new.size()==0)
-					{
-						childNodes[i] = new C4_5NumericNode<T>(group,numerics);
-					}
-					else
-					{
-						childNodes[i] = new C4_5NominalNode<T>(group,attributes_new,numerics);
-					}
+					childNodes[i] = createNode(group);
 				}
 			}
 		}
@@ -119,7 +107,7 @@ public class C4_5NominalNode<T> extends C4_5DecisionNode<T> {
 		if(childNodes.length==1)return childNodes[0].getRules();
 		LinkedList<String> result = new LinkedList<String>();
 		for (int i = 0; i < childNodes.length; i++) {
-			String prefix =  "& "+ruleAttribute.getName()+"=="+ruleAttribute.getSortedIKeys()[i]+"("+source.size()+")";
+			String prefix =  "& "+ruleAttribute.getName()+"=="+ruleAttribute.getSortedIKeys()[i]+"("+childNodes[i].source.size()+")";
 			List<String> li = childNodes[i].getRules();
 			for (String string : li) {
 				result.add(prefix+" "+string);
