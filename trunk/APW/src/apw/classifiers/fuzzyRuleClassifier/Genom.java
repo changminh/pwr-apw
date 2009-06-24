@@ -286,7 +286,7 @@ class Genom implements Comparable<Genom> {
             result[i] /= maxMax;
         }
 
-        System.out.println(result[0] + " " + result[1] + " " + result[2]);
+        //System.out.println(result[0] + " " + result[1]);
 
 
         return result;
