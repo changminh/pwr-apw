@@ -3,17 +3,12 @@ package apw.classifiers.c4_5;
 import apw.classifiers.c4_5.complex.Complex;
 import apw.classifiers.c4_5.complex.NominalSelector;
 import apw.classifiers.c4_5.complex.Selector;
-import apw.classifiers.id3.DecisionLeaf;
-import apw.core.Attribute;
 import apw.core.Nominal;
-import apw.core.Numeric;
 import apw.core.Sample;
 import apw.core.Samples;
-import apw.core.util.Entropy;
 
 import java.util.*;
 
-import com.sun.org.apache.xerces.internal.dom.ChildNode;
 public class C4_5NominalNode extends C4_5DecisionNode {
 
 	protected C4_5DecisionNode[] childNodes;

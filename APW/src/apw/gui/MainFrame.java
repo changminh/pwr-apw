@@ -178,13 +178,11 @@ public class MainFrame extends javax.swing.JFrame {
             FileDialog fd = new FileDialog(this);
             fd.setDirectory(fd.getDirectory() + "/data");
             fd.setVisible(true);
-            if (fd.getFile() != null)
-            {
+            if (fd.getFile() != null) {
                 Samples s = new ARFFLoader(new File(fd.getDirectory() + "/" + fd.getFile())).getSamples();
                 samples = ClassifierTest.divide(s, 0.7);
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, ex.toString(),
                     "An exception occured", JOptionPane.ERROR_MESSAGE);
@@ -318,7 +316,10 @@ public class MainFrame extends javax.swing.JFrame {
             pack();
             setSize(500, 500);
             getContentPane().setLayout(new BorderLayout());
-            getContentPane().add(new JScrollPane(textArea));
+            JScrollPane sp = new JScrollPane(textArea);
+            sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+            getContentPane().add(sp);
             getContentPane().add(new JButton(new AbstractAction("Terminate") {
 
                 public void actionPerformed(ActionEvent e) {
@@ -423,8 +424,9 @@ public class MainFrame extends javax.swing.JFrame {
                 public void run() {
                     try {
                         classifier = (Classifier) ctor.newInstance(samples[0]);
-                        System.out.println("Constructing " + classifier.getClass().getSimpleName());
+                        System.out.println("Constructing " + classifier.getClass().getSimpleName() + "...");
                         classifier.rebuild();
+                        System.out.println("\nConstructed " + classifier.getClass().getSimpleName() + ".");
                         updateClassifier();
                     } catch (Exception ex) {
                         warn("Error while instantiating classifier:\n" + ex.getCause());
