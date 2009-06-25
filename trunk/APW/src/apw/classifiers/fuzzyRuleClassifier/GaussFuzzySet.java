@@ -33,6 +33,8 @@
  */
 package apw.classifiers.fuzzyRuleClassifier;
 
+import java.text.DecimalFormat;
+
 /**
  *
  * @author przemo
@@ -41,6 +43,7 @@ package apw.classifiers.fuzzyRuleClassifier;
 public class GaussFuzzySet extends FuzzySet{
     private double dValue=0,
                    sigma=0;
+    private DecimalFormat df = new DecimalFormat("#####.###");
 
     //private static Random rand = new Random((int)(Math.random()*10000));
     private double zakres;
@@ -48,7 +51,6 @@ public class GaussFuzzySet extends FuzzySet{
     public GaussFuzzySet(double zakres){
        this.zakres = zakres;
        dValue = RandomClass.nextDouble()*zakres;
-        //System.out.println("dv "+dValue +"  _  "+this.zakres);
        sigma  = Math.pow(zakres,2)/400.0;
     }
 
@@ -85,7 +87,8 @@ public class GaussFuzzySet extends FuzzySet{
 
     @Override
     public String toString() {
-        return "Aktywny: " + (isActive()?1:0) + "; d : " + dValue +"; s: " + sigma + ";";
+        //DecimalFormat df = new DecimalFormat("#####.####");
+        return "Aktywny: " + (isActive()?1:0) + "; d : " + df.format(dValue) +"; s: " + df.format(sigma) + ";";
     }
 
     @Override

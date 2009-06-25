@@ -49,6 +49,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -736,40 +738,6 @@ public class FuzzyRuleClassifier extends RuleClassifier {
         return class1 && class2 && class3 && class4 && class5;
     }
 
-    public void printRules(PrintStream out) {
-
-        out.println("Reguly: ");
-
-        for (int i = 0; i < bestResult.getRuleNumber(); i++) {
-            if (this.bestResult.getRule(i).contains("Aktywna: 1")) {
-                out.println(bestResult.getRule(i).toString());
-            }
-        }
-
-        out.println("\nZbiory: \n");
-
-        for (int i = 0; i < bestResult.getNumOfSets(); i++) {
-            String[] _sets = bestResult.getSets(i);
-
-            if (_sets[0].contains("d:")) {
-                out.println("(Typ grupy: 1;");
-            } else {
-                if (_sets[0].contains("dl:")) {
-                    out.println("(Typ grupy: 2;");
-                } else {
-                    out.println("(Typ grupy: 0;");
-                }
-            }
-
-            for (int j = 0; j < _sets.length; j++) {
-                out.println("(" + _sets[j] + ")");
-            }
-
-            out.println(")\n");
-        }
-
-    }
-
     public static void main(String[] arg) {
 
         try {
@@ -809,15 +777,22 @@ public class FuzzyRuleClassifier extends RuleClassifier {
             System.out.println("Zaczynamy uczenie( to moze chwile potrwac :) )");
             fuzzy.buildClassifier();
             //fuzzy.printRules(System.out);
-            Sample s = new ARFFLoader(new File("data/weather.nominal.arff")).getSamples().get(0);
+            //Sample s = new ARFFLoader(new File("data/weather.nominal.arff")).getSamples().get(0);
 
             //fuzzy.classifySample(s);
 
 
-            double[] _data = fuzzy.bestResult.classifyWithProb(fuzzy.samples, s);
+            //double[] _data = fuzzy.bestResult.classifyWithProb(fuzzy.samples, s);
 
 
-            System.out.println(_data[0] + " " + _data[1]);
+            //System.out.println(_data[0] + " " + _data[1]);
+
+            String[] r = fuzzy.getRules();
+
+            for(int i = 0; i < r.length; i++){
+                System.out.println(r[i]);
+            }
+
 
 
         } catch (IOException ex) {
@@ -833,6 +808,50 @@ public class FuzzyRuleClassifier extends RuleClassifier {
 
     @Override
     public String[] getRules() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if(bestResult == null)
+            return new String[]{};
+
+        LinkedList<String> list = new LinkedList<String>();
+
+        list.add("\nReguly: ");
+
+        for (int i = 0; i < bestResult.getRuleNumber(); i++) {
+            if (bestResult.getRule(i).contains("Aktywna: 1")) {
+                list.add( bestResult.getRule(i).toString());
+            }
+        }
+
+        list.add("\nZbiory: ");
+
+        for (int i = 0; i < bestResult.getNumOfSets(); i++) {
+            String[] _sets = bestResult.getSets(i);
+
+            if (_sets[0].contains("d:")) {
+                list.add("(Typ grupy: 1;");
+            } else {
+                if (_sets[0].contains("dl:")) {
+                    list.add("(Typ grupy: 3;");
+                } else {
+                    list.add("(Typ grupy: 0;");
+                }
+            }
+
+            for (int j = 0; j < _sets.length; j++) {
+                list.add("   (" + _sets[j] + ")");
+            }
+
+            list.add(")");
+        }
+
+        Iterator<String> _iterator = list.iterator();
+
+        String[] result = new String[list.size()];
+        int i = 0;
+        
+        while(_iterator.hasNext()){
+            result[i++] = _iterator.next();
+        }
+
+        return result;
     }
 }

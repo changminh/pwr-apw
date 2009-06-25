@@ -33,6 +33,8 @@
  */
 package apw.classifiers.fuzzyRuleClassifier;
 
+import java.text.DecimalFormat;
+
 /**
  * @author  Przemek Woś
  */
@@ -45,7 +47,8 @@ class TrapeziumSet extends  FuzzySet{
                    d2=0.0;
 
     private double zakres;
-
+    private DecimalFormat df = new DecimalFormat("#####.###");
+    
     public TrapeziumSet(double zakres){
         this.zakres = zakres;
         d1= Math.random()*zakres;
@@ -127,7 +130,8 @@ class TrapeziumSet extends  FuzzySet{
 
     @Override
     public String toString() {
-        return "Aktywny: " + (isActive()?1:0) + "; dl: " + d1 +"; dr: " + d2 + ";";
+        
+        return "Aktywny: " + (isActive()?1:0) + "; dl: " + df.format(d1) +"; dr: " + df.format(d2) + ";";
     }
 
     @Override
