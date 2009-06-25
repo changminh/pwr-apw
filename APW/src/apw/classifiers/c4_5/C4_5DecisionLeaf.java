@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import apw.classifiers.c4_5.complex.Complex;
 import apw.core.Attribute;
 import apw.core.Nominal;
 import apw.core.Sample;
@@ -63,8 +64,41 @@ public class C4_5DecisionLeaf extends C4_5DecisionNode {
 	public LinkedList<String> getRules() 
 	{
 		LinkedList<String> result = new LinkedList<String>();
-		result.add("then "+ nodeClass+"("+source.size()+")");
+		result.add("then "+ nodeClass+"("+source.size()+")("+(total==0?-100:(100*correct/total))+"%)");
 		return result;
 	}
+
+	@Override
+	public boolean evaluate(Sample sample) 
+	{
+		boolean result = nodeClass.equals(sample.get(source.getAtts().indexOf(source.getClassAttribute())));
+		
+		total++;
+		if(result)
+		{
+			correct++;
+		}
+		return result;
+			
+	}
+	
+	public boolean evaluateButIgnore(Sample sample) 
+	{
+		boolean result = nodeClass.equals(sample.get(source.getAtts().indexOf(source.getClassAttribute())));
+		return result;
+			
+	}
+	
+	@Override
+	public void prune() {}
+
+	@Override
+	public List<Complex> generateComplexList() 
+	{
+		LinkedList<Complex> result = new LinkedList<Complex>();
+		result.add(new Complex(source.getAtts().size(), nodeClass));
+		return result;
+	}
+	
 
 }

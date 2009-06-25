@@ -117,10 +117,6 @@ public abstract class Entropy {
 					sum2++;					
 				}
 			}
-			else
-			{
-				throw new NullPointerException();
-			}
 		}
 		//for (int i = 0; i < counts1.length; i++) {
 			//counts1[i]/=sum1;
