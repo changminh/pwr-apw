@@ -45,11 +45,16 @@ import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
 import apw.core.meta.ClassifierCapabilities;
 import apw.core.util.ClassList;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FileDialog;
+import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,9 +66,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**
@@ -82,6 +93,7 @@ public class MainFrame extends javax.swing.JFrame {
         initComponents();
         initClassifiersRepr();
         initClassifiersCBox();
+        initStream();
         updateSample();
         updateClassifier();
     }
@@ -102,8 +114,10 @@ public class MainFrame extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         evalBtn = new javax.swing.JButton();
         jComboBox1 = new javax.swing.JComboBox();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         jButton1.setText("Load Samples");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -121,6 +135,13 @@ public class MainFrame extends javax.swing.JFrame {
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
+        jButton2.setText("Construct");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -129,10 +150,12 @@ public class MainFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jComboBox1, 0, 153, Short.MAX_VALUE)
+                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 227, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(evalBtn)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -141,6 +164,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2)
                     .addComponent(evalBtn))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -179,6 +203,10 @@ public class MainFrame extends javax.swing.JFrame {
             e.printStackTrace();
         }
 }//GEN-LAST:event_evalBtnActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        constructClassifier();
+    }//GEN-LAST:event_jButton2ActionPerformed
     Samples s;
     int neighbours = 4;
     Classifier classifier = null;
@@ -249,7 +277,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     public void updateSample() {
         jComboBox1.setEnabled(s != null);
-
+        jButton2.setEnabled(s != null);
         if (s == null)
             setTitle("Classifier tester.");
         else
@@ -258,6 +286,7 @@ public class MainFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton evalBtn;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JComboBox jComboBox1;
     // End of variables declaration//GEN-END:variables
 
@@ -268,29 +297,144 @@ public class MainFrame extends javax.swing.JFrame {
     private void warn(String string) {
         JOptionPane.showMessageDialog(this, string, "Exception", JOptionPane.ERROR_MESSAGE);
     }
+    JEditorPane textArea = new JEditorPane() {
+
+        {
+            //setEditorKit(new DefaultEditorKit());
+            setFont(getFont().deriveFont(11f));
+            setEditable(false);
+        }
+    };
+    JDialog outputDialog = new JDialog(this, "Classifier output") {
+
+        {
+            setIconImage(null);
+            setResizable(false);
+            pack();
+            setSize(500, 500);
+            getContentPane().setLayout(new BorderLayout());
+            getContentPane().add(new JScrollPane(textArea));
+            getContentPane().add(new JButton(new AbstractAction("Terminate") {
+
+                public void actionPerformed(ActionEvent e) {
+                    if (threadrunner != null)
+                        threadrunner.stop();
+                    outputDialog.dispose();
+                }
+            }), BorderLayout.SOUTH);
+        }
+    };
+    Thread threadrunner;
+    ByteArrayOutputStream baos = new ByteArrayOutputStream(2048) {
+
+        @Override
+        public void write(byte[] b) throws IOException {
+            super.write(b);
+            update();
+        }
+
+        @Override
+        public synchronized void write(byte[] b, int off, int len) {
+            super.write(b, off, len);
+            update();
+
+        }
+
+        @Override
+        public synchronized void write(int b) {
+            super.write(b);
+            update();
+        }
+
+        private void update() {
+            final String toUpdate = toString();
+
+            SwingUtilities.invokeLater(new Runnable() {
+
+                public void run() {
+                    textArea.setText(toUpdate);
+                }
+            });
+
+
+        }
+    };
+    PrintStream ps = new PrintStream(baos);
+
+    class SplitPrintStream extends PrintStream {
+
+        private final PrintStream a;
+        private final PrintStream pb;
+
+        public SplitPrintStream(PrintStream a, PrintStream b) {
+            super(a);
+            this.a = a;
+            this.pb = b;
+        }
+
+        @Override
+        public void write(byte[] b) throws IOException {
+            pb.write(b);
+            super.write(b);
+        }
+
+        @Override
+        public void write(int b) {
+            pb.write(b);
+            super.write(b);
+        }
+
+        @Override
+        public void write(byte[] buf, int off, int len) {
+            pb.write(buf, off, len);
+            super.write(buf, off, len);
+        }
+    };
+
+    void initStream() {
+        PrintStream out = System.out;
+        PrintStream err = System.err;
+        System.setOut(new SplitPrintStream(out, ps));
+        System.setErr(new SplitPrintStream(err, ps));
+    }
 
     private void initClassifiersCBox() {
         List<String> c = new ArrayList(cl2str.values());
         Collections.sort(c);
         jComboBox1.setModel(new DefaultComboBoxModel(c.toArray()));
-        jComboBox1.addItemListener(new ItemListener() {
+    }
 
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getItem() instanceof String && e.getStateChange() == ItemEvent.SELECTED)
+    void constructClassifier() {
+        try {
+            Class c = str2cl.get((String) jComboBox1.getSelectedItem());
+            final Constructor ctor = c.getDeclaredConstructor(Samples.class);
+
+            ////// Redirect console
+            outputDialog.setVisible(true);
+            baos.reset();
+            threadrunner = new Thread() {
+
+                @Override
+                public void run() {
                     try {
-                        Class c = str2cl.get((String) e.getItem());
-                        Constructor ctor = c.getDeclaredConstructor(Samples.class);
                         classifier = (Classifier) ctor.newInstance(s);
+                        System.out.println("Constructing " + classifier.getClass().getSimpleName());
                         classifier.rebuild();
-                        System.out.println("new cl " + classifier);
-                    } catch (Exception x) {
-                        classifier = null;
-                        System.out.println("error while instantiating: " + e.getItem());
-                        x.getCause().printStackTrace();
-                        warn("Error while instantiating classifier:\n" + x.getCause());
+                        updateClassifier();
+                    } catch (Exception ex) {
+                        warn("Error while instantiating classifier:\n" + ex.getCause());
                     }
-                updateClassifier();
-            }
-        });
+                }
+            };
+            threadrunner.start();
+        } catch (Exception x) {
+            classifier = null;
+            System.out.println("error while instantiating: " + jComboBox1.getSelectedItem());
+            if (x.getCause() != null)
+                x.getCause().printStackTrace();
+            else
+                x.printStackTrace();
+            warn("Error while instantiating classifier:\n" + x.getCause());
+        }
     }
 }
