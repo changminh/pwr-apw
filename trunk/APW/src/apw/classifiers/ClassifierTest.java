@@ -23,6 +23,19 @@ public abstract class ClassifierTest {
 	 * @param args
 	 */
 	
+	public static Samples[] divide(Samples s,double divideRate)
+	{
+		divideRate = Math.min(0.999, Math.max(0.001, divideRate));
+		int size = Math.max((int)(s.size()*divideRate),1);
+		Random r = new Random(System.nanoTime());
+		Samples newSamples = s.copyStructure();
+		while(size-->0)
+		{
+			newSamples.add(s.remove(r.nextInt(s.size())));
+		}
+		return new Samples[]{s,newSamples};
+	}
+	
 	public static double evaluateClassifier(Classifier classifier,Samples test)
 	{
         int ok = 0;

@@ -40,6 +40,7 @@
 package apw.gui;
 
 import apw.classifiers.Classifier;
+import apw.classifiers.ClassifierTest;
 import apw.core.Evaluator;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
@@ -178,8 +179,12 @@ public class MainFrame extends javax.swing.JFrame {
             fd.setDirectory(fd.getDirectory() + "/data");
             fd.setVisible(true);
             if (fd.getFile() != null)
-                s = new ARFFLoader(new File(fd.getDirectory() + "/" + fd.getFile())).getSamples();
-        } catch (Exception ex) {
+            {
+                Samples s = new ARFFLoader(new File(fd.getDirectory() + "/" + fd.getFile())).getSamples();
+                samples = ClassifierTest.divide(s, 0.7);
+            }
+        }
+        catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, ex.toString(),
                     "An exception occured", JOptionPane.ERROR_MESSAGE);
@@ -191,12 +196,12 @@ public class MainFrame extends javax.swing.JFrame {
         try {
             if (classifier == null)
                 warn("Classifier not specified.");
-            if (s == null)
+            if (samples == null)
                 warn("Samples not loaded.");
-            if (s != null & classifier != null) {
-                Evaluator e = new Evaluator(classifier, s);
+            if (samples != null & classifier != null) {
+                Evaluator e = new Evaluator(classifier, samples[1]);
                 ResultPanel.showResultDialog(e, this,
-                        classifier.getClass().getCanonicalName() + " classifying \"" + s.getName() + "\"");
+                        classifier.getClass().getCanonicalName() + " classifying \"" + samples[0].getName() + "\"");
             }
         } catch (Exception e) {
             warn(e.toString());
@@ -207,7 +212,7 @@ public class MainFrame extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         constructClassifier();
     }//GEN-LAST:event_jButton2ActionPerformed
-    Samples s;
+    Samples[] samples;
     int neighbours = 4;
     Classifier classifier = null;
 
@@ -276,12 +281,12 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     public void updateSample() {
-        jComboBox1.setEnabled(s != null);
-        jButton2.setEnabled(s != null);
-        if (s == null)
+        jComboBox1.setEnabled(samples != null);
+        jButton2.setEnabled(samples != null);
+        if (samples == null)
             setTitle("Classifier tester.");
         else
-            setTitle("Classifier tester. Ralation \"" + s.getName() + "\"");
+            setTitle("Classifier tester. Ralation \"" + samples[0].getName() + "\"");
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton evalBtn;
@@ -417,7 +422,7 @@ public class MainFrame extends javax.swing.JFrame {
                 @Override
                 public void run() {
                     try {
-                        classifier = (Classifier) ctor.newInstance(s);
+                        classifier = (Classifier) ctor.newInstance(samples[0]);
                         System.out.println("Constructing " + classifier.getClass().getSimpleName());
                         classifier.rebuild();
                         updateClassifier();

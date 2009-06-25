@@ -112,9 +112,6 @@ public class Samples implements List<Sample> {
         notifySamplesOfViewChange();
     }
 
-	public int getClassAttributeIndex() {
-		return classAttributeIndex;
-	}
 
     public void setSelected(final boolean[] selected) {
         this.selected = selected;
