@@ -39,6 +39,7 @@
  */
 package apw.gui;
 
+import apw.classifiers.ClassifierTest;
 import apw.classifiers.knn.KNN;
 import apw.core.Evaluator;
 import apw.core.Evaluator.Measures;
@@ -248,8 +249,9 @@ public class ResultPanel extends javax.swing.JPanel {
             // APW part
             ARFFLoader loader = new ARFFLoader(new File("data/soybean.arff"));
             Samples s = loader.getSamples();
-            KNN knn = new KNN(s, 4, KNN.SIMPLE_VOTING);
-            Evaluator e = new Evaluator(knn, s);
+            Samples[] samples = ClassifierTest.divide(s, 0.7);
+            KNN knn = new KNN(samples[0], 4, KNN.SIMPLE_VOTING);
+            Evaluator e = new Evaluator(knn, samples[1]);
             ResultPanel rp = new ResultPanel(e);
 
 
