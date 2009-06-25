@@ -45,6 +45,7 @@ public abstract class RuleClassifier extends Classifier {
     public RuleClassifier(Samples s) {
         super(s);
     }
+    
 
     public abstract String [] getRules();
 }

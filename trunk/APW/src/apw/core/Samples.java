@@ -134,6 +134,10 @@ public class Samples implements List<Sample> {
         return selected[index];
     }
 
+    public int getClassAttributeIndex() {
+		return classAttributeIndex;
+	}
+    
     public Attribute getClassAttribute() {
         if (classAttributeIndex < 0 || classAttributeIndex > atts.size())
             throw new IllegalStateException("Class not set.");

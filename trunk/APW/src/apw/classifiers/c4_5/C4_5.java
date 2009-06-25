@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import apw.classifiers.Classifier;
 import apw.classifiers.RuleClassifier;
+import apw.classifiers.c4_5.complex.Complex;
+import apw.classifiers.c4_5.complex.ComplexSet;
 import apw.core.Attribute;
 import apw.core.Nominal;
 import apw.core.Numeric;
@@ -26,27 +29,47 @@ public class C4_5 extends RuleClassifier {
 	public C4_5(Samples s) 
 	{	
 		super(s);
-		LinkedList<Nominal> nominals = new LinkedList<Nominal>();
-		LinkedList<Numeric> numerics = new LinkedList<Numeric>();
-		for (Attribute attribute : s.getAtts()) {
-			if (attribute instanceof Nominal) {
-				Nominal nom = (Nominal) attribute;
-				if(nom!=s.getClassAttribute())
-					nominals.add(nom);
-			}
-			else
-			{
-				Numeric num = (Numeric) attribute;
-				numerics.add(num);
-			}
+		
+		Samples teaching = s;
+		Samples pruning = s.copyStructure();
+		
+		int pruningCount = 0;//s.size()/5;
+		
+		//TODO System.nanoTime();
+		Random r = new Random(0);
+		
+		while(pruningCount>0)
+		{
+			pruningCount--;
+			pruning.add(s.remove(r.nextInt(s.size())));
 		}
 		
-			
-		tree = C4_5DecisionNode.createNode(s);			
+		tree = C4_5DecisionNode.createNode(teaching);	
 
-		for (String str : getRules()) {
-			System.out.println(str);
+		for (Sample sample : pruning) {
+			tree.evaluate(sample);	
 		}
+
+		
+//		for (String str : getRules()) {
+//			System.out.println(str);
+//		}
+
+		
+//		System.out.println();
+		
+		tree.prune();
+		
+		//tree.reevaluate();
+
+//		for (Sample sample : pruning) {
+//			tree.evaluate(sample);	
+//		}
+		
+//		for (String str : generateComplexList() getRules()) {
+//			System.out.println(str);
+//		}
+		
 	}
 
 	@Override
@@ -84,6 +107,11 @@ public class C4_5 extends RuleClassifier {
 		throw new IllegalArgumentException("Sample class must be Nominal");
 	}
 
+	public List<Complex> generateComplexList()
+	{
+		return tree.generateComplexList();
+	}
+	
 	@Override
 	public Classifier copy() {
 		// TODO Auto-generated method stub
