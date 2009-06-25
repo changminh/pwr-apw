@@ -33,6 +33,8 @@
  */
 package apw.classifiers.fuzzyRuleClassifier;
 
+import java.text.DecimalFormat;
+
 /**
  *
  * @author przemo
@@ -42,6 +44,7 @@ class TriangleSet extends FuzzySet  {
     private TriangleSet left = null,  right = null;
     private double dValue = 0.0;
     private double zakres;
+    private DecimalFormat df = new DecimalFormat("#####.###");
 
     public TriangleSet(double zakres) {
         this.zakres = zakres;
@@ -131,7 +134,8 @@ class TriangleSet extends FuzzySet  {
 
     @Override
     public String toString() {
-        return "Aktywny: " + (isActive() ? 1 : 0) + "; d: " + dValue + ";";
+        //DecimalFormat df = new DecimalFormat("#####.###");
+        return "Aktywny: " + (isActive() ? 1 : 0) + "; d: " + df.format(dValue) + ";";
     }
 
     @Override
