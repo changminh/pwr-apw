@@ -33,15 +33,21 @@ public class AugmentedLearning {
     private DataFile dataFile;
     private int[] rulesCounter = new int[3];        // rules: main, acquired, additional
     private int mode = 0;                           // indicates which type of rules are currently added
+    private boolean autonomic = true;
 
     public AugmentedLearning() { }
 
     public AugmentedLearning(Samples samples) {
         inst = this;
+        autonomic = false;
         this.samples = samples;
         dataFile = new DataFile(samples);
         terms = dataFile.createTerms();
         step2(dataFile, false);
+    }
+
+    public boolean autonomicMode() {
+        return autonomic;
     }
 
     public HashSet<Integer> getBannedSamples() {

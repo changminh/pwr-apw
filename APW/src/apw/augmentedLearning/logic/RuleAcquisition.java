@@ -86,7 +86,7 @@ public class RuleAcquisition {
         }
         while (accessors.size() > 0) {
             progress.setProgress(accessors.size());
-            System.out.println("Przebieg #" + ++count + ", pozostało przykładów: " + accessors.size());
+            System.out.println("\nPrzebieg #" + ++count + ", pozostało przykładów: " + accessors.size());
             tempRule = findRule_AQ();
             if (tempRule != null) {
                 removeCoveredSamples(tempRule);
@@ -122,7 +122,16 @@ public class RuleAcquisition {
         acquireRulesForRestSamples();
         savePrologRepresentationToFile();
         showRulesInHtmlDocument();
-        new SampleInputFrame(advisor).setVisible(true);
+        if (advisor.autonomicMode()) {
+            int answer = JOptionPane.showConfirmDialog(
+                null,
+                "Czy chcesz przeprowadzić klasyfikację własnych przykładów na wyuczonych regułach?",
+                "",
+                JOptionPane.YES_NO_OPTION);
+            if (answer == JOptionPane.NO_OPTION)
+                return;
+            new SampleInputFrame(advisor).setVisible(true);
+        }
     }
     
     private void removeCoveredSamples(Rule rule) {
@@ -259,8 +268,12 @@ public class RuleAcquisition {
                 }
             }
         }
-        if (result.isEmpty())
-            System.out.println("O nie, mamy problem z danymi... :/");
+        if (result.isEmpty()) {
+            JOptionPane.showMessageDialog(null,
+                    "Wykryto sprzeczne krotki - powinny być usunięte na wcześniejszym etapie. " +
+                    "Przetwarzanie zostanie przerwane.");
+            progress.dispose();
+        }
         return result;
     }
 

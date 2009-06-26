@@ -65,7 +65,6 @@ public class ComplexCreatorPanel extends javax.swing.JPanel {
             nominals = dataFile.getNominals();
             names = dataFile.getAttributesNames();
         }
-        System.out.println("dataFile.getAttributesNames() = " + dataFile.getAttributesNames().size());
 
         /***** Horizontal *****/
         pg1 = layout.createParallelGroup(Alignment.LEADING);

@@ -226,7 +226,8 @@ public class DataFile {
             set = new HashSet<String>();
             for (int sample = 0; sample < rawObjects.length; sample++) {
                 s = (String) rawObjects[sample][id];
-                set.add(s);
+                if (s != null)
+                    set.add(s);
             }
             nominalValues.add(set);
         }
