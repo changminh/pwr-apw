@@ -6,11 +6,17 @@
 package apw.augmentedLearning.logic;
 
 import alice.tuprolog.Term;
+import apw.classifiers.Classifier;
+import apw.core.Sample;
 import apw.core.Samples;
 import apw.augmentedLearning.gui.LoadingSamples_Step1;
 import apw.augmentedLearning.gui.LoadingSamples_Step3;
 import apw.augmentedLearning.gui.LoadingSamples_Step2;
+import apw.classifiers.RuleClassifier;
+import apw.core.Attribute;
+import apw.core.Nominal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import javax.swing.JOptionPane;
@@ -19,7 +25,7 @@ import javax.swing.JOptionPane;
  *
  * @author nitric
  */
-public class AugmentedLearning {
+public class AugmentedLearning extends RuleClassifier {
 
     private static AugmentedLearning inst;
     private LoadingSamples_Step1 step1;
@@ -34,16 +40,26 @@ public class AugmentedLearning {
     private int[] rulesCounter = new int[3];        // rules: main, acquired, additional
     private int mode = 0;                           // indicates which type of rules are currently added
     private boolean autonomic = true;
-
-    public AugmentedLearning() { }
+    private int classAttIndex;
+    private int attAmount;
+    private boolean hasToWait = true;               // When reset to false, it means that object is correctly prepared
 
     public AugmentedLearning(Samples samples) {
+        super(null);
+        if (samples == null)
+            return;
         inst = this;
         autonomic = false;
         this.samples = samples;
         dataFile = new DataFile(samples);
         terms = dataFile.createTerms();
         step2(dataFile, false);
+        try {
+            waitForComplete();
+        }
+        catch(InterruptedException ex) {
+            throw new ExceptionInInitializerError();
+        }
     }
 
     public boolean autonomicMode() {
@@ -75,7 +91,7 @@ public class AugmentedLearning {
         rulesCounter[mode]++;
     }
 
-    public ArrayList<Rule> getRules() {
+    public ArrayList<Rule> internalRules() {
         return rules;
     }
 
@@ -112,7 +128,7 @@ public class AugmentedLearning {
     }
 
     public static void main(String[] args) {
-        inst = new AugmentedLearning();
+        inst = new AugmentedLearning(null);
         inst.step1 = new LoadingSamples_Step1(inst);
         inst.step1.setVisible(true);
     }
@@ -132,6 +148,8 @@ public class AugmentedLearning {
         for (int i = 0; i < terms.size(); i++)
             termsAccessors.add(i);
         step3 = new LoadingSamples_Step3(dataFile, inst);
+        attAmount = dataFile.getAttributesCount();
+        classAttIndex = dataFile.getClassAttributeIndex();
         step3.setVisible(true);
     }
 
@@ -146,8 +164,8 @@ public class AugmentedLearning {
         mode++;
     }
 
-    public void classify(Object[] sample) {
-        Object type = null;
+    public String classify(Object[] sample) {
+        String type = null;
         Rule winner = null;
         int support = 0;
         LinkedList<Rule> miss = new LinkedList<Rule>();
@@ -169,22 +187,88 @@ public class AugmentedLearning {
         }
         if (winner == null) {
             JOptionPane.showMessageDialog(null, "Brak reguł pokrywających przykład!");
-            return;
+            return null;
         }
-        StringBuilder sb = new StringBuilder();
-        sb.append("<html><body>");
-        sb.append("Przewidywany typ: <b>" + type + "</b><br>");
-        sb.append("Zwycięska reguła: <b>" + winner.name + "</b><br>");
-        if (support > 0)
-            sb.append("Innych reguł pokrywających: <b>" + support + "</b><br>");
-        if (miss.size() > 0) {
-            sb.append("Reguły sprzeczne: <b>");
-            for (int i = 0; i < miss.size() - 1; i++) {
-                sb.append("" + miss.get(i).name + ", ");
+        if (autonomic) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("<html><body>");
+            sb.append("Przewidywany typ: <b>" + type + "</b><br>");
+            sb.append("Zwycięska reguła: <b>" + winner.name + "</b><br>");
+            if (support > 0)
+                sb.append("Innych reguł pokrywających: <b>" + support + "</b><br>");
+            if (miss.size() > 0) {
+                sb.append("Reguły sprzeczne: <b>");
+                for (int i = 0; i < miss.size() - 1; i++) {
+                    sb.append("" + miss.get(i).name + ", ");
+                }
+                sb.append("" + miss.get(miss.size() - 1).name);
             }
-            sb.append("" + miss.get(miss.size() - 1).name);
+            sb.append("</b></body></html>");
+            JOptionPane.showMessageDialog(null, sb.toString());
         }
-        sb.append("</b></body></html>");
-        JOptionPane.showMessageDialog(null, sb.toString());
+        return type;
+    }
+
+    @Override
+    public String[] getRules() {
+        String[] result = new String[rules.size()];
+        for (int i = 0; i < rules.size(); i++) {
+            result[i] = rules.get(i).translateToText();
+        }
+        return result;
+    }
+
+    private Object[] sampleToArray(Sample s) {
+        Object[] result = new Object[attAmount];
+        for (int i = 0; i < attAmount; i++) {
+            if (i != classAttIndex)
+                result[i] = s.get(i);
+            else
+                result[i] = null;
+        }
+        return result;
+    }
+
+    private synchronized void waitForComplete() throws InterruptedException {
+        while (hasToWait == true)
+            wait();
+    }
+
+    public synchronized void classifierIsReady() {
+        hasToWait = false;
+        notifyAll();
+    }
+
+    @Override
+	public double[] classifySample(Sample s) {
+		Object sampleClass = classify(sampleToArray(s));
+		Attribute att = s.getSamples().getClassAttribute();
+		if (att instanceof Nominal) {
+			Nominal nominal = (Nominal) att;
+			double[] result = new double[nominal.getSortedIKeys().length];
+			result[Arrays.binarySearch(nominal.getSortedIKeys(),sampleClass)] = 1.0;
+			return result;
+		}
+		throw new IllegalArgumentException("Sample class must be Nominal");
+	}
+
+    @Override
+    public void addSamples(Samples s) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Operation not supported");
+    }
+
+    @Override
+    public void addSample(Sample s) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Operation not supported");
+    }
+
+    @Override
+    public void rebuild() {
+        throw new UnsupportedOperationException("Operation not supported");
+    }
+
+    @Override
+    public Classifier copy() {
+        throw new UnsupportedOperationException("Operation not supported");
     }
 }

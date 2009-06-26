@@ -16,7 +16,6 @@ public class RuleTranslator {
     public static final String ifClausePostfix = "___ifClause";
     public static final String thenClausePostfix = "___thenClause";
     private Rule rule;
-    private Samples samples;
     private ArrayList<String> attsNames = new ArrayList<String>();
     private Set<Integer>importantAttributes = new HashSet<Integer>();
     private ClauseTranslator ifClause;
@@ -25,9 +24,16 @@ public class RuleTranslator {
 
     public RuleTranslator(Rule rule, Samples samples) {
         this.rule = rule;
-        this.samples = samples;
         for (Attribute att : samples.getAtts())
             attsNames.add(convertToAtom(att.getName()));
+        ifClause = new ClauseTranslator(rule, attsNames, true);
+        thenClause = new ClauseTranslator(rule, attsNames, false);
+        prologRepresentation();
+    }
+
+    public RuleTranslator(Rule rule, ArrayList<String> attsNames) {
+        this.rule = rule;
+        this.attsNames = attsNames;
         ifClause = new ClauseTranslator(rule, attsNames, true);
         thenClause = new ClauseTranslator(rule, attsNames, false);
         prologRepresentation();

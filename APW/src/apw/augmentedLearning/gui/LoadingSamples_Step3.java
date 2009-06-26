@@ -148,7 +148,7 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
     private void jb_newRuleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_newRuleActionPerformed
         String nazwaReguly = JOptionPane.showInputDialog(
                                 this, "Podaj nazwę reguły (bez polskich liter, z małej litery)",
-                                "regula_nr_" + (advisor.getRules().size() + 1)
+                                "regula_nr_" + (advisor.internalRules().size() + 1)
                              );
         if (nazwaReguly == null)
             return;
@@ -161,10 +161,10 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
     private void jb_nextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_nextActionPerformed
         StringBuilder sb = new StringBuilder();
         Samples samples = advisor.getSamples();
-        for (Rule r : advisor.getRules()) {
+        for (Rule r : advisor.internalRules()) {
             sb.append(new RuleTranslator(r, samples).prologRepresentation());
         }
-        checkRules(advisor.getRules());
+        checkRules(advisor.internalRules());
         advisor.step4();
 }//GEN-LAST:event_jb_nextActionPerformed
 
@@ -235,7 +235,7 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
 
     private void updateRulesPreview() {
         StringBuilder sb = new StringBuilder();
-        for (Rule r : advisor.getRules())
+        for (Rule r : advisor.internalRules())
             sb.append(r.translateToText());
         jta_rulePreview.setText(sb.toString());
     }

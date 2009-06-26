@@ -47,11 +47,9 @@ public class Complex {
     public boolean covers(Object[] values) {
         for (int i = 0; i < selectors.size(); i++) {
             if (!selectors.get(i).covers(values[i])) {
-                // System.out.println(" ==> nie pokrywam");
                 return false;
             }
         }
-        // System.out.println(" ==> pokrywam");
         return true;
     }
 

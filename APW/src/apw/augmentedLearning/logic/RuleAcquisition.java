@@ -81,7 +81,7 @@ public class RuleAcquisition {
         for (int i = 0; i < rawData.length; i++)
             if (!bannedSamples.contains(i))
                 validSamples.add(i);
-        for (Rule rule : advisor.getRules()) {
+        for (Rule rule : advisor.internalRules()) {
             removeCoveredSamples(rule);
         }
         while (accessors.size() > 0) {
@@ -132,6 +132,7 @@ public class RuleAcquisition {
                 return;
             new SampleInputFrame(advisor).setVisible(true);
         }
+        advisor.classifierIsReady();
     }
     
     private void removeCoveredSamples(Rule rule) {
@@ -391,8 +392,8 @@ public class RuleAcquisition {
             best.add(index);
         }
         ArrayList<Complex> newStar = new ArrayList<Complex>();
-        for (Integer i : best)
-            newStar.add(star.get(i));
+            for (Integer i : best)
+                newStar.add(star.get(i));
         star = newStar;
     }
 
@@ -426,8 +427,8 @@ public class RuleAcquisition {
         int success;
         HashSet<Integer> temp;
         Rule check;
-        for (int ruleIndex = 0; ruleIndex < advisor.getRules().size(); ruleIndex++) {
-            check = advisor.getRules().get(ruleIndex);
+        for (int ruleIndex = 0; ruleIndex < advisor.internalRules().size(); ruleIndex++) {
+            check = advisor.internalRules().get(ruleIndex);
             success = 0;
             String classOfRule = ((SelectorForNominal) check.thenClause.get(0).getSelector(classAttrId)).getUniqueValue();
             for (int i : validSamples) {
@@ -450,7 +451,7 @@ public class RuleAcquisition {
         while (iter.hasNext()) {
             ruleIter = rulesCoveringStats.get(success = iter.next()).iterator();
             while (ruleIter.hasNext()) {
-                check = advisor.getRules().get(ruleIter.next());
+                check = advisor.internalRules().get(ruleIter.next());
                 System.out.println("Reguła " + check.getName() + " pokrywa " + success + " krotek");
                 orderedRules.add(check);
             }
@@ -558,7 +559,7 @@ public class RuleAcquisition {
 
     private void savePrologRepresentationToFile() {
         StringBuilder sb = new StringBuilder();
-        for (Rule rule : advisor.getRules()) {
+        for (Rule rule : advisor.internalRules()) {
             rule.translate();
             sb.append(rule.translator.prologRepresentation() + "\n");
         }
@@ -589,18 +590,18 @@ public class RuleAcquisition {
         sb.append(" <h2>Pierwotne reguły użytkownika i reguły wygenerowane</h2>\n");
         if (advisor.getRulesCounter()[0] > 0) {
             for (int i = 0; i < advisor.getRulesCounter()[0]; i++) {
-                sb.append(advisor.getRules().get(counter++).translateToHtml());
+                sb.append(advisor.internalRules().get(counter++).translateToHtml());
                 sb.append("\n");
             }
         }
         for (int i = 0; i < advisor.getRulesCounter()[1]; i++) {
-            sb.append(advisor.getRules().get(counter++).translateToHtml());
+            sb.append(advisor.internalRules().get(counter++).translateToHtml());
             sb.append("\n");
         }
         if (advisor.getRulesCounter()[2] > 0) {
             sb.append(" <h2>Uzupełniające reguły użytkownika</h2>\n");
             for (int i = 0; i < advisor.getRulesCounter()[2]; i++) {
-                sb.append(advisor.getRules().get(counter++).translateToHtml());
+                sb.append(advisor.internalRules().get(counter++).translateToHtml());
                 sb.append("\n");
             }
         }
