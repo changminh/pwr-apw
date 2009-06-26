@@ -23,7 +23,6 @@ public class SelectorForNumberCreatorPanel extends SelectorCreatorPanel {
     
     public SelectorForNumberCreatorPanel() {
         initComponents();
-        jcb_negation.setVisible(t);
     }
 
     public SelectorForNumberCreatorPanel(int attributesNumber, String attributesName) {
@@ -92,16 +91,11 @@ public class SelectorForNumberCreatorPanel extends SelectorCreatorPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jcb_negation = new javax.swing.JCheckBox();
         jl_attributeName = new javax.swing.JLabel();
         jcb_operator = new apw.augmentedLearning.controls.ComboSelectorForNumber();
         jtf_lower = new javax.swing.JTextField();
         jl_operator = new javax.swing.JLabel();
         jtf_upper = new javax.swing.JTextField();
-
-        jcb_negation.setText("Negacja");
-        jcb_negation.setOpaque(false);
-        jcb_negation.setEnabled(false);
 
         jl_attributeName.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jl_attributeName.setText(attributesName);
@@ -121,9 +115,7 @@ public class SelectorForNumberCreatorPanel extends SelectorCreatorPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jcb_negation)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jl_attributeName, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jl_attributeName, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jcb_operator, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -137,7 +129,6 @@ public class SelectorForNumberCreatorPanel extends SelectorCreatorPanel {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(jcb_negation, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
                 .addComponent(jl_attributeName)
                 .addComponent(jcb_operator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(jtf_lower, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -155,16 +146,11 @@ public class SelectorForNumberCreatorPanel extends SelectorCreatorPanel {
             case BELONGS_RIGHT_INCLUDING:
                 setControls(t, t, t, t);
                 jl_operator.setText("< " + attributesName + " <=");
-                jcb_negation.setEnabled(t);
                 break;
             case EQUAL:
                 setControls(f, f, t, t);
                 jl_operator.setText(attributesName + " =");
                 break;
-            /* case GREATER_OR_EQUAL:
-                setControls(f, f, t, t);
-                jl_operator.setText(attributesName + ">= ");
-                break; */
             case GREATER_THAN:
                 setControls(f, f, t, t);
                 jl_operator.setText(attributesName + " >");
@@ -173,10 +159,6 @@ public class SelectorForNumberCreatorPanel extends SelectorCreatorPanel {
                 setControls(f, f, t, t);
                 jl_operator.setText(attributesName + " <=");
                 break;
-            /* case LOWER_THAN:
-                setControls(f, f, t, t);
-                jl_operator.setText(attributesName + " <");
-                break; */
             case NONE_VALUE:
                 setControls(f, f, f, f);
                 jl_operator.setText("");
@@ -190,12 +172,8 @@ public class SelectorForNumberCreatorPanel extends SelectorCreatorPanel {
         jtf_upper.setVisible(uv);
         jtf_lower.setEnabled(le);
         jtf_upper.setEnabled(ue);
-        jcb_negation.setEnabled(false);
-        jcb_negation.setSelected(false);
-        jcb_negation.setEnabled(false);
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox jcb_negation;
     private apw.augmentedLearning.controls.ComboSelectorForNumber jcb_operator;
     private javax.swing.JLabel jl_attributeName;
     private javax.swing.JLabel jl_operator;

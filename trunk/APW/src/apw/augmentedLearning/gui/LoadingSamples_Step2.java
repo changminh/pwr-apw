@@ -90,15 +90,16 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         this.dataFile = advisor.getDataFile();
         this.rawObjects = dataFile.getRawObjects();
         attributesCount = dataFile.getAttributesCount();
-        proceed();
+        classAttributeIndex = dataFile.getClassAttributeIndex();
+        samples = advisor.getSamples();
+        checkData();
     }
 
     /**
      * This method should be invoked only if the advisor's object is created using not data file, but the 'Samples'
      * object. In that case, dataFile is created other way and not all procedures are necessery to be made.
      */
-    private void proceed() {
-        // Convert to project's internal representation:
+    private void checkData() {
         new Thread() {
             @Override
             public void run() {
@@ -524,7 +525,6 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
             // ... and wait for the expert's answer!
             try {
                 waitForResponse();
-                System.out.println("Zakończono oczekiwanie");
             } catch (InterruptedException e) { System.out.println("Przerwano oczekiwanie"); }
             rawObjects[i][classAttributeIndex] = interceptor;
         }

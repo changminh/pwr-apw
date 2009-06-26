@@ -94,18 +94,9 @@ public class SelectorForNominalCreatorPanel extends SelectorCreatorPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jcb_negation = new javax.swing.JCheckBox();
         jl_name = new javax.swing.JLabel();
         jcb_values = new javax.swing.JComboBox(values.toArray());
         jb_modify = new javax.swing.JButton();
-
-        jcb_negation.setText("Negacja");
-        jcb_negation.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jcb_negationActionPerformed(evt);
-            }
-        });
-        jcb_negation.setEnabled(false);
 
         jl_name.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jl_name.setText(attributesName);
@@ -123,9 +114,7 @@ public class SelectorForNominalCreatorPanel extends SelectorCreatorPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jcb_negation)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jl_name, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jl_name, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jcb_values, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -135,16 +124,11 @@ public class SelectorForNominalCreatorPanel extends SelectorCreatorPanel {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(jcb_negation, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
                 .addComponent(jl_name)
                 .addComponent(jcb_values, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(jb_modify))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jcb_negationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcb_negationActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jcb_negationActionPerformed
 
     private void jb_modifyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_modifyActionPerformed
         new NominalValuesChooser(parentFrame, this, values, attributesName).setVisible(true);
@@ -153,7 +137,6 @@ public class SelectorForNominalCreatorPanel extends SelectorCreatorPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jb_modify;
-    private javax.swing.JCheckBox jcb_negation;
     private javax.swing.JComboBox jcb_values;
     private javax.swing.JLabel jl_name;
     // End of variables declaration//GEN-END:variables
@@ -163,7 +146,7 @@ public class SelectorForNominalCreatorPanel extends SelectorCreatorPanel {
         if (allowedValues.size() == amountOfAllValues)
             return SelectorForNominal.getSelUniversal(attributesNumber, values);
         else
-            return SelectorForNominal.getSelSet(attributesNumber, jcb_negation.isSelected(), allowedValues);
+            return SelectorForNominal.getSelSet(attributesNumber, false, allowedValues);
     }
 
     public HashSet<String> getAllowedValues() {
