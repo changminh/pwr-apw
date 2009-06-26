@@ -11,6 +11,7 @@ import alice.tuprolog.SolveInfo;
 import alice.tuprolog.Struct;
 import alice.tuprolog.Term;
 import alice.tuprolog.Theory;
+import apw.core.Attribute;
 import apw.core.Samples;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -26,13 +27,14 @@ public class Rule {
     protected String name;
     protected RuleTranslator translator;
     protected Prolog prolog = new Prolog();
-    protected Samples samples;
     protected String ifClauseQuery;
     protected String thenClauseQuery;
+    protected ArrayList<String> attsNames = new ArrayList<String>();
 
     public Rule(String name, Samples samples) {
         this.name = name;
-        this.samples = samples;
+        for (Attribute att : samples.getAtts())
+            attsNames.add(RuleTranslator.convertToAtom(att.getName()));
     }
 
     public String getName() {
@@ -68,7 +70,7 @@ public class Rule {
     }
 
     public void translate() {
-        translator = new RuleTranslator(this, samples);
+        translator = new RuleTranslator(this, attsNames);
         prolog = new Prolog();
         String s = translator.prologRepresentation();
         try {
@@ -117,7 +119,7 @@ public class Rule {
             for (int i = 0; i < c.size(); i++) {
                 s = c.getSelector(i);
                 if (!s.isUniversal())
-                    sb.append("<li>" + samples.getAtts().get(i).getName() + " " + s.textRepresetation() + "</li>\n");
+                    sb.append("<li>" + attsNames.get(i) + " " + s.textRepresetation() + "</li>\n");
             }
         }
         sb.append(" </ul>\n");
@@ -142,7 +144,7 @@ public class Rule {
             for (int i = 0; i < c.size(); i++) {
                 s = c.getSelector(i);
                 if (!s.isUniversal())
-                    sb.append("- " + samples.getAtts().get(i).getName() + " " + s.textRepresetation() + "\n");
+                    sb.append("- " + attsNames.get(i) + " " + s.textRepresetation() + "\n");
             }
         }
         sb.append("--------------------\n");
