@@ -50,8 +50,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -214,9 +212,9 @@ public class MainFrame extends javax.swing.JFrame {
     int neighbours = 4;
     Classifier classifier = null;
 
-    private static final Set<Class> DiscoverClassifiers() throws ClassNotFoundException {
+    private final Set<Class> DiscoverClassifiers() throws ClassNotFoundException {
         Map<String, Set<Class>> m = ClassList.findClasses(
-                Thread.currentThread().getContextClassLoader(),
+                this.getClass().getClassLoader(),
                 null,
                 toSet("apw.classifiers.Classifier"),
                 toSet("apw.classifiers"),
