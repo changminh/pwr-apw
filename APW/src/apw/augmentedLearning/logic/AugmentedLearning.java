@@ -19,9 +19,9 @@ import javax.swing.JOptionPane;
  *
  * @author nitric
  */
-public class LoadingSamplesMain {
+public class AugmentedLearning {
 
-    private static LoadingSamplesMain inst;
+    private static AugmentedLearning inst;
     private LoadingSamples_Step1 step1;
     private LoadingSamples_Step2 step2;
     private LoadingSamples_Step3 step3;
@@ -33,8 +33,16 @@ public class LoadingSamplesMain {
     private DataFile dataFile;
     private int[] rulesCounter = new int[3];        // rules: main, acquired, additional
     private int mode = 0;                           // indicates which type of rules are currently added
-//    private HashMap<Integer, Double> minValues = new HashMap<Integer, Double>();
-//    private HashMap<Integer, Double> maxValues = new HashMap<Integer, Double>();
+
+    public AugmentedLearning() { }
+
+    public AugmentedLearning(Samples samples) {
+        inst = this;
+        this.samples = samples;
+        dataFile = new DataFile(samples);
+        terms = dataFile.createTerms();
+        step2(dataFile, false);
+    }
 
     public HashSet<Integer> getBannedSamples() {
         return bannedSamples;
@@ -42,6 +50,10 @@ public class LoadingSamplesMain {
 
     public void setBannedSamples(HashSet<Integer> bannedSamples) {
         this.bannedSamples = bannedSamples;
+    }
+
+    public void setDataFile(DataFile dataFile) {
+        this.dataFile = dataFile;
     }
 
     public void setSamples(Samples samples) {
@@ -94,21 +106,23 @@ public class LoadingSamplesMain {
     }
 
     public static void main(String[] args) {
-        inst = new LoadingSamplesMain();
+        inst = new AugmentedLearning();
         inst.step1 = new LoadingSamples_Step1(inst);
         inst.step1.setVisible(true);
     }
 
-    public void step2(DataFile dataFile) {
+    public void step2(DataFile dataFile, boolean autonomic) {
         this.dataFile = dataFile;
-        step2 = new LoadingSamples_Step2(dataFile, inst);
-        step2.setVisible(true);
+        if (autonomic) {
+            step2 = new LoadingSamples_Step2(dataFile, inst);
+            step2.setVisible(true);
+        }
+        else {
+            step2 = new LoadingSamples_Step2(this);
+        }
     }
 
     public void step3() {
-        // collectMinMaxValues();
-        // dataFile.setMinValues(minValues);
-        // dataFile.setMaxValues(maxValues);
         for (int i = 0; i < terms.size(); i++)
             termsAccessors.add(i);
         step3 = new LoadingSamples_Step3(dataFile, inst);
@@ -167,31 +181,4 @@ public class LoadingSamplesMain {
         sb.append("</b></body></html>");
         JOptionPane.showMessageDialog(null, sb.toString());
     }
-
-    /*
-     private void collectMinMaxValues() {
-        double min, max;
-        Sample s;
-        Double temp;
-        for (int i = 0; i < dataFile.getAttributesCount(); i++) {
-            if (dataFile.isNominalAttribute(i)) {
-                continue;
-            }
-            else {
-                s = samples.get(0);
-                min = (Double)s.get(i);
-                max = (Double)s.get(i);
-                for (int j = 1; j < samples.size(); j++) {
-                    s = samples.get(j);
-                    if ((temp = (Double)s.get(i)) < min)
-                        min = temp;
-                    else if (temp > max)
-                        max = temp;
-                }
-                minValues.put(i, min);
-                maxValues.put(i, max);
-            }
-        }
-    }
-     */
 }

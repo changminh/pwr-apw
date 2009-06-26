@@ -17,9 +17,8 @@ public class RuleTranslator {
     public static final String thenClausePostfix = "___thenClause";
     private Rule rule;
     private Samples samples;
-    private ArrayList<Attribute> attributes;
+    private ArrayList<String> attsNames = new ArrayList<String>();
     private Set<Integer>importantAttributes = new HashSet<Integer>();
-
     private ClauseTranslator ifClause;
     private ClauseTranslator thenClause;
     private String prologRepresentation;
@@ -27,9 +26,10 @@ public class RuleTranslator {
     public RuleTranslator(Rule rule, Samples samples) {
         this.rule = rule;
         this.samples = samples;
-        ifClause = new ClauseTranslator(rule, samples, true);
-        thenClause = new ClauseTranslator(rule, samples, false);
-        attributes = samples.getAtts();
+        for (Attribute att : samples.getAtts())
+            attsNames.add(convertToAtom(att.getName()));
+        ifClause = new ClauseTranslator(rule, attsNames, true);
+        thenClause = new ClauseTranslator(rule, attsNames, false);
         prologRepresentation();
     }
 
@@ -38,9 +38,9 @@ public class RuleTranslator {
         importantAttributes.addAll(thenClause.attributesForClause);
         StringBuilder sb = new StringBuilder(rule.getName());
         sb.append("(");
-        for (int i = 0; i < attributes.size(); i++) {
+        for (int i = 0; i < attsNames.size(); i++) {
             if (importantAttributes.contains(i))
-                sb.append(attributes.get(i).getName() + ", ");
+                sb.append(attsNames.get(i) + ", ");
             else
                 sb.append("_, ");
         }
@@ -62,9 +62,9 @@ public class RuleTranslator {
      */
     private String callClause(ClauseTranslator ct) {
         StringBuilder sb = new StringBuilder(ct.getClauseName() + "(");
-        for (int i = 0; i < attributes.size(); i++) {
+        for (int i = 0; i < attsNames.size(); i++) {
             if (ct.attributesForClause.contains(i))
-                sb.append(attributes.get(i).getName() + ", ");
+                sb.append(attsNames.get(i) + ", ");
             else
                 sb.append("_, ");
         }
@@ -92,28 +92,30 @@ public class RuleTranslator {
     public static void deleteLast2Letters(StringBuilder sb) {
         sb.delete(sb.length() - 2, sb.length());
     }
+
+    public static String convertToAtom(String s) {
+        return "'" + s + "'";
+    }
 }
 
 class ClauseTranslator {
     boolean isAssumptionClause;
     Rule rule;
     String ruleName;
-    Samples samples;
+    ArrayList<String> attsNames;
     int attributeCount;
     Set<Integer> attributesForClause = new HashSet<Integer>();
     ArrayList<Set<Integer>> attributesForComplexes = new ArrayList<Set<Integer>>();
     String clauseName;
     String complexNamePrefix;
     ArrayList<Complex> complexes;
-    ArrayList<Attribute> attributes;
 
-    public ClauseTranslator(Rule rule, Samples samples, boolean isAssumptionClause) {
+    public ClauseTranslator(Rule rule, ArrayList<String> attsNames, boolean isAssumptionClause) {
         this.isAssumptionClause = isAssumptionClause;
         this.rule = rule;
-        this.samples = samples;
         ruleName = rule.getName();
-        attributes = samples.getAtts();
-        attributeCount = attributes.size();
+        this.attsNames = attsNames;
+        attributeCount = attsNames.size();
 
         if (isAssumptionClause) {
             clauseName = ruleName + RuleTranslator.ifClausePostfix;
@@ -145,7 +147,7 @@ class ClauseTranslator {
                 // First: store the information, that attribute is important for the whole clause
                 attributesForClause.add(i);
                 set.add(i);
-                sb.append(attributes.get(i).getName() + ", ");
+                sb.append(attsNames.get(i) + ", ");
                 correct = true;
             }
             else {
@@ -159,7 +161,7 @@ class ClauseTranslator {
         RuleTranslator.deleteLast2Letters(sb);
         sb.append(") :- \n");
         for (int i : set) {
-            sb.append("\t" + convertSelector(c.getSelector(i), attributes.get(i).getName()) + ",\n");
+            sb.append("\t" + convertSelector(c.getSelector(i), attsNames.get(i)) + ",\n");
         }
         RuleTranslator.deleteLast2Letters(sb);
         sb.append("\n.");
@@ -178,7 +180,7 @@ class ClauseTranslator {
         sb.append(clauseName + "(");
         for (int i = 0; i < attributeCount; i++) {
             if (attributesForClause.contains(i))
-                sb.append(samples.getAtts().get(i).getName() + ", ");
+                sb.append(attsNames.get(i) + ", ");
             else
                 sb.append("_, ");
         }
@@ -191,7 +193,7 @@ class ClauseTranslator {
             set = attributesForComplexes.get(j);
             for (int i = 0; i < attributeCount; i++)
                 if (set.contains(i))
-                    sb.append(samples.getAtts().get(i).getName() + ", ");
+                    sb.append(attsNames.get(i) + ", ");
                 else
                     sb.append("_, ");
             RuleTranslator.deleteLast2Letters(sb);
@@ -234,18 +236,12 @@ class ClauseTranslator {
             case EQUAL:
                 sb.append(name + " =:= " + sel.getUpperLimit());
                 break;
-            /* case GREATER_OR_EQUAL:
-                sb.append(name + " >= " + sel.getLowerLimit());
-                break; */
             case GREATER_THAN:
                 sb.append(name + " > " + sel.getLowerLimit());
                 break;
             case LOWER_OR_EQUAL:
                 sb.append(name + " =< " + sel.getUpperLimit());
                 break;
-            /* case LOWER_THAN:
-                sb.append(name + " < " + sel.getUpperLimit());
-                break; */
             case NONE_VALUE:
                 return "fail";
         }

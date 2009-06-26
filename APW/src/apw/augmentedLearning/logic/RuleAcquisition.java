@@ -23,7 +23,7 @@ import javax.swing.JOptionPane;
  * @author Nitric
  */
 public class RuleAcquisition {
-    private LoadingSamplesMain advisor;
+    private AugmentedLearning advisor;
     private HashSet<Integer> accessorsToBeRemoved = new HashSet<Integer>();
     private HashSet<Integer> accessors;
     private ArrayList<Complex> star = new ArrayList<Complex>();
@@ -50,7 +50,7 @@ public class RuleAcquisition {
     private int currentSampleWithNulls;
     private TreeMap<Integer, HashSet<Integer>> rulesCoveringStats = new TreeMap<Integer, HashSet<Integer>>();
 
-    public RuleAcquisition(LoadingSamplesMain advisor) {
+    public RuleAcquisition(AugmentedLearning advisor) {
         this.advisor = advisor;
         accessors = advisor.getTermsAccessors();
         dataFile = advisor.getDataFile();
@@ -81,8 +81,6 @@ public class RuleAcquisition {
         for (int i = 0; i < rawData.length; i++)
             if (!bannedSamples.contains(i))
                 validSamples.add(i);
-        System.out.println("Przed usuwaniem przykładów pokrytych przez reguły eksperta.");
-        System.out.println("Przykładów = " + accessors.size());
         for (Rule rule : advisor.getRules()) {
             removeCoveredSamples(rule);
         }
@@ -141,7 +139,6 @@ public class RuleAcquisition {
             count++;
         }
         accessorsToBeRemoved.clear();
-        System.out.println("Usuwanie przykładów pokrytych przez regułę w liczbie: " + count);
     }
 
     private Rule findRule_AQ() {
@@ -169,9 +166,6 @@ public class RuleAcquisition {
         }
         int negativeSeed;
         currentPositiveSeedCategory = (String) rawData[positiveSeed][classAttrId];
-
-        System.out.println("positiveSeed = " + positiveSeed);
-        System.out.println("Wylosowane ziarno pozytywne: " + currentPositiveSeedCategory);
         /* Since current $star is universal complex, we need to determine which samples belongs
          * to class other than $positiveSeed. */
         for (Integer i : validSamples) {
@@ -179,9 +173,6 @@ public class RuleAcquisition {
                 negativeSeeds.add(i);
         }
         while (negativeSeeds.size() > 0) {
-            System.out.println("Wyszukiwanie kompleksów.");
-            System.out.println("negativeSeeds.size() = " + negativeSeeds.size());
-            
             // Choose the negativeSeed
             tempAccessors = negativeSeeds.toArray(new Integer[] {});
             negativeSeed = tempAccessors[r.nextInt(tempAccessors.length)];
@@ -225,14 +216,6 @@ public class RuleAcquisition {
     }
 
     private ArrayList<Complex> partialStar(Integer positiveSeed, Integer negativeSeed) {
-        System.out.println("Pozytywne ziarno: ");
-        for (Object t : rawData[positiveSeed])
-            System.out.print("" + t + "  ");
-        System.out.println("");
-        System.out.println("Negatywne ziarno: ");
-        for (Object t : rawData[negativeSeed])
-            System.out.print("" + t + "  ");
-        System.out.println("");
         ArrayList<Complex> result = new ArrayList<Complex>();
         SelectorForNominal sfnom;
         SelectorForNumber[] sfnum;
@@ -276,7 +259,6 @@ public class RuleAcquisition {
                 }
             }
         }
-        System.out.println("Znalezionych kompleksów: " + result.size());
         if (result.isEmpty())
             System.out.println("O nie, mamy problem z danymi... :/");
         return result;

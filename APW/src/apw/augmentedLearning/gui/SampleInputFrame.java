@@ -18,14 +18,14 @@ import static javax.swing.GroupLayout.*;
 public class SampleInputFrame extends javax.swing.JFrame {
 
     private DataFile dataFile;
-    private LoadingSamplesMain advisor;
+    private AugmentedLearning advisor;
 
     /** Creates new form SampleInputFrame */
     public SampleInputFrame() {
         myInitComponents();
     }
     
-    public SampleInputFrame(LoadingSamplesMain advisor) {
+    public SampleInputFrame(AugmentedLearning advisor) {
         this.advisor = advisor;
         this.dataFile = advisor.getDataFile();
         myInitComponents();

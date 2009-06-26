@@ -74,6 +74,7 @@ public class Rule {
         try {
             prolog.setTheory(new Theory(translator.prologRepresentation()));
         } catch (InvalidTheoryException ex) {
+            System.out.println("" + translator.prologRepresentation());
             Logger.getLogger(Rule.class.getName()).log(Level.SEVERE, null, ex);
         }
         ifClauseQuery = name + RuleTranslator.ifClausePostfix;

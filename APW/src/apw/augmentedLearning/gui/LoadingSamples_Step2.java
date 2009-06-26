@@ -17,7 +17,7 @@ import apw.core.Sample;
 import apw.core.Samples;
 import apw.core.util.FastVector;
 import apw.augmentedLearning.logic.AttributeTypes;
-import apw.augmentedLearning.logic.LoadingSamplesMain;
+import apw.augmentedLearning.logic.AugmentedLearning;
 import apw.augmentedLearning.logic.DataFile;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -50,7 +50,7 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
 
     private DataFile dataFile;
     private ArrayList<String[]> records = null;
-    private LoadingSamplesMain advisor;
+    private AugmentedLearning advisor;
     private Vector<Integer> nominals = new Vector<Integer>();
     private ArrayList<AttributeTypes> attributesTypes = new ArrayList<AttributeTypes>();
     private ArrayList<Attribute> attributes = new ArrayList<Attribute>();
@@ -75,7 +75,7 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         "Atrybut klasy"
     };
 
-    public LoadingSamples_Step2(DataFile format, LoadingSamplesMain advisor) {
+    public LoadingSamples_Step2(DataFile format, AugmentedLearning advisor) {
         this.dataFile = format;
         this.advisor = advisor;
         initComponents();
@@ -83,6 +83,28 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         advisor.getStep1().dispose();
         postInitComponents();
         attributesCount = dataFile.getAttributesCount();
+    }
+
+    public LoadingSamples_Step2(AugmentedLearning advisor) {
+        this.advisor = advisor;
+        this.dataFile = advisor.getDataFile();
+        this.rawObjects = dataFile.getRawObjects();
+        attributesCount = dataFile.getAttributesCount();
+        proceed();
+    }
+
+    /**
+     * This method should be invoked only if the advisor's object is created using not data file, but the 'Samples'
+     * object. In that case, dataFile is created other way and not all procedures are necessery to be made.
+     */
+    private void proceed() {
+        // Convert to project's internal representation:
+        new Thread() {
+            @Override
+            public void run() {
+                checkForConflictingSamples();
+            }
+        }.start();
     }
 
     private void createAttributes() {
@@ -118,7 +140,7 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         }
     }
 
-    private void createSamples() {
+    private void createSamplesFromDataFile() {
         samples = new Samples(attributes);
         samples.setData(new FastVector());
         Sample sample = null;
@@ -162,12 +184,6 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         advisor.setSamples(samples);
         dataFile.setRawObjects(rawObjects);
         dataFile.setSamplesWithNull(samplesWithNull);
-        new Thread() {
-            @Override
-            public void run() {
-                checkForConflictingSamples();
-            }
-        }.start();
     }
 
     /**
@@ -377,14 +393,24 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
             if (type == AttributeTypes.NOMINAL)
                 nominals.add(i);
         }
-        collectRecords();
+        collectRawRecordsFromDataFile();
         collectNominalValues();
+
+        // Convert to project's internal representation:
+        createAttributes();
+        createSamplesFromDataFile();
         dataFile.setAttributesNames(attributesNames);
         dataFile.setClassAttributeIndex(classAttributeIndex);
         samples.setClassAttributeIndex(classAttributeIndex);
+        new Thread() {
+            @Override
+            public void run() {
+                checkForConflictingSamples();
+            }
+        }.start();
 }//GEN-LAST:event_jb_nextActionPerformed
 
-    private void collectRecords() {
+    private void collectRawRecordsFromDataFile() {
         int counter = 0;
         try {
             records = new ArrayList<String[]>();
@@ -434,9 +460,6 @@ public class LoadingSamples_Step2 extends javax.swing.JFrame {
         dataFile.setNominals(nominals);
         dataFile.setNominalValues(nominalValues);
         dataFile.setRecords(records);
-        // Convert to project's internal representation:
-        createAttributes();
-        createSamples();
     }
 
     private synchronized void checkForConflictingSamples() {

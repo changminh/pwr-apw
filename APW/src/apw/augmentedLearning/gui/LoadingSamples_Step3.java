@@ -13,20 +13,14 @@ package apw.augmentedLearning.gui;
 
 import alice.tuprolog.InvalidTheoryException;
 import alice.tuprolog.Prolog;
-import alice.tuprolog.SolveInfo;
-import alice.tuprolog.Struct;
-import alice.tuprolog.Term;
 import alice.tuprolog.Theory;
 import apw.core.Samples;
 import apw.augmentedLearning.logic.Complex;
-import apw.augmentedLearning.logic.LoadingSamplesMain;
+import apw.augmentedLearning.logic.AugmentedLearning;
 import apw.augmentedLearning.logic.DataFile;
 import apw.augmentedLearning.logic.Rule;
 import apw.augmentedLearning.logic.RuleTranslator;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import apw.augmentedLearning.logic.SelectorForNominal;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,15 +33,15 @@ import javax.swing.JOptionPane;
  */
 public class LoadingSamples_Step3 extends javax.swing.JFrame {
     private DataFile file;
-    private LoadingSamplesMain advisor;
+    private AugmentedLearning advisor;
     private Rule tempRule;
     private ComplexCreatorFrame complexCreator;
     private boolean ifClauseComplete = false;
-    private String rulesFileName = "rules.pl";
+    private Object[][] rawData;
     private ArrayList<Integer> missclassifiedSamples = new ArrayList<Integer>();
+    private int classAttIndex;
 
     public void addComplex(Complex c, boolean ifClauseComplete, boolean finished) {
-
         if (!this.ifClauseComplete)
             tempRule.addIfComplex(c);
         else
@@ -62,7 +56,7 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
         complexCreator.setVisible(true);
     }
 
-    public LoadingSamples_Step3(DataFile file, LoadingSamplesMain advisor) {
+    public LoadingSamples_Step3(DataFile file, AugmentedLearning advisor) {
         this.file = file;
         this.advisor = advisor;
         initComponents();
@@ -71,6 +65,8 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
             advisor.getStep2().dispose();
         }
         jta_rulePreview.setEditable(false);
+        rawData = file.getRawObjects();
+        classAttIndex = file.getClassAttributeIndex();
     }
 
     /** This method is called from within the constructor to
@@ -168,13 +164,6 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
         for (Rule r : advisor.getRules()) {
             sb.append(new RuleTranslator(r, samples).prologRepresentation());
         }
-        try {
-            FileWriter fw = new FileWriter(new File(rulesFileName));
-            fw.append(sb.toString());
-            fw.close();
-        } catch (IOException ex) {
-            Logger.getLogger(LoadingSamples_Step3.class.getName()).log(Level.SEVERE, null, ex);
-        }
         checkRules(advisor.getRules());
         advisor.step4();
 }//GEN-LAST:event_jb_nextActionPerformed
@@ -189,20 +178,14 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
         } catch (InvalidTheoryException ex) {
             Logger.getLogger(LoadingSamples_Step3.class.getName()).log(Level.SEVERE, null, ex);
         }
-        Struct query;
-        SolveInfo info;
+        String category = ((SelectorForNominal) rule.getThenClause().get(0).getSelector(classAttIndex)).getUniqueValue();
         int counter = 0;
-        ArrayList<Term[]> convertedTerms = advisor.getConvertedTerms();
-        Term[] terms;
+        Object[] sample = null;
         for (Integer i : advisor.getTermsAccessors()) {
-            terms = convertedTerms.get(i);
-            query = new Struct(rule.getName() + RuleTranslator.ifClausePostfix, terms);
-            info = prolog.solve(query);
-            if (info.isSuccess()) {
+            sample = rawData[i];
+            if (rule.covers(sample)) {
                 coveredSamples++;
-                query = new Struct(rule.getName() + RuleTranslator.thenClausePostfix, terms);
-                info = prolog.solve(query);
-                if (!info.isSuccess()) {
+                if (!sample[classAttIndex].equals(category)) {
                     missclassified++;
                     missclassifiedSamples.add(i);
                 }
@@ -222,36 +205,17 @@ public class LoadingSamples_Step3 extends javax.swing.JFrame {
     }
 
     private void checkRules(ArrayList<Rule> rules) {
-        ArrayList<Term[]> convertedSamples = advisor.getConvertedTerms();
         int[] ruleResults = new int[rules.size()];
-        Term[] terms;
-        Prolog prolog = new Prolog();
-        try {
-            prolog.setTheory(new Theory(new FileInputStream(rulesFileName)));
-        }
-        catch (InvalidTheoryException ex) {
-            Logger.getLogger(LoadingSamples_Step3.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        catch (Exception ex) {
-            Logger.getLogger(LoadingSamples_Step3.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        Struct compound;
-        for (int i = 0; i < convertedSamples.size(); i++) {
-            terms = convertedSamples.get(i);
+        Object[] sample;
+        for (int i = 0; i < rawData.length; i++) {
+            sample = rawData[i];
             for (int j = 0 ; j < rules.size(); j++) {
-                compound = new Struct(rules.get(j).getName(), terms);
-                System.out.print("krotka #" + (i + 1) + ": " + compound);
-                SolveInfo solveInfo = prolog.solve(compound);
-                if (solveInfo.isSuccess()) {
-                    System.out.println(" --> true");
+                if (rules.get(j).covers(sample))
                     ruleResults[j]++;
-                }
-                else
-                    System.out.println(" --> false");
             }
         }
         for (int i = 0; i < ruleResults.length; i++) {
-            System.out.println("Poprawność reguły " + rules.get(i).getName() +
+            System.out.println("Pokrycie reguły " + rules.get(i).getName() +
                     ": " + ruleResults[i] + " / " + advisor.getConvertedTerms().size());
         }
     }
