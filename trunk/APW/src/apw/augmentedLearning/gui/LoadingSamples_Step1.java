@@ -11,7 +11,7 @@
 
 package apw.augmentedLearning.gui;
 
-import apw.augmentedLearning.logic.LoadingSamplesMain;
+import apw.augmentedLearning.logic.AugmentedLearning;
 import apw.augmentedLearning.logic.DataFile;
 
 /**
@@ -20,9 +20,9 @@ import apw.augmentedLearning.logic.DataFile;
  */
 public class LoadingSamples_Step1 extends javax.swing.JFrame {
 
-    private LoadingSamplesMain advisor;
+    private AugmentedLearning advisor;
     
-    public LoadingSamples_Step1(LoadingSamplesMain advisor) {
+    public LoadingSamples_Step1(AugmentedLearning advisor) {
         this.advisor = advisor;
         initComponents();
         setLocationRelativeTo(null);
@@ -30,7 +30,7 @@ public class LoadingSamples_Step1 extends javax.swing.JFrame {
     }
 
     public void next(DataFile dataFile) {
-        advisor.step2(dataFile);
+        advisor.step2(dataFile, true);
     }
 
     /** This method is called from within the constructor to
