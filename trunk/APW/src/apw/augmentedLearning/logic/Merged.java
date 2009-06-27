@@ -1,5 +1,6 @@
 package apw.augmentedLearning.logic;
 
+import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
 import java.io.File;
 import java.io.IOException;
@@ -10,12 +11,14 @@ public class Merged {
     public static void main(String[] args) throws IOException, ParseException {
         AugmentedLearning inst;
         try {
-             inst = new AugmentedLearning(new ARFFLoader(new File("data/iris-with-nulls.arff")).getSamples());
+            Samples samples = new ARFFLoader(new File("data/wine.arff")).getSamples();
+            // samples.setClassAttributeIndex(0);
+            inst = new AugmentedLearning(samples);
         }
         catch(ExceptionInInitializerError ex) {
             System.out.println("Nie udało się utworzyć klasyfikatora!");
             ex.printStackTrace();
         }
-        System.out.println("WRESZCIE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        System.out.println("WRESZCIE!!!!!!!!!!!!!!!!!!!!!");
     }
 }

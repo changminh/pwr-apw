@@ -6,6 +6,7 @@ package apw.augmentedLearning.gui;
 
 import apw.augmentedLearning.logic.Complex;
 import apw.augmentedLearning.logic.DataFile;
+import apw.augmentedLearning.logic.Selector;
 import java.util.ArrayList;
 import java.util.Vector;
 import javax.swing.GroupLayout;
@@ -25,21 +26,25 @@ public class ComplexCreatorPanel extends javax.swing.JPanel {
     private SelectorCreatorPanel[] panels;
 
     public ComplexCreatorPanel() {
-        initPanels();
+        initPanels(true);
     }
 
-    public ComplexCreatorPanel(ComplexCreatorFrame parentFrame, DataFile dataFile) {
+    public ComplexCreatorPanel(ComplexCreatorFrame parentFrame, DataFile dataFile, boolean assumptionMode) {
         this.dataFile = dataFile;
         amount = dataFile.getAttributesCount();
-        initPanels();
+        initPanels(assumptionMode);
     }
 
     public Complex getComplex() {
         Complex complex = new Complex();
+        boolean foundNotUniversal = false;
+        Selector sel;
         for (SelectorCreatorPanel panel : panels) {
-            complex.addSelector(panel.getSelector());
+            complex.addSelector(sel = panel.getSelector());
+            if (!sel.isUniversal())
+                foundNotUniversal = true;
         }
-        return complex;
+        return foundNotUniversal ? complex : null;
     }
 
     public void setSample(int sample) {
@@ -53,17 +58,19 @@ public class ComplexCreatorPanel extends javax.swing.JPanel {
         panel.setEnabled(false);
     }
 
-    private void initPanels() {
+    private void initPanels(boolean assumptionMode) {
         GroupLayout layout = new GroupLayout(this);
         this.setLayout(layout);
         ParallelGroup pg1;
         SequentialGroup sg1, sg2;
         Vector<Integer> nominals = null;
         ArrayList<String> names = null;
+        int classAttIndex = -1;
 
         if (dataFile != null) {
             nominals = dataFile.getNominals();
             names = dataFile.getAttributesNames();
+            classAttIndex = dataFile.getClassAttributeIndex();
         }
 
         /***** Horizontal *****/
@@ -81,6 +88,8 @@ public class ComplexCreatorPanel extends javax.swing.JPanel {
                             parentFrame);
                 else
                     panels[i] = new SelectorForNumberCreatorPanel(i, names.get(i));
+                panels[i].setEnabled(i == classAttIndex ? !assumptionMode : assumptionMode);
+
             }
             else
                 panels[i] = new SelectorForNumberCreatorPanel(i, "Atr " + i);

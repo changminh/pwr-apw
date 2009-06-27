@@ -65,7 +65,7 @@
       <SubComponents>
         <Component class="apw.augmentedLearning.gui.ComplexCreatorPanel" name="complexCreatorPanel">
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new apw.augmentedLearning.gui.ComplexCreatorPanel(null, dataFile)"/>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new apw.augmentedLearning.gui.ComplexCreatorPanel(null, dataFile, true)"/>
           </AuxValues>
         </Component>
       </SubComponents>
