@@ -86,7 +86,7 @@ public class RuleAcquisition {
         }
         while (accessors.size() > 0) {
             progress.setProgress(accessors.size());
-            System.out.println("\nPrzebieg #" + ++count + ", pozostało przykładów: " + accessors.size());
+            System.out.println("Przebieg #" + ++count + ", pozostało przykładów: " + accessors.size());
             tempRule = findRule_AQ();
             if (tempRule != null) {
                 removeCoveredSamples(tempRule);
@@ -174,22 +174,32 @@ public class RuleAcquisition {
                 continue outer;
             }
         }
+//        System.out.println("Positive seed: ");
+//        for (Object o : rawData[positiveSeed])
+//            System.out.print(o + " ");
+//        System.out.println("");
         int negativeSeed;
-        currentPositiveSeedCategory = (String) rawData[positiveSeed][classAttrId];
+        currentPositiveSeedCategory = rawData[positiveSeed][classAttrId].toString();
         /* Since current $star is universal complex, we need to determine which samples belongs
          * to class other than $positiveSeed. */
         for (Integer i : validSamples) {
-            if (!((String) rawData[i][classAttrId]).equals(currentPositiveSeedCategory))
+            if (!((String) rawData[i][classAttrId].toString()).equals(currentPositiveSeedCategory))
                 negativeSeeds.add(i);
         }
         while (negativeSeeds.size() > 0) {
             // Choose the negativeSeed
             tempAccessors = negativeSeeds.toArray(new Integer[] {});
             negativeSeed = tempAccessors[r.nextInt(tempAccessors.length)];
+//            System.out.println("Negative seed: ");
+//            for (Object o : rawData[negativeSeed])
+//                System.out.print(o + " ");
+//            System.out.println("");
             // Create partial star
             partialStar = partialStar(positiveSeed, negativeSeed);
             // Intersect stars
+//            System.out.println("star = " + star.size() + ", partialStar = " + partialStar.size());
             star = intersectStars(star, partialStar);
+//            System.out.println("newStar = " + star.size());
             checkComplexes(star, negativeSeed);
             // Leave only the best complexes
             removeLessGeneralComplexes();
@@ -237,6 +247,7 @@ public class RuleAcquisition {
                 continue;
             temp = getUniversalComplex();
             if (temp.getSelector(i).isForNominalAttribute()) {
+//                System.out.println("Dla selektora nominalnego " + i);
                 /* Selector for nominal: we remove the value of the $negativeSeed from the selectors
                  * allowed values. If the values of attribute both for the positive and negative seeds
                  * are equal, we don't add any complex to the partial star. */
@@ -249,6 +260,7 @@ public class RuleAcquisition {
                      * values would be contained by it! */
                     sfnom.removeValue(negativeS);
                     temp.alterSelector(sfnom);
+//                    System.out.println("Dodajemy " + temp);
                     result.add(temp);
                 }
             }
@@ -333,7 +345,7 @@ public class RuleAcquisition {
         for (Integer i : accessorsToBeRemoved)
             negativeSeeds.remove(i);
         accessorsToBeRemoved.clear();
-        System.out.println("Po usunięciu niepokrytych: negativeSeeds.size() = " + negativeSeeds.size());
+        // System.out.println("Po usunięciu niepokrytych: negativeSeeds.size() = " + negativeSeeds.size());
     }
 
     private void removeWeakComplexes() {
@@ -350,7 +362,7 @@ public class RuleAcquisition {
         boolean theSameClass;
         for (int sampleID : accessors) {
             currentSample = dataFile.getRawObjects()[sampleID];
-            theSameClass = ((String)currentSample[classAttrId]).equals(currentPositiveSeedCategory);
+            theSameClass = ((String)currentSample[classAttrId].toString()).equals(currentPositiveSeedCategory);
             for (int complexId = 0; complexId < star.size(); complexId++) {
                 if (star.get(complexId).covers(currentSample)) {
                     if (theSameClass) {
@@ -402,7 +414,7 @@ public class RuleAcquisition {
         Object[] negativeSample = rawData[negativeSeed];
         for (Complex c : complexes) {
             if (c.covers(negativeSample)) {
-                System.err.println("Proszę tutaj spojrzeć!!!");
+                System.err.println("Proszę tutaj spojrzeć :P!!!");
                 System.exit(-1);
             }
         }
@@ -413,7 +425,7 @@ public class RuleAcquisition {
             return false;
         for (int i : validSamples) {
             if (c.covers(rawData[i])) {
-                if (!rawData[i][classAttrId].equals(currentPositiveSeedCategory)) {
+                if (!rawData[i][classAttrId].toString().equals(currentPositiveSeedCategory)) {
                     System.out.println("Ale gafa... :(");
                     return false;                                       // Rule covers at least one negative seed!
                 }

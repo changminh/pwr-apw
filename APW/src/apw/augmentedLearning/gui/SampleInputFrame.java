@@ -159,12 +159,13 @@ public class SampleInputFrame extends javax.swing.JFrame {
     private void jb_okActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_okActionPerformed
         int i = 0;
         Object result[] = new Object[dataFile.getAttributesCount()];
+        int panelId = 0;
         try {
             for (i = 0; i < dataFile.getAttributesCount(); i++)
                 if (i == dataFile.getClassAttributeIndex())
                     result[i] = null;
                 else
-                    result[i] = sampleInputPanel.getValue(i);
+                    result[i] = sampleInputPanel.getValue(panelId++);
         }
         catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Błędna wartość dla atrybutu nr " + (i + 1));

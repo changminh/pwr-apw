@@ -16,6 +16,7 @@ import javax.swing.JComponent;
 import apw.augmentedLearning.logic.DataFile;
 import apw.augmentedLearning.logic.RuleAcquisition;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -73,7 +74,9 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
     private void myInitComponents(boolean conclusionMode) {
         jsp_ccpScrollPane = new javax.swing.JScrollPane();
         complexCreatorPanel = dataFile != null ?
-            new apw.augmentedLearning.gui.ComplexCreatorPanel(this, dataFile) : new apw.augmentedLearning.gui.ComplexCreatorPanel();
+            new apw.augmentedLearning.gui.ComplexCreatorPanel(this, dataFile, !conclusionMode)
+            :
+            new apw.augmentedLearning.gui.ComplexCreatorPanel();
         jl_title = new javax.swing.JLabel();
         jb_ok = new javax.swing.JButton();
         jb_nextComplex = new javax.swing.JButton();
@@ -160,7 +163,7 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         jsp_ccpScrollPane = new javax.swing.JScrollPane();
-        complexCreatorPanel = new apw.augmentedLearning.gui.ComplexCreatorPanel(null, dataFile);
+        complexCreatorPanel = new apw.augmentedLearning.gui.ComplexCreatorPanel(null, dataFile, true);
         jl_title = new javax.swing.JLabel();
         jb_ok = new javax.swing.JButton();
         jb_nextComplex = new javax.swing.JButton();
@@ -234,20 +237,30 @@ public class ComplexCreatorFrame extends javax.swing.JFrame {
 
     private void jb_okActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_okActionPerformed
         // parent == null -> means that inserted rule is for particular sample with nulls
+        final Complex complex = getComplex();
+        if (complex == null) {
+            JOptionPane.showMessageDialog(null, "Reguła nie może zawierać kompleksu uniwersalnego!");
+            return;
+        }
         if (parent != null)
-            parent.addComplex(getComplex(), true, conclusionMode);
+            parent.addComplex(complex, true, conclusionMode);
         else {
             new Thread() {
                 @Override
                 public void run() {
-                    additionalRuleConfirmed(getComplex());
+                    additionalRuleConfirmed(complex);
                 }
             }.start();
         }
 }//GEN-LAST:event_jb_okActionPerformed
 
     private void jb_nextComplexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_nextComplexActionPerformed
-        parent.addComplex(getComplex(), conclusionMode, false);
+        final Complex complex = getComplex();
+        if (complex == null) {
+            JOptionPane.showMessageDialog(null, "Reguła nie może zawierać kompleksu uniwersalnego!");
+            return;
+        }
+        parent.addComplex(complex, conclusionMode, false);
     }//GEN-LAST:event_jb_nextComplexActionPerformed
 
     private void jb_cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_cancelActionPerformed

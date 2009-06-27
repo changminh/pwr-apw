@@ -119,7 +119,7 @@ public class Rule {
             for (int i = 0; i < c.size(); i++) {
                 s = c.getSelector(i);
                 if (!s.isUniversal())
-                    sb.append("<li>" + attsNames.get(i) + " " + s.textRepresetation() + "</li>\n");
+                    sb.append("<li><i>" + attsNames.get(i) + "</i> " + s.textRepresetation() + "</li>\n");
             }
         }
         sb.append(" </ul>\n");

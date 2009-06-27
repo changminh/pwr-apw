@@ -21,7 +21,7 @@ public class SelectorForNominal extends Selector {
         this.attributeId = attributeId;
         this.type = type;
         this.forNominalAttribute = true;
-        this.values = set;
+        this.values = new HashSet<String>(set);
     }
 
     public static SelectorForNominal getSelEmpty(int attributeId) {
@@ -104,6 +104,8 @@ public class SelectorForNominal extends Selector {
             values.remove(s);
             if (values.isEmpty())
                 type = SelectorTypeForNominal.EMPTY;
+            else
+                type = SelectorTypeForNominal.SET;
         }
         return result;
     }
