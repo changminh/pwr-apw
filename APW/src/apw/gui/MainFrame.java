@@ -195,7 +195,7 @@ public class MainFrame extends javax.swing.JFrame {
             if (samples == null)
                 warn("Samples not loaded.");
             if (samples != null & classifier != null) {
-                Evaluator e = new Evaluator(classifier, samples[1]);
+                Evaluator e = new Evaluator(classifier, samples[0]);
                 ResultPanel.showResultDialog(e, this,
                         classifier.getClass().getCanonicalName() + " classifying \"" + samples[0].getName() + "\"");
             }
