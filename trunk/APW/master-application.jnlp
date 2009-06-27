@@ -6,6 +6,10 @@
         <description>${APPLICATION.DESC}</description>
         <description kind="short">${APPLICATION.DESC.SHORT}</description>
 <!--${JNLP.ICONS}-->
+    <shortcut online="false">
+      <desktop/>
+      <menu submenu="PWr APW"/>
+    </shortcut>
 <!--${JNLP.OFFLINE.ALLOWED}-->
     </information>
 <!--${JNLP.SECURITY}-->
