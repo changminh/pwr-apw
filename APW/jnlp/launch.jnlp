@@ -18,7 +18,7 @@
 <all-permissions/>
 </security>
     <resources>
-<j2se java-vm-args="-Xmx128m" version="1.5+"/>
+<j2se java-vm-args="-Xmx256m" version="1.5+"/>
 <jar eager="true" href="APW.jar" main="true"/>
 
 

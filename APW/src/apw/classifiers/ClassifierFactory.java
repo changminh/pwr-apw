@@ -31,30 +31,152 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.core.util;
+package apw.classifiers;
 
+import apw.core.meta.ClassifierCapabilities;
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
-import java.util.jar.*;
-import java.net.*;
+import java.util.jar.JarFile;
 
 /**
- * This abstract class can be used to obtain a list of all classes in a classpath.
  *
- * <em>Caveat:</em> When used in environments which utilize multiple class loaders--such as
- * a J2EE Container like Tomcat--it is important to select the correct classloader
- * otherwise the classes returned, if any, will be incompatible with those declared
- * in the code employing this class lister.
- * to get a reference to your classloader within an instance method use:
- *  <code>this.getClass().getClassLoader()</code> or
- *  <code>Thread.currentThread().getContextClassLoader()</code> anywhere else
- * <p>
- * @author Kris Dover <krisdover@hotmail.com>
- * @version 0.2.0
- * @since   0.1.0
+ * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public abstract class ClassList {
+public class ClassifierFactory {
 
+    public static final Set<Class> registeredClassifiers = new HashSet();
+
+    /**
+     * Filter out registered classifiers according to parameters.
+     *
+     * @param numAtt
+     * @param nomAtt
+     * @param numClz
+     * @param nomClz
+     * @param includeUndefined
+     * @return
+     */
+    public static Set<Class> getFeasibleClassifierSet(
+            boolean numAtt,
+            boolean nomAtt,
+            boolean numClz,
+            boolean nomClz,
+            boolean includeUndefined) {
+        Set<Class> set = new HashSet();
+        for (Class c : registeredClassifiers) {
+            boolean passed = false;
+            if (c.getAnnotation(ClassifierCapabilities.class) != null) {
+                ClassifierCapabilities caps = (ClassifierCapabilities) c.getAnnotation(ClassifierCapabilities.class);
+                if (caps == null)
+                    continue;
+                passed = true;
+
+                if (numAtt)
+                    passed &= caps.handlesNumericAtts();
+                if (nomAtt)
+                    passed &= caps.handlesNominalAtts();
+                if (nomClz)
+                    passed &= caps.multiClass();
+                if (numClz)
+                    passed &= caps.regression();
+
+            } else if (includeUndefined)
+                passed = true;
+            if (passed)
+                set.add(c);
+        }
+        return set;
+    }
+
+    /**
+     * Initiates <code>registeredClassifiers</code> set using selected
+     * class loader.
+     */
+    public static final void initializeClassifierList(ClassLoader classLoader) {
+//        try {
+//            registeredClassifiers.addAll(discoverClassifiers(classLoader));
+//        } catch (ClassNotFoundException ex) {
+//            System.out.println("Enumerating jarfiles not possible");
+//        }
+        registeredClassifiers.addAll(loadClassifiers(classLoader));
+    }
+
+    /**
+     * <p>Loads plugin classifiers as listed in
+     * <code>META-INF/classifier-plugin.properties</code>
+     * file. Returns a set of loaded classes. </p>
+     *
+     * <p>A code safe to run under Java WebStart facility.</p>
+     * @param classLoader
+     * @return set of loaded classifiers
+     */
+    public static Set<Class> loadClassifiers(ClassLoader classLoader) {
+        Set<Class> classifiers = new HashSet();
+        try {
+            Enumeration urls = classLoader.getResources("META-INF/classifier-plugin.properties");
+            while (urls.hasMoreElements()) {
+                URL pluginUrl = (URL) urls.nextElement();
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(pluginUrl.openStream()));
+                while (true) {
+                    String line = reader.readLine();
+                    if (line == null)
+                        break;
+                    String[] parts = line.split("=");
+                    if (parts.length != 2)
+                        continue;
+                    String key = parts[0];
+                    String value = parts[1];
+                    if ("Classifier".compareTo(key) == 0)
+                        try {
+                            Class pluginClass = classLoader.loadClass(value);
+                            if (pluginClass == null)
+                                continue;
+                            if (Classifier.class.isAssignableFrom(pluginClass))
+                                // ClassifierFactory.registeredClassifiers.add(pluginClass);
+                                classifiers.add(pluginClass);
+                        } catch (NoClassDefFoundError ncdfe) {
+                            // trying to initialize a plugin with a missing
+                            // class
+                        }
+                }
+            }
+        } catch (Exception exc) {
+            exc.printStackTrace();
+        }
+        return classifiers;
+    }
+
+    /**
+     * Use this method to enumurate contents of jarfiles on classpath while
+     * seeking for classifiers. Only safe to run from commandline and Java
+     * WebStart facility with local codebase.
+     *
+     * @param classLoader
+     */
+    public static Set<Class> discoverClassifiers(ClassLoader classLoader)
+            throws ClassNotFoundException {
+        Map<String, Set<Class>> m = findClasses(
+                classLoader,
+                null,
+                toSet("apw.classifiers.Classifier"),
+                toSet("apw.classifiers"),
+                null);
+        Set<Class> set = flatout(m);
+        return set;
+    }
+
+    /**
+     * Just a convinience method.
+     * @param s
+     * @return
+     */
+    private static HashSet<String> toSet(String s) {
+        return new HashSet<String>(Arrays.asList(s.split(",")));
+    }
 
     /**
      * Searches the classpath for all classes matching a specified search criteria,
@@ -161,7 +283,8 @@ public abstract class ClassList {
                                 superClassQualify = true;
                             superClass = superClass.getSuperclass();
                         }
-                        if(!superClassQualify) continue;
+                        if (!superClassQualify)
+                            continue;
                     }
                     // for each interface in this class, add both class and interface into the map
                     String interfaceName = null;
@@ -200,6 +323,7 @@ public abstract class ClassList {
 
         return classTable;
     } // end method
+
     private static boolean qualifies(Set<String> packageFilter, String className) {
         for (String filter : packageFilter)
             if (className.startsWith(filter))
@@ -239,9 +363,8 @@ public abstract class ClassList {
 
     public static final Set<Class> flatout(Map<String, Set<Class>> map) {
         HashSet<Class> set = new HashSet();
-        for(String s : map.keySet()) {
+        for (String s : map.keySet())
             set.addAll(map.get(s));
-        }
         return set;
     }
 }
