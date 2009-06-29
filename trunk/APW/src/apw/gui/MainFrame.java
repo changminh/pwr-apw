@@ -527,6 +527,7 @@ public class MainFrame extends javax.swing.JFrame {
                         System.out.println("\nConstructed " + classifier.getClass().getSimpleName() + ".");
                         updateClassifier();
                     } catch (Exception ex) {
+                        ex.printStackTrace();
                         warn("Error while instantiating classifier:\n" + ex.getCause());
                     }
                 }

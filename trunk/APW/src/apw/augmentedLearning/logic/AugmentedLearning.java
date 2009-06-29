@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package apw.augmentedLearning.logic;
 
 import alice.tuprolog.Term;
@@ -56,8 +55,7 @@ public class AugmentedLearning extends RuleClassifier {
         step2(dataFile, false);
         try {
             waitForComplete();
-        }
-        catch(InterruptedException ex) {
+        } catch (InterruptedException ex) {
             throw new ExceptionInInitializerError();
         }
     }
@@ -138,10 +136,8 @@ public class AugmentedLearning extends RuleClassifier {
         if (autonomic) {
             step2 = new LoadingSamples_Step2(dataFile, inst);
             step2.setVisible(true);
-        }
-        else {
+        } else
             step2 = new LoadingSamples_Step2(this);
-        }
     }
 
     public void step3() {
@@ -169,22 +165,23 @@ public class AugmentedLearning extends RuleClassifier {
         Rule winner = null;
         int support = 0;
         LinkedList<Rule> miss = new LinkedList<Rule>();
-        for (Rule r : rules) {
-            if (r.covers(sample)) {
+        for (Rule r : rules)
+            if (r.covers(sample))
                 if (type == null) {
                     winner = r;
-                    type = ((SelectorForNominal)r.getThenClause().get(0).getSelector(dataFile.getClassAttributeIndex()))
-                            .getUniqueValue();
-                }
-                else {
-                    if (!(((SelectorForNominal)r.getThenClause().get(0).getSelector(dataFile.getClassAttributeIndex()))
-                            .getUniqueValue().equals(type)))
+                    type = ((SelectorForNominal) r.getThenClause().
+                            get(0).
+                            getSelector(dataFile.getClassAttributeIndex())).
+                            getUniqueValue();
+                } else
+                    if (!(((SelectorForNominal) r.getThenClause().
+                            get(0).
+                            getSelector(dataFile.getClassAttributeIndex())).
+                            getUniqueValue().
+                            equals(type)))
                         miss.add(r);
                     else
                         support++;
-                }
-            }
-        }
         if (winner == null) {
             JOptionPane.showMessageDialog(null, "Brak reguł pokrywających przykład!");
             return null;
@@ -198,9 +195,8 @@ public class AugmentedLearning extends RuleClassifier {
                 sb.append("Innych reguł pokrywających: <b>" + support + "</b><br>");
             if (miss.size() > 0) {
                 sb.append("Reguły sprzeczne: <b>");
-                for (int i = 0; i < miss.size() - 1; i++) {
+                for (int i = 0; i < miss.size() - 1; i++)
                     sb.append("" + miss.get(i).name + ", ");
-                }
                 sb.append("" + miss.get(miss.size() - 1).name);
             }
             sb.append("</b></body></html>");
@@ -212,26 +208,26 @@ public class AugmentedLearning extends RuleClassifier {
     @Override
     public String[] getRules() {
         String[] result = new String[rules.size()];
-        for (int i = 0; i < rules.size(); i++) {
-            result[i] = rules.get(i).translateToText();
-        }
+        for (int i = 0; i < rules.size(); i++)
+            result[i] = rules.get(i).
+                    translateToText();
         return result;
     }
 
     private Object[] sampleToArray(Sample s) {
         Object[] result = new Object[attAmount];
-        for (int i = 0; i < attAmount; i++) {
+        for (int i = 0; i < attAmount; i++)
             if (i != classAttIndex)
                 result[i] = s.get(i);
             else
                 result[i] = null;
-        }
         return result;
     }
 
     private synchronized void waitForComplete() throws InterruptedException {
-        while (hasToWait == true)
+        while (hasToWait == true) {
             wait();
+        }
     }
 
     public synchronized void classifierIsReady() {
@@ -240,35 +236,34 @@ public class AugmentedLearning extends RuleClassifier {
     }
 
     @Override
-	public double[] classifySample(Sample s) {
-		Object sampleClass = classify(sampleToArray(s));
-		Attribute att = s.getSamples().getClassAttribute();
-		if (att instanceof Nominal) {
-			Nominal nominal = (Nominal) att;
-			double[] result = new double[nominal.getSortedIKeys().length];
-			result[Arrays.binarySearch(nominal.getSortedIKeys(),sampleClass)] = 1.0;
-			return result;
-		}
-		throw new IllegalArgumentException("Sample class must be Nominal");
-	}
+    public double[] classifySample(Sample s) {
+        Object sampleClass = classify(sampleToArray(s));
+        Attribute att = s.getSamples().
+                getClassAttribute();
+        if (att instanceof Nominal) {
+            Nominal nominal = (Nominal) att;
+            double[] result = new double[nominal.getSortedIKeys().length];
+            result[Arrays.binarySearch(nominal.getSortedIKeys(), sampleClass)] = 1.0;
+            return result;
+        }
+        throw new IllegalArgumentException("Sample class must be Nominal");
+    }
 
     @Override
     public void addSamples(Samples s) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Operation not supported");
+
     }
 
     @Override
     public void addSample(Sample s) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Operation not supported");
     }
 
     @Override
     public void rebuild() {
-        throw new UnsupportedOperationException("Operation not supported");
     }
 
     @Override
     public Classifier copy() {
-        throw new UnsupportedOperationException("Operation not supported");
+        throw new UnsupportedOperationException();
     }
 }
