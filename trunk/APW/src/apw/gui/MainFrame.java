@@ -40,12 +40,13 @@
 package apw.gui;
 
 import apw.classifiers.Classifier;
+import apw.classifiers.ClassifierFactory;
 import apw.classifiers.ClassifierTest;
 import apw.core.Evaluator;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
+import apw.core.loader.SamplesFactory;
 import apw.core.meta.ClassifierCapabilities;
-import apw.core.util.ClassList;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FileDialog;
@@ -56,10 +57,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,9 +81,6 @@ import javax.swing.UIManager;
  */
 public class MainFrame extends javax.swing.JFrame {
 
-    private static HashSet<String> toSet(String s) {
-        return new HashSet<String>(Arrays.asList(s.split(",")));
-    }
     private JRadioButton last;
 
     /** Creates new form MainFrame */
@@ -109,11 +105,69 @@ public class MainFrame extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
+        jDialog1 = new javax.swing.JDialog();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList();
+        jButton3 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         evalBtn = new javax.swing.JButton();
         jComboBox1 = new javax.swing.JComboBox();
         jButton2 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+
+        jDialog1.setTitle("Select samples");
+        jDialog1.setAlwaysOnTop(true);
+        jDialog1.setMinimumSize(new java.awt.Dimension(165, 253));
+        jDialog1.setResizable(false);
+        jDialog1.setUndecorated(true);
+        jDialog1.addWindowFocusListener(new java.awt.event.WindowFocusListener() {
+            public void windowGainedFocus(java.awt.event.WindowEvent evt) {
+            }
+            public void windowLostFocus(java.awt.event.WindowEvent evt) {
+                jDialog1WindowLostFocus(evt);
+            }
+        });
+        jDialog1.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                dialogFocusLost(evt);
+            }
+        });
+        jDialog1.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                jDialog1FocusLost(evt);
+            }
+        });
+
+        jList1.setModel(new DefaultComboBoxModel(SamplesFactory.availableSamples.toArray()));
+
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${selectedSampleName}"), jList1, org.jdesktop.beansbinding.BeanProperty.create("selectedElement"));
+        bindingGroup.addBinding(binding);
+
+        jScrollPane1.setViewportView(jList1);
+
+        jButton3.setText("select");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
+        jDialog1.getContentPane().setLayout(jDialog1Layout);
+        jDialog1Layout.setHorizontalGroup(
+            jDialog1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE)
+        );
+        jDialog1Layout.setVerticalGroup(
+            jDialog1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jDialog1Layout.createSequentialGroup()
+                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE))
+        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -141,13 +195,22 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        jButton4.setText("select...");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jButton4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 227, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -165,8 +228,12 @@ public class MainFrame extends javax.swing.JFrame {
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton2)
                     .addComponent(evalBtn))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton4)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        bindingGroup.bind();
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -208,39 +275,66 @@ public class MainFrame extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         constructClassifier();
     }//GEN-LAST:event_jButton2ActionPerformed
+    String selectedSampleName;
+
+    public String getSelectedSampleName() {
+        return selectedSampleName;
+    }
+
+    public void setSelectedSampleName(String selectedSampleName) {
+        this.selectedSampleName = selectedSampleName;
+    }
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        Samples selSamps = SamplesFactory.get(selectedSampleName);
+        samples = ClassifierTest.divide(selSamps, 0.7);
+        updateSample();
+        jDialog1.setVisible(false);
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        jDialog1.setLocation(jButton4.getLocationOnScreen());
+        jDialog1.setVisible(true);
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void dialogFocusLost(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_dialogFocusLost
+        jDialog1.setVisible(false);
+    }//GEN-LAST:event_dialogFocusLost
+
+    private void jDialog1FocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jDialog1FocusLost
+        System.out.println("FocusLost");
+        jDialog1.setVisible(false);
+    }//GEN-LAST:event_jDialog1FocusLost
+
+    private void jDialog1WindowLostFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_jDialog1WindowLostFocus
+        System.out.println("WindowFocusLost");
+        jDialog1.setVisible(false);
+    }//GEN-LAST:event_jDialog1WindowLostFocus
     Samples[] samples;
     int neighbours = 4;
     Classifier classifier = null;
-
-    private final Set<Class> DiscoverClassifiers() throws ClassNotFoundException {
-        Map<String, Set<Class>> m = ClassList.findClasses(
-                this.getClass().getClassLoader(),
-                null,
-                toSet("apw.classifiers.Classifier"),
-                toSet("apw.classifiers"),
-                null);
-        Set<Class> set = ClassList.flatout(m);
-        return set;
-    }
     private Map<Class, String> cl2str = new HashMap<Class, String>();
     private Map<String, Class> str2cl = new HashMap<String, Class>();
     private Set<Class> classifiers;
 
     private void initClassifiersRepr() {
         try {
-            classifiers = DiscoverClassifiers();
+            ClassifierFactory.initializeClassifierList(
+                    this.getClass().getClassLoader());
+            classifiers = ClassifierFactory.registeredClassifiers;
             String name;
             for (Class c : classifiers) {
                 name = c.getName();
                 name = name.substring(name.lastIndexOf(".") + 1, name.length());
                 if (c.getAnnotation(ClassifierCapabilities.class) != null) {
                     ClassifierCapabilities caps = (ClassifierCapabilities) c.getAnnotation(ClassifierCapabilities.class);
-                    System.out.println("caps: " + caps);
+                    System.out.println(name + "; caps: " + caps);
                 }
+                //System.out.println(c.getName());
                 cl2str.put(c, name);
                 str2cl.put(name, c);
             }
-        } catch (ClassNotFoundException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             warn(this, "Error while discovering classifiers:\n" + ex.getMessage());
         }
@@ -288,7 +382,13 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton evalBtn;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JDialog jDialog1;
+    private javax.swing.JList jList1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
     private static void warn(Component c, String string) {
