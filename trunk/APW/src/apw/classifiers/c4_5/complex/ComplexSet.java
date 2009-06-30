@@ -28,7 +28,7 @@ public class ComplexSet extends RuleClassifier {
 		C4_5 c45 = new C4_5(s);
 		this.complexes = c45.generateComplexList();
 		trim(s);
-		System.out.println("REMOVED RULES:"+removeCoveredRules(s)+"/"+complexes.size());
+		System.out.println("REMOVED RULES:"+removeCoveredRules(s)+" RULES LEFT:"+complexes.size());
 	}
 
 	

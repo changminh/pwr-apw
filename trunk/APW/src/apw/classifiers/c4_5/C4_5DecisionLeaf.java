@@ -64,7 +64,7 @@ public class C4_5DecisionLeaf extends C4_5DecisionNode {
 	public LinkedList<String> getRules() 
 	{
 		LinkedList<String> result = new LinkedList<String>();
-		result.add("then "+ nodeClass+"("+source.size()+")("+(total==0?-100:(100*correct/total))+"%)");
+		result.add("then "+ nodeClass+"(COV="+source.size()+" sample(s))(ACC="+(total==0?"?":(100*correct/total))+"%)");
 		return result;
 	}
 
