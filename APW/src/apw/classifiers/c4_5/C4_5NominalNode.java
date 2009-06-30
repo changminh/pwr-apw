@@ -102,7 +102,7 @@ public class C4_5NominalNode extends C4_5DecisionNode {
 		if(childNodes.length==1)return childNodes[0].getRules();
 		LinkedList<String> result = new LinkedList<String>();
 		for (int i = 0; i < childNodes.length; i++) {
-			String prefix =  "& "+ruleAttribute.getName()+"=="+ruleAttribute.getSortedIKeys()[i]+"("+childNodes[i].source.size()+")("+(childNodes[i].total==0?-100:(100*childNodes[i].correct/childNodes[i].total))+"%)";
+			String prefix =  "& "+ruleAttribute.getName()+"=="+ruleAttribute.getSortedIKeys()[i]+"(COV="+childNodes[i].source.size()+" sample(s))(ACC="+(childNodes[i].total==0?"?":(100*childNodes[i].correct/childNodes[i].total))+"%)";
 			List<String> li = childNodes[i].getRules();
 			for (String string : li) {
 				result.add(prefix+" "+string);

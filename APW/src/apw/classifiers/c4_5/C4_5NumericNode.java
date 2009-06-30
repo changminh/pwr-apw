@@ -115,12 +115,12 @@ public class C4_5NumericNode extends C4_5DecisionNode {
 	{
 		LinkedList<String> result = new LinkedList<String>();
 
-		String prefix1 =  "& "+ruleAttribute.getName()+"< "+divider+"("+childNode1.source.size()+")("+(childNode1.total==0?-100:(100*childNode1.correct/childNode1.total))+"%)";
+		String prefix1 =  "& "+ruleAttribute.getName()+"< "+divider+"(COV="+childNode1.source.size()+" sample(s))(ACC="+(childNode1.total==0?"?":(100*childNode1.correct/childNode1.total))+"%)";
 			List<String> li1 = childNode1.getRules();
 			for (String string : li1) {
 				result.add(prefix1+" "+string);
 			}
-		String prefix2 =  "& "+ruleAttribute.getName()+">="+divider+"("+childNode2.source.size()+")("+(childNode2.total==0?-100:(100*childNode2.correct/childNode2.total))+"%)";
+		String prefix2 =  "& "+ruleAttribute.getName()+">="+divider+"(COV"+childNode2.source.size()+" sample(s))(ACC="+(childNode2.total==0?"?":(100*childNode2.correct/childNode2.total))+"%)";
 			List<String> li2 = childNode2.getRules();
 			for (String string : li2) {
 				result.add(prefix2+" "+string);
