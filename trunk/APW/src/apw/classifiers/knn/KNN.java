@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import apw.classifiers.Classifier;
+import apw.classifiers.*;
 import apw.core.Attribute;
 import apw.core.Nominal;
 import apw.core.Numeric;
@@ -14,7 +14,7 @@ import apw.core.Samples;
 import apw.core.meta.ClassifierCapabilities;
 
 @ClassifierCapabilities(multiClass = true, handlesNumericAtts = true, handlesNominalAtts = true)
-public class KNN extends Classifier {
+public class KNN extends Classifier implements Configurable {
 
     private static final double DOUBLE_PRECISION = 0.00000000001;
     private boolean numeric = false;
@@ -248,5 +248,17 @@ public class KNN extends Classifier {
     public Classifier copy() {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    public Class getParameterClass() {
+        return KNNProperties.class;
+    }
+
+    public void configure(Object ParameterClassInstance) {
+        if (ParameterClassInstance instanceof KNNProperties) {
+            KNNProperties props = (KNNProperties) ParameterClassInstance;
+            System.out.println("OK, Properties loaded :)");
+        }
+
     }
 }
