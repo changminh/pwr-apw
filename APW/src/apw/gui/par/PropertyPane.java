@@ -38,17 +38,19 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
+import javax.swing.SpinnerNumberModel;
 
 /**
  *
@@ -111,22 +113,21 @@ public class PropertyPane extends JDialog {
         System.out.println("cancel clicked");
     }
 
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            java.awt.EventQueue.invokeLater(new Runnable() {
-
-                public void run() {
-                    PropertyPane pp = new PropertyPane();
-                    pp.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-                    pp.setVisible(true);
-                }
-            });
-        } catch (Exception ex) {
-            Logger.getLogger(PropertyPane.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
+//    public static void main(String[] args) {
+//        try {
+//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//            java.awt.EventQueue.invokeLater(new Runnable() {
+//
+//                public void run() {
+//                    PropertyPane pp = new PropertyPane();
+//                    pp.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+//                    pp.setVisible(true);
+//                }
+//            });
+//        } catch (Exception ex) {
+//            Logger.getLogger(PropertyPane.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//    }
     private void buildCenterView() {
         // TODO: replace with real implementation
         createMockupProperties();
@@ -151,7 +152,61 @@ public class PropertyPane extends JDialog {
             constr.gridy = i;
             constr.anchor = GridBagConstraints.CENTER;
             mainPanel.add(field, constr);
-
         }
+    }
+
+    public static void main(String args[]) {
+        for (int i = 0; i < o.length; i++) {
+            Object object = o[i];
+            System.out.println(object.getClass().getName() + ": " +
+                    mapTypeToGUIComponent(object).getClass().getName());
+        }
+    }
+    static Object[] o = new Object[]{
+        "test",
+        1.0d,
+        123L
+    };
+
+
+    /********* Dynamic type to component mapping section ahead ************/
+
+    private interface TypeToGUIHandler {
+        // TODO: the JComponent could be replaced by custom class
+        // handling validation and etc
+
+        public JComponent getComponentForType();
+    }
+    private static Map<Class, TypeToGUIHandler> typeMap = new HashMap();
+
+    static {
+        typeMap.put(Double.class, new TypeToGUIHandler() {
+
+            public JComponent getComponentForType() {
+                return new JSpinner();
+            }
+        });
+
+        typeMap.put(Integer.class, new TypeToGUIHandler() {
+
+            public JComponent getComponentForType() {
+                return new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
+            }
+        });
+        
+        typeMap.put(String.class, new TypeToGUIHandler() {
+
+            public JComponent getComponentForType() {
+                return new JTextField("Text Field");
+            }
+        });
+    }
+
+    private static JComponent mapTypeToGUIComponent(Object o) {
+        // TODO: Change fallback value for something relevant
+        JComponent comp = new JLabel("Default Type label");
+        if (typeMap.containsKey(o.getClass()))
+            comp = typeMap.get(o.getClass()).getComponentForType();
+        return comp;
     }
 }
