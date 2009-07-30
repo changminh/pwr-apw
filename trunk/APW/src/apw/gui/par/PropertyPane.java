@@ -40,6 +40,8 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -50,7 +52,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.UIManager;
 
 /**
  *
@@ -63,8 +67,13 @@ public class PropertyPane extends JDialog {
     JScrollPane scrollPane;
     JPanel bottomPanel;
     JPanel mainPanel;
+    JPanel messagePanel;
+    JPanel enclosingPanel;
     JButton okButton;
+
     JButton cancelButton;
+    JToggleButton showMessagesPaneButton;
+
 
     public PropertyPane() {
         initialize();
@@ -88,14 +97,28 @@ public class PropertyPane extends JDialog {
             }
         });
 
+        showMessagesPaneButton = new JToggleButton(new AbstractAction("Show Messages") {
+
+            public void actionPerformed(ActionEvent e) {
+                messagePanel.setVisible(showMessagesPaneButton.isSelected());
+            }
+        });
+        showMessagesPaneButton.setSelected(false);
+
         bottomPanel = new JPanel(new FlowLayout());
         bottomPanel.add(okButton);
         bottomPanel.add(cancelButton);
-        getContentPane().add(bottomPanel, BorderLayout.SOUTH);
+        bottomPanel.add(showMessagesPaneButton);
+        getContentPane().
+                add(bottomPanel, BorderLayout.SOUTH);
 
+        messagePanel = new JPanel(new BorderLayout());
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
-        getContentPane().add(new JScrollPane(mainPanel), BorderLayout.CENTER);
+
+        // getContetPane().
+        messagePanel.
+                add(new JScrollPane(mainPanel), BorderLayout.CENTER);
 
         buildCenterView();
         pack();
@@ -113,21 +136,21 @@ public class PropertyPane extends JDialog {
         System.out.println("cancel clicked");
     }
 
-//    public static void main(String[] args) {
-//        try {
-//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//            java.awt.EventQueue.invokeLater(new Runnable() {
-//
-//                public void run() {
-//                    PropertyPane pp = new PropertyPane();
-//                    pp.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-//                    pp.setVisible(true);
-//                }
-//            });
-//        } catch (Exception ex) {
-//            Logger.getLogger(PropertyPane.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//    }
+    public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            java.awt.EventQueue.invokeLater(new Runnable() {
+
+                public void run() {
+                    PropertyPane pp = new PropertyPane();
+                    pp.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+                    pp.setVisible(true);
+                }
+            });
+        } catch (Exception ex) {
+            Logger.getLogger(PropertyPane.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     private void buildCenterView() {
         // TODO: replace with real implementation
         createMockupProperties();
@@ -155,22 +178,23 @@ public class PropertyPane extends JDialog {
         }
     }
 
-    public static void main(String args[]) {
-        for (int i = 0; i < o.length; i++) {
-            Object object = o[i];
-            System.out.println(object.getClass().getName() + ": " +
-                    mapTypeToGUIComponent(object).getClass().getName());
-        }
-    }
+//    public static void main(String args[]) {
+//        for (int i = 0; i < o.length; i++) {
+//            Object object = o[i];
+//            System.out.println(object.getClass().
+//                    getName() + ": " +
+//                    mapTypeToGUIComponent(object).
+//                    getClass().
+//                    getName());
+//        }
+//    }
     static Object[] o = new Object[]{
         "test",
         1.0d,
         123L
     };
 
-
     /********* Dynamic type to component mapping section ahead ************/
-
     private interface TypeToGUIHandler {
         // TODO: the JComponent could be replaced by custom class
         // handling validation and etc
@@ -193,7 +217,7 @@ public class PropertyPane extends JDialog {
                 return new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
             }
         });
-        
+
         typeMap.put(String.class, new TypeToGUIHandler() {
 
             public JComponent getComponentForType() {
@@ -206,7 +230,8 @@ public class PropertyPane extends JDialog {
         // TODO: Change fallback value for something relevant
         JComponent comp = new JLabel("Default Type label");
         if (typeMap.containsKey(o.getClass()))
-            comp = typeMap.get(o.getClass()).getComponentForType();
+            comp = typeMap.get(o.getClass()).
+                    getComponentForType();
         return comp;
     }
 }

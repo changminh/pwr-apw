@@ -42,7 +42,16 @@ import apw.classifiers.Classifier;
 public class Evaluator {
 
     private int N;
+    private Classifier classifier;
+    private Samples samples;
 
+    public Classifier getClassifier() {
+        return classifier;
+    }
+
+    public Samples getSamples() {
+        return samples;
+    }
 
     // Experimental
     public class Measure {
@@ -82,7 +91,7 @@ public class Evaluator {
     }
 
     public Evaluator(Classifier c, Samples ss) {
-        this(getConfusionMatrix(c, ss), getNames(ss));
+        this(getConfusionMatrix(c, ss), getNames(ss), c, ss);
     }
 
     private static String[] getNames(Samples ss) {
@@ -103,13 +112,16 @@ public class Evaluator {
         if (!(ss.getClassAttribute() instanceof Nominal))
             throw new IllegalArgumentException(
                     "Evaluator can only be used with nominal class values");
-        int n = ((Nominal) ss.getClassAttribute()).getKeys().size();
+        int n = ((Nominal) ss.getClassAttribute()).getKeys().
+                size();
         int[][] cm = new int[n][n];
 
         // fill cm
         for (Sample s : ss) {
-            int i = indexOf(((Nominal) ss.getClassAttribute()).getSortedIKeys(), s.classAttributeInt());
-            int j = indexOf(((Nominal) ss.getClassAttribute()).getSortedIKeys(), c.classifySampleAsObject(s));
+            int i = indexOf(((Nominal) ss.getClassAttribute()).getSortedIKeys(), s.
+                    classAttributeInt());
+            int j = indexOf(((Nominal) ss.getClassAttribute()).getSortedIKeys(), c.
+                    classifySampleAsObject(s));
 //            	argmax(c.classifySample(s));
 
             /** wiersz i-ty,       kolumna j-ta */
@@ -134,6 +146,16 @@ public class Evaluator {
 
     public Evaluator(int[][] confusionMatrix,
             String[] classNames) {
+        this(confusionMatrix, classNames, null, null);
+    }
+
+    private Evaluator(int[][] confusionMatrix,
+            String[] classNames,
+            Classifier c,
+            Samples s) {
+        this.samples = s;
+        this.classifier = c;
+
         // Assertions
         if (confusionMatrix == null || classNames == null)
             throw new NullPointerException();
