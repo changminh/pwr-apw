@@ -3,15 +3,10 @@ package apw.classifiers;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.Random;
 
 import apw.classifiers.c4_5.C4_5;
-import apw.classifiers.c4_5.complex.Complex;
 import apw.classifiers.c4_5.complex.ComplexSet;
-import apw.classifiers.id3.ID3;
 import apw.classifiers.knn.KNN;
 import apw.core.Sample;
 import apw.core.Samples;

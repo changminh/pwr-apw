@@ -40,6 +40,7 @@
 package apw.gui;
 
 import apw.classifiers.ClassifierTest;
+import apw.classifiers.RuleClassifier;
 import apw.classifiers.knn.KNN;
 import apw.core.Evaluator;
 import apw.core.Evaluator.Measures;
@@ -235,8 +236,10 @@ public class ResultPanel extends javax.swing.JPanel {
     public ResultPanel(Evaluator evaluator) {
         this.evaluator = evaluator;
         initComponents();
+        rulesPanel.setVisible(false);
         updateLabels();
         updateVerticalHeader(jTable1);
+        updateRulesTab();
         packAllColumns(jTable1);
         packAllColumns(jTable2);
     }
@@ -258,7 +261,8 @@ public class ResultPanel extends javax.swing.JPanel {
             // Swing part
             JFrame frame = new JFrame("Result evaluator panel test.");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.getContentPane().add(rp);
+            frame.getContentPane().
+                    add(rp);
             frame.pack();
             frame.setVisible(true);
 
@@ -283,7 +287,8 @@ public class ResultPanel extends javax.swing.JPanel {
         // Swing part
         JFrame frame = new JFrame("Result evaluator panel test");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(rp);
+        frame.getContentPane().
+                add(rp);
         frame.pack();
         frame.setVisible(true);
     }
@@ -299,7 +304,8 @@ public class ResultPanel extends javax.swing.JPanel {
         JDialog frame = new JDialog(fame, name);
         frame.setLocationRelativeTo(fame);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.getContentPane().add(rp);
+        frame.getContentPane().
+                add(rp);
         frame.pack();
         frame.setVisible(true);
     }
@@ -314,14 +320,16 @@ public class ResultPanel extends javax.swing.JPanel {
     }
 
     private static void packColumn(JTable table, int vColIndex, int margin) {
-        DefaultTableColumnModel colModel = (DefaultTableColumnModel) table.getColumnModel();
+        DefaultTableColumnModel colModel = (DefaultTableColumnModel) table.
+                getColumnModel();
         TableColumn col = colModel.getColumn(vColIndex);
         int width = 0;
 
         // Get width of column header
         TableCellRenderer renderer = col.getHeaderRenderer();
         if (renderer == null)
-            renderer = table.getTableHeader().getDefaultRenderer();
+            renderer = table.getTableHeader().
+                    getDefaultRenderer();
         Component comp = renderer.getTableCellRendererComponent(
                 table, col.getHeaderValue(), false, false, 0, 0);
         width = comp.getPreferredSize().width;
@@ -357,7 +365,9 @@ public class ResultPanel extends javax.swing.JPanel {
         jPanel2 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable2 = new BetterJTable(getMeasuresMatrixTableModel());
-        jPanel3 = new javax.swing.JPanel();
+        rulesPanel = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        rulesTable = new javax.swing.JTable();
 
         jScrollPane1 = BetterJTable.createStripedJScrollPane(jTable1);
         /*
@@ -368,11 +378,11 @@ public class ResultPanel extends javax.swing.JPanel {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Confusion Matrix", jPanel1);
@@ -385,48 +395,69 @@ public class ResultPanel extends javax.swing.JPanel {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Metrics", jPanel2);
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 509, Short.MAX_VALUE)
+        rulesTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "No", "Rule"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        rulesTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        jScrollPane3.setViewportView(rulesTable);
+
+        javax.swing.GroupLayout rulesPanelLayout = new javax.swing.GroupLayout(rulesPanel);
+        rulesPanel.setLayout(rulesPanelLayout);
+        rulesPanelLayout.setHorizontalGroup(
+            rulesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE)
         );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 438, Short.MAX_VALUE)
+        rulesPanelLayout.setVerticalGroup(
+            rulesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
         );
 
-        jTabbedPane1.addTab("Summary", jPanel3);
+        jTabbedPane1.addTab("Rules", rulesPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 514, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 466, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
+    private javax.swing.JPanel rulesPanel;
+    private javax.swing.JTable rulesTable;
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -434,11 +465,26 @@ public class ResultPanel extends javax.swing.JPanel {
      * @param table
      */
     private static void updateVerticalHeader(JTable table) {
-        Enumeration enumer = table.getColumnModel().getColumns();
+        Enumeration enumer = table.getColumnModel().
+                getColumns();
         enumer.nextElement();
         while (enumer.hasMoreElements()) {
             TableColumn tc = (TableColumn) enumer.nextElement();
             tc.setHeaderRenderer(new VerticalColumnHeaderRenderer());
         }
+    }
+
+    private void updateRulesTab() {
+        if (evaluator.getClassifier() == null) return;
+        if (!(evaluator.getClassifier() instanceof RuleClassifier)) return;
+
+        RuleClassifier rc = (RuleClassifier) evaluator.getClassifier();
+        String[] rules = rc.getRules();
+        DefaultTableModel tm = (DefaultTableModel) rulesTable.getModel();
+        for (int i = 0; i < rules.length; i++)
+            tm.addRow(new Object[]{i, rules[i]});
+        rulesTable.setVisible(true);
+        packAllColumns(rulesTable);
+
     }
 }

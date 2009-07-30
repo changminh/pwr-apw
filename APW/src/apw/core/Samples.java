@@ -93,8 +93,8 @@ public class Samples implements List<Sample> {
     {
     	Samples result = new Samples(atts);
     	result.classAttributeIndex = this.classAttributeIndex;
-    	result.name = this.name;
-    	result.selected = this.selected;
+    	result.name = new String(this.name);
+    	result.selected = this.selected.clone();
     	return result;
     }
     
