@@ -22,10 +22,6 @@ public class Instance {
     }
 
     public void setVector(double[] d) {
-//        System.out.println("Setting: ");
-//        for (double dd : d)
-//            System.out.print(dd + " ");
-//        System.out.println("");
         vector = d;
     }
 

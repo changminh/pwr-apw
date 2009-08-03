@@ -57,7 +57,6 @@ public class Network {
         for (double d : inst.getVector())
             alphaSum += d;
         alphaSum *= alpha;
-        // System.out.println("score = " + score + ", alphaSum = " + alphaSum);
         return score >= alphaSum;
     }
 
@@ -67,6 +66,8 @@ public class Network {
     
     public void print() {
         System.out.println("Network has " + prototypes.size() + " neurons.");
+        if (true)
+            return;
         for (Prototype p : prototypes.values()) {
             p.print();
         }
