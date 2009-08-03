@@ -1,10 +1,14 @@
 package apw.myART2;
 
 import apw.core.Attribute;
+import apw.core.Sample;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Random;
 import javax.swing.JOptionPane;
 
 /**
@@ -14,29 +18,33 @@ import javax.swing.JOptionPane;
 public class ART_2A {
 
     private static double alpha, beta, rho, theta;
+    private static int passes;
     private static Network network = null;
+    private static HashSet<String> labels = null;
+    private static boolean labeled;
 
 
     public static Network createNetwork(
-            double a, double b, double r, double t, ArrayList<Instance> instances)
+            double a, double b, double r, double t, int p, ArrayList<Instance> instances)
             throws IllegalArgumentException {
-        checkParameters(a, b, r, t, instances.get(0).getVector().length);
+        checkParameters(a, b, r, t, p, instances.get(0).getVector().length);
         alpha = a;
         beta = b;
         rho = r;
         theta = t;
+        passes = p;
         normalizeVectors(instances);
         normalizeVectors(instances = denoiseVectors(instances));
-        System.out.println("Input vectors: ");
+        /* System.out.println("Input vectors: ");
         for (Instance inst : instances)
-            inst.print();
+            inst.print(); */
         learn(instances);
         return network;
     }
 
     private static Network learn(ArrayList<Instance> instances) {
         network = new Network(alpha, beta, rho, theta);
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < passes; i++) {
             for (Instance inst : instances) {
                 // inst.print();
                 network.query(inst);
@@ -85,14 +93,14 @@ public class ART_2A {
 
     public static void main(String[] args) {
         ArrayList<Instance> instances = new ArrayList<Instance>();
-        int counter = 0;
-
         Network n = null;
+        Samples samples = null;
         try {
-            instances = convertSamples(new ARFFLoader(new File("data/iris.arff")).getSamples());
-            n = createNetwork(0.5d, 0.2d, 0.992d, 0.01d, instances);
+            samples = new ARFFLoader(new File("data/wine.arff")).getSamples();
+            instances = shuffleInstances(convertSamples(samples));
+            // n = createNetwork(0.3d, 0.005d, 0.99d, 0.01d, instances); // przy 9 przebiegach 2 błędy dla irysków :D
+            n = createNetwork(0.1d, 0.1d, 0.995d, 0.01d, 15, instances);
         } catch (IllegalArgumentException ex) {
-            ex.printStackTrace();
             JOptionPane.showMessageDialog(null, ex.getMessage());
             return;
         } catch (Exception e) {
@@ -100,19 +108,35 @@ public class ART_2A {
         }
         n.print();
         n.stopLearning();
+        HashMap<String, Integer> stats = new HashMap<String, Integer>();
+        String temp;
+        Prototype p;
         for (Instance inst : instances) {
-            System.out.print("Instance " + inst.getId() + " -> ");
-            n.query(inst).print();
+            // System.out.print("Instance " + inst.getId() + " -> ");
+            p = n.query(inst);
+            if (labeled) {
+                temp = samples.get(inst.getId()).classAttributeInt().toString() + "_" + p.getIndex();
+                if (stats.containsKey(temp))
+                    stats.put(temp, stats.get(temp) + 1);
+                else
+                    stats.put(temp, 1);
+            }
+        }
+        if (labeled) {
+            for (String s : stats.keySet())
+                System.out.println(s + " -> " + stats.get(s));
         }
     }
 
-    private static void checkParameters(double a, double b, double r, double t, int columnCount) {
+    private static void checkParameters(double a, double b, double r, double t, int p, int columnCount)
+            throws IllegalArgumentException {
         double limit = 1.d / Math.sqrt(columnCount);
         StringBuilder sb = new StringBuilder();
         String s1 = "0 &lt;= alfa &lt;= " + limit;
         String s2 = "0 &lt; beta &lt;= 1";
         String s3 = "0 &lt; rho &lt; 1";
         String s4 = "0 &lt;= theta &lt; " + limit;
+        String s5 = "0 &lt; passes";
         boolean error = false;
         sb.append("<html><body>The parameter's values should be: <br><br>");
         // Check alpha:
@@ -140,6 +164,12 @@ public class ART_2A {
         }
         else
             sb.append(s4 + "<br>");
+        if (p < 1) {
+            error = true;
+            sb.append("<u>" + s5 + "</u><br>");
+        }
+        else
+            sb.append(s5 + "<br>");
         sb.append("</body></html>");
         if (error)
             throw new IllegalArgumentException(sb.toString());
@@ -148,6 +178,7 @@ public class ART_2A {
     public static ArrayList<Instance> convertSamples(Samples samples) {
         // checking whether all attribute's (excluding class) are real numbers:
         ArrayList<Attribute> atts = samples.getAtts();
+        labels = new HashSet<String>();
         int attCount = atts.size();
         int classAtt = samples.getClassAttributeIndex();
         System.out.println("classAtt = " + classAtt);
@@ -158,19 +189,45 @@ public class ART_2A {
         ArrayList<Instance> instances = new ArrayList<Instance>();
         // creating internal representation of samples:
         int cc = 0;
-        int validAtts = classAtt == -1 ? attCount : attCount - 1;
+        labeled = classAtt != -1;
+        int validAtts = labeled ? attCount - 1 : attCount;
         System.out.println("validAtts = " + validAtts);
-        double [] row;
+        double[] row;
+        Sample s;
         for (int i = 0; i < samples.size(); i++) {
             cc = 0;
+            s = samples.get(i);
             row = new double[validAtts];
             for (int j = 0; j < attCount; j++) {
-                if (j == classAtt)
-                    continue;
-                row[cc++] = (Double) samples.get(i).get(j);
+                if (j == classAtt) {
+                    if (labeled)
+                        labels.add(s.get(j).toString());
+                        continue;
+                }
+                row[cc++] = (Double) s.get(j);
             }
             instances.add(new Instance(row, i));
         }
+        if (labeled && false) {
+            System.out.println("Labels: ");
+            for (String st : labels)
+                System.out.print(st + " ");
+            System.out.println("");
+        }
         return instances;
+    }
+
+    public static ArrayList<Instance> shuffleInstances(ArrayList<Instance> instances) {
+        ArrayList<Instance> result = new ArrayList<Instance>();
+        HashSet<Integer> shuffled = new HashSet<Integer>();
+        int size = instances.size();
+        Random r = new Random();
+        shuffled.add(size);
+        while(result.size() != instances.size()) {
+            int i = r.nextInt(size);
+            if (shuffled.add(i))
+                result.add(instances.get(i));
+        }
+        return result;
     }
 }

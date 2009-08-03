@@ -1,7 +1,6 @@
 package apw.myART2;
 
-import java.util.ArrayList;
-import java.util.Vector;
+import java.util.HashSet;
 
 /**
  *
@@ -12,7 +11,7 @@ public class Prototype {
     private int dimension = -1;
     private int index = -1;
     private double[] weights = null;
-    private ArrayList<Integer> instances = new ArrayList<Integer>();
+    private HashSet<Integer> instances = new HashSet<Integer>();
     private double alpha, beta, rho, theta;
 
     public Prototype(double a, double b, double r, double t, int id, double[] dd) {
