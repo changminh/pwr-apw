@@ -33,14 +33,40 @@
  */
 package apw.gui.par;
 
-import javax.swing.JComponent;
-
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public interface PropertyComponent {
+public abstract class AbstractPropertyComponent implements PropertyComponent {
 
-    abstract public JComponent getComponent();
-    abstract public void registerListener(IPropertyChangeListener listener);
+    IPropertyChangeListener listener;
+
+    public void registerListener(IPropertyChangeListener listener) {
+        this.listener = listener;
+    }
+
+    /**
+     * Call this method when validation error occurs. Default implementation
+     * will cause a notification message to be presented.
+     * 
+     * @param text user presented message
+     */
+    public void ValidationErrorMessage(String text) {
+        if (listener != null)
+            listener.ValidationErrorMessage(text);
+    }
+
+    /**
+     * Call this method every time the property has changed to keep
+     * backing model in sync.
+     *
+     * @param validated wether or not the newValue passes validation
+     * @param oldValue 
+     * @param newValue
+     */
+    public void PropertyChanged(boolean validated, Object oldValue, Object newValue) {
+        if (listener != null)
+            listener.PropertyChanged(validated, oldValue, newValue);
+    }
+
 }
