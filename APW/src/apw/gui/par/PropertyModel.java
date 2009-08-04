@@ -33,39 +33,61 @@
  */
 package apw.gui.par;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
+ * This class is a bridge between property class' code and it's programatic
+ * representation.
+ * 
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public abstract class AbstractPropertyComponent implements PropertyComponent {
+public class PropertyModel {
 
-    IPropertyChangeListener listener;
-
-    public void registerListener(IPropertyChangeListener listener) {
-        this.listener = listener;
-    }
+    List<Property> props;
+    List<Annotation[]> anns;
+    List<String> names;
+    Object propertyObject;
 
     /**
-     * Call this method when validation error occurs. Default implementation
-     * will cause a notification message to be presented.
+     * Reflectively parses <code>propertyObject</code> to build programmatic
+     * representation of properties.
      * 
-     * @param text user presented message
+     * @param propertyObject a property object from which properties are to
+     *                       be extracted
      */
-    public void ValidationErrorMessage(String text) {
-        if (listener != null)
-            listener.validationErrorMessage(text);
-    }
+    PropertyModel(Object propertyObject) {
+        // field initialization
+        this.propertyObject = propertyObject;
 
-    /**
-     * Call this method every time the property has changed to keep
-     * backing model in sync.
-     *
-     * @param validated wether or not the newValue passes validation
-     * @param oldValue 
-     * @param newValue
-     */
-    public void PropertyChanged(boolean validated, Object oldValue, Object newValue) {
-        if (listener != null)
-            listener.propertyChanged(validated, oldValue, newValue);
+        props = new ArrayList();
+        anns = new ArrayList();
+        names = new ArrayList();
+
+        // property extraction
+        Class clazz = propertyObject.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        for (int i = 0; i < fields.length; i++) {
+            Field field = fields[i];
+            if (field.getType().
+                    getClass().
+                    equals(Property.class.getClass()))
+                try {
+                    field.setAccessible(true);
+                    props.add((Property) field.get(propertyObject));
+                    names.add(field.getName());
+                    anns.add(field.getAnnotations());
+                } catch (IllegalAccessException ex) {
+                    Logger.getLogger(PropertyModel.class.getName()).
+                            log(Level.SEVERE, null, ex);
+                } catch (IllegalArgumentException ex) {
+                    Logger.getLogger(PropertyModel.class.getName()).
+                            log(Level.SEVERE, null, ex);
+                }
+        }
     }
 }

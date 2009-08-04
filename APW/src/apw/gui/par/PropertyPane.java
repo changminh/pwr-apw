@@ -38,22 +38,17 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
 
 /**
@@ -194,44 +189,5 @@ public class PropertyPane extends JDialog {
         123L
     };
 
-    /********* Dynamic type to component mapping section ahead ************/
-    private interface TypeToGUIHandler {
-        // TODO: the JComponent could be replaced by custom class
-        // handling validation and etc
-
-        public JComponent getComponentForType();
-    }
-    private static Map<Class, TypeToGUIHandler> typeMap = new HashMap();
-
-    static {
-        typeMap.put(Double.class, new TypeToGUIHandler() {
-
-            public JComponent getComponentForType() {
-                return new JSpinner();
-            }
-        });
-
-        typeMap.put(Integer.class, new TypeToGUIHandler() {
-
-            public JComponent getComponentForType() {
-                return new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
-            }
-        });
-
-        typeMap.put(String.class, new TypeToGUIHandler() {
-
-            public JComponent getComponentForType() {
-                return new JTextField("Text Field");
-            }
-        });
-    }
-
-    private static JComponent mapTypeToGUIComponent(Object o) {
-        // TODO: Change fallback value for something relevant
-        JComponent comp = new JLabel("Default Type label");
-        if (typeMap.containsKey(o.getClass()))
-            comp = typeMap.get(o.getClass()).
-                    getComponentForType();
-        return comp;
-    }
+ 
 }

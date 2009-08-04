@@ -31,16 +31,18 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-
 package apw.classifiers.knn;
 
 import apw.gui.par.Property;
+import apw.gui.par.validation.Range;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
 public class KNNProperties2 {
-    Property<Integer> firstProperty = new Property<Integer>();
 
+    @Range(max = 5, min = 1, message = "test")
+    Property<Integer> firstProperty = new Property();
+    Property<String> string = new Property("default value");
 }

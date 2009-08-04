@@ -31,45 +31,22 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.gui.par;
+package apw.gui.par.validation;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.lang.annotation.*;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class PropertyIntrospector {
-    List<Property> props;
-    List<Annotation[]> anns;
-    List<String> names;
+@Documented
+@Retention(value = RetentionPolicy.RUNTIME)
+@Target(value = ElementType.FIELD)
+public @interface Range {
 
-    void listPropertyFields(Object object) {
-        props = new ArrayList();
-        anns = new ArrayList();
-        names = new ArrayList();
+    double min();
 
-        Class clazz = object.getClass();
-        Field[] fields = clazz.getDeclaredFields();
-        for (int i = 0; i < fields.length; i++) {
-            Field field = fields[i];
-            if (field.getType().getClass().equals(Property.class.getClass())) {
-                try {
-                    field.setAccessible(true);
-                    props.add((Property) field.get(object));
-                    names.add(field.getName());
-                    anns.add(field.getAnnotations());
-                } catch (IllegalAccessException ex) {
-                    Logger.getLogger(PropertyIntrospector.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IllegalArgumentException ex) {
-                    Logger.getLogger(PropertyIntrospector.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-    }
+    double max();
+
+    String message();
 }
