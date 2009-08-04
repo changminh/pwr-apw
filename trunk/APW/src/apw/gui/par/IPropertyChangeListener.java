@@ -39,29 +39,9 @@ package apw.gui.par;
  */
 public interface IPropertyChangeListener {
 
-    public void PropertyChanged(boolean validated,
+    public void propertyChanged(boolean validated,
             Object oldValue,
             Object newValue);
 
-    /**
-     * <p>Plain or html text explaining property meaning, e.g. "Value
-     * must be in range [0, 1] inclusively. Low values are recommended
-     * due to low performance penalty, but higher values might be necessary
-     * to discover all solutions. Typically values lower than 0.2 suffice."
-     * </p>
-     *
-     * <p>This method will be called every time a property component will
-     * receive focus. Implementation might look like: </p>
-     *
-     * <pre>
-     * public String NoticeMessage() {
-     *    return "A number of trees in your garden.";
-     * }
-     * </pre>
-     *
-     * @return 
-     */
-    public String NoticeMessage();
-
-    public void ValidationErrorMessage(String text);
+    public void validationErrorMessage(String text);
 }

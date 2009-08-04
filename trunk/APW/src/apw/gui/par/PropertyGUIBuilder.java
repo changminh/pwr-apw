@@ -34,8 +34,10 @@
 package apw.gui.par;
 
 import apw.classifiers.knn.KNNProperties;
+import apw.classifiers.knn.KNNProperties2;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,29 +47,51 @@ import javax.swing.UIManager;
 import net.java.dev.properties.BaseBean;
 import net.java.dev.properties.RProperty;
 import net.java.dev.properties.binding.swing.SwingFactory;
+import static apw.gui.par.PropertyFactory.*;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class ParameterClassGUIBuilder extends BaseBean {
+public class PropertyGUIBuilder extends BaseBean {
 
     public static JComponent buildView(BaseBean propertiesBean) {
-        JComponent UI = SwingFactory.boxColumnLayoutFactory().createBeanUI(propertiesBean);
+        JComponent UI = SwingFactory.boxColumnLayoutFactory().
+                createBeanUI(propertiesBean);
         return UI;
     }
 
+    public static JComponent buildPropertyView(Object propertyObject) {
+        PropertyModel model = new PropertyModel(propertyObject);
+
+        for (int i = 0; i < model.props.size(); i++) {
+            Property prop = model.props.get(i);
+            Annotation[] anns = model.anns.get(i);
+            String name = model.names.get(i);
+
+            System.out.println("Property " + i + ". " +
+                    " name=\"" + name + "\"" +
+                    " annotations=" + Arrays.deepToString(anns) +
+                    " value=" + prop.get());
+        }
+        return null;
+    }
+
     public static void main(String[] args) {
+        buildPropertyView(new KNNProperties2());
+
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ex) {
-            Logger.getLogger(ParameterClassGUIBuilder.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PropertyGUIBuilder.class.getName()).
+                    log(Level.SEVERE, null, ex);
         }
         final KNNProperties props = new KNNProperties();
         JFrame frame = new JFrame("Bean UI test");
         frame.setSize(400, 300);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(buildView(props));
+        frame.getContentPane().
+                add(buildView(props));
         frame.pack();
         frame.addWindowListener(new WindowAdapter() {
 

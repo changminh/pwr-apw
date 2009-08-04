@@ -10,8 +10,8 @@
  *     disclaimer.
  *   • Redistributions  in binary  form must  reproduce the  above
  *     copyright notice, this list of conditions and the following
- *     disclaimer  in  the  documentation and / or other materials
- *     provided with the distribution.
+ *     disclaimer in the  documentation and/or other mate provided
+ *     with the distribution.
  *   • Neither  the name of the  Wrocław University of  Technology
  *     nor the names of its contributors may be used to endorse or
  *     promote products derived from this  software without speci-
@@ -33,39 +33,61 @@
  */
 package apw.gui.par;
 
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public abstract class AbstractPropertyComponent implements PropertyComponent {
+public class PropertyFactory {
 
-    IPropertyChangeListener listener;
+    /********* Dynamic type to component mapping section ahead ************/
+    private interface TypeToGUIHandler {
+        // TODO: the JComponent must be replaced by >>PropertyComponent<< class
 
-    public void registerListener(IPropertyChangeListener listener) {
-        this.listener = listener;
+        // public PropertyComponent getComponentForType();
+        public JComponent getComponentForType();
+    }
+    /**
+     * Map
+     */
+    private static Map<Class, TypeToGUIHandler> typeMap = new HashMap();
+
+    static {
+        typeMap.put(Double.class, new TypeToGUIHandler() {
+
+            public JComponent getComponentForType() {
+                return new JSpinner();
+            }
+        });
+
+        typeMap.put(Integer.class, new TypeToGUIHandler() {
+
+            public JComponent getComponentForType() {
+                return new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
+            }
+        });
+
+        typeMap.put(String.class, new TypeToGUIHandler() {
+
+            public JComponent getComponentForType() {
+                return new JTextField("Text Field");
+            }
+        });
     }
 
-    /**
-     * Call this method when validation error occurs. Default implementation
-     * will cause a notification message to be presented.
-     * 
-     * @param text user presented message
-     */
-    public void ValidationErrorMessage(String text) {
-        if (listener != null)
-            listener.validationErrorMessage(text);
-    }
-
-    /**
-     * Call this method every time the property has changed to keep
-     * backing model in sync.
-     *
-     * @param validated wether or not the newValue passes validation
-     * @param oldValue 
-     * @param newValue
-     */
-    public void PropertyChanged(boolean validated, Object oldValue, Object newValue) {
-        if (listener != null)
-            listener.propertyChanged(validated, oldValue, newValue);
+    public static JComponent mapTypeToGUIComponent(Object o) {
+        // TODO: Change fallback value for something relevant
+        JComponent comp = new JLabel("Default Type label");
+        if (typeMap.containsKey(o.getClass()))
+            comp = typeMap.get(o.getClass()).
+                    getComponentForType();
+        return comp;
     }
 }
