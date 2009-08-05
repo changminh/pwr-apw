@@ -10,8 +10,8 @@
  *     disclaimer.
  *   • Redistributions  in binary  form must  reproduce the  above
  *     copyright notice, this list of conditions and the following
- *     disclaimer  in  the  documentation and / or other materials
- *     provided with the distribution.
+ *     disclaimer in the  documentation and/or other mate provided
+ *     with the distribution.
  *   • Neither  the name of the  Wrocław University of  Technology
  *     nor the names of its contributors may be used to endorse or
  *     promote products derived from this  software without speci-
@@ -33,61 +33,15 @@
  */
 package apw.gui.par;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
+import java.lang.annotation.Annotation;
 
 /**
- * Observable property. Used by Swing GUI form builder.
- * 
+ *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class Property<T> {
+public class PropertyDescriptor {
 
-    T prop;
-
-    public Property() {
-    }
-
-    public Property(T initialValue) {
-        prop = initialValue;
-    }
-
-    /**
-     * Set property value
-     *
-     * @param value
-     */
-    public void set(T value) {
-        T oldValue = prop;
-        prop = value;
-        propertyChangeSupport.firePropertyChange("property", oldValue, value);
-    }
-
-    /**
-     * Get property value
-     * 
-     * @return
-     */
-    public T get() {
-        return prop;
-    }
-    private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
-
-    /**
-     * Add PropertyChangeListener.
-     *
-     * @param listener
-     */
-    void addPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.addPropertyChangeListener(listener);
-    }
-
-    /**
-     * Remove PropertyChangeListener.
-     *
-     * @param listener
-     */
-    void removePropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.removePropertyChangeListener(listener);
-    }
+    Property prop;
+    String name;
+    Annotation [] anns;
 }

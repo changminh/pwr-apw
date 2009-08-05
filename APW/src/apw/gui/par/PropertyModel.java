@@ -47,10 +47,7 @@ import java.util.logging.Logger;
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
 public class PropertyModel {
-
-    List<Property> props;
-    List<Annotation[]> anns;
-    List<String> names;
+    List<PropertyDescriptor> props;
     Object propertyObject;
 
     /**
@@ -65,8 +62,6 @@ public class PropertyModel {
         this.propertyObject = propertyObject;
 
         props = new ArrayList();
-        anns = new ArrayList();
-        names = new ArrayList();
 
         // property extraction
         Class clazz = propertyObject.getClass();
@@ -78,9 +73,11 @@ public class PropertyModel {
                     equals(Property.class.getClass()))
                 try {
                     field.setAccessible(true);
-                    props.add((Property) field.get(propertyObject));
-                    names.add(field.getName());
-                    anns.add(field.getAnnotations());
+                    PropertyDescriptor pd = new PropertyDescriptor();
+                    pd.anns = field.getAnnotations();
+                    pd.name = field.getName();
+                    pd.prop = (Property) field.get(propertyObject);
+                    props.add(pd);
                 } catch (IllegalAccessException ex) {
                     Logger.getLogger(PropertyModel.class.getName()).
                             log(Level.SEVERE, null, ex);

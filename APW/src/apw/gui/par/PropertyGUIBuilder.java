@@ -47,7 +47,6 @@ import javax.swing.UIManager;
 import net.java.dev.properties.BaseBean;
 import net.java.dev.properties.RProperty;
 import net.java.dev.properties.binding.swing.SwingFactory;
-import static apw.gui.par.PropertyFactory.*;
 
 /**
  *
@@ -65,9 +64,10 @@ public class PropertyGUIBuilder extends BaseBean {
         PropertyModel model = new PropertyModel(propertyObject);
 
         for (int i = 0; i < model.props.size(); i++) {
-            Property prop = model.props.get(i);
-            Annotation[] anns = model.anns.get(i);
-            String name = model.names.get(i);
+            PropertyDescriptor desc = model.props.get(i);
+            Property prop = desc.prop;
+            Annotation[] anns = desc.anns;
+            String name = desc.name;
 
             System.out.println("Property " + i + ". " +
                     " name=\"" + name + "\"" +
