@@ -10,8 +10,8 @@
  *     disclaimer.
  *   • Redistributions  in binary  form must  reproduce the  above
  *     copyright notice, this list of conditions and the following
- *     disclaimer  in  the  documentation and / or other materials
- *     provided with the distribution.
+ *     disclaimer in the  documentation and/or other mate provided
+ *     with the distribution.
  *   • Neither  the name of the  Wrocław University of  Technology
  *     nor the names of its contributors may be used to endorse or
  *     promote products derived from this  software without speci-
@@ -31,22 +31,46 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.gui.par.validation;
+package apw.gui.property;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Annotation;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-@Documented
-@Retention(value = RetentionPolicy.RUNTIME)
-@Target(value = ElementType.FIELD)
-public @interface Range {
+class PropertyAnnotationMismatchException extends Exception {
 
-    double min();
+    private Annotation annotation = null;
+    private Class propertyClass = null;
 
-    double max();
+    /**
+     * Get the value of annotation
+     *
+     * @return the value of annotation
+     */
+    public Annotation getAnnotation() {
+        return annotation;
+    }
 
-    String message();
+    /**
+     * Get the value of propertyClass
+     *
+     * @return the value of propertyClass
+     */
+    public Class getPropertyClass() {
+        return propertyClass;
+    }
+
+    public PropertyAnnotationMismatchException(Annotation annotation, Class propertyClass) {
+        this.annotation = annotation;
+        this.propertyClass = propertyClass;
+    }
+
+    @Override
+    public String getMessage() {
+        return "Annotation " + annotation.toString() +
+                " can't be used for property type " + propertyClass.getName() +
+                ".";
+    }
 }

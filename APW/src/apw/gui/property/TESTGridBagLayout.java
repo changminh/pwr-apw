@@ -38,7 +38,7 @@
  * Created on 2009-07-28, 22:48:52
  */
 
-package apw.gui.par;
+package apw.gui.property;
 
 /**
  *

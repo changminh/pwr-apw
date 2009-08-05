@@ -31,63 +31,41 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.gui.par;
-
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
+package apw.gui.property;
 
 /**
- * Observable property. Used by Swing GUI form builder.
- * 
+ *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class Property<T> {
+public abstract class AbstractPropertyComponent implements PropertyComponent {
 
-    T prop;
+    IPropertyChangeListener listener;
 
-    public Property() {
-    }
-
-    public Property(T initialValue) {
-        prop = initialValue;
+    public void registerListener(IPropertyChangeListener listener) {
+        this.listener = listener;
     }
 
     /**
-     * Set property value
-     *
-     * @param value
-     */
-    public void set(T value) {
-        T oldValue = prop;
-        prop = value;
-        propertyChangeSupport.firePropertyChange("property", oldValue, value);
-    }
-
-    /**
-     * Get property value
+     * Call this method when validation error occurs. Default implementation
+     * will cause a notification message to be presented.
      * 
-     * @return
+     * @param text user presented message
      */
-    public T get() {
-        return prop;
-    }
-    private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
-
-    /**
-     * Add PropertyChangeListener.
-     *
-     * @param listener
-     */
-    void addPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.addPropertyChangeListener(listener);
+    public void ValidationErrorMessage(String text) {
+        if (listener != null)
+            listener.validationErrorMessage(text);
     }
 
     /**
-     * Remove PropertyChangeListener.
+     * Call this method every time the property has changed to keep
+     * backing model in sync.
      *
-     * @param listener
+     * @param validated wether or not the newValue passes validation
+     * @param oldValue 
+     * @param newValue
      */
-    void removePropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.removePropertyChangeListener(listener);
+    public void PropertyChanged(boolean validated, Object oldValue, Object newValue) {
+        if (listener != null)
+            listener.propertyChanged(validated, oldValue, newValue);
     }
 }

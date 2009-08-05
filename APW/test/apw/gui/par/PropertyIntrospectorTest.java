@@ -33,7 +33,10 @@
  */
 package apw.gui.par;
 
-import apw.gui.par.validation.Range;
+import apw.gui.property.Property;
+import apw.gui.property.PropertyDescriptor;
+import apw.gui.property.PropertyModel;
+import apw.gui.property.validation.Range;
 import java.util.Arrays;
 import org.junit.BeforeClass;
 import org.junit.Test;
