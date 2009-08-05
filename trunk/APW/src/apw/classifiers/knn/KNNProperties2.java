@@ -33,8 +33,8 @@
  */
 package apw.classifiers.knn;
 
-import apw.gui.par.Property;
-import apw.gui.par.validation.Range;
+import apw.gui.property.Property;
+import apw.gui.property.validation.Range;
 
 /**
  *

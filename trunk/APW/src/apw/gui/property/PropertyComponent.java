@@ -31,17 +31,62 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.gui.par;
+package apw.gui.property;
+
+import java.lang.annotation.Annotation;
+import javax.swing.JComponent;
 
 /**
  *
+ *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public interface IPropertyChangeListener {
+public interface PropertyComponent {
 
-    public void propertyChanged(boolean validated,
-            Object oldValue,
-            Object newValue);
+    /**
+     * Use this method to provide GUI builder appropriate swing
+     * component which will be used to display and interact with
+     * user.
+     *
+     * @return swing component
+     */
+    abstract public JComponent getComponent();
 
-    public void validationErrorMessage(String text);
+    /**
+     * GUI builder implemenetation uses this class to handle
+     * user input feedback.
+     * @param listener
+     */
+    abstract public void registerListener(IPropertyChangeListener listener);
+
+    /**
+     * Property Component is expected to handle specific annotations.
+     * T
+     *
+     * @param annotations to handle
+     * @throws PropertyAnnotationMismatchException if annotations contains
+     * unhandled element
+     */
+    abstract public void handleAnnotations(Annotation[] annotations)
+            throws PropertyAnnotationMismatchException;
+
+    /**
+     * <p>Plain or html text explaining property meaning, e.g. "Value
+     * must be in range [0, 1] inclusively. Low values are recommended
+     * due to low performance penalty, but higher values might be necessary
+     * to discover all solutions. Typically values lower than 0.2 suffice."
+     * </p>
+     *
+     * <p>This method will be called every time a property component will
+     * receive focus. Implementation might look like: </p>
+     *
+     * <pre>
+     * public String noticeMessage() {
+     *    return "A number of trees in your garden.";
+     * }
+     * </pre>
+     *
+     * @return
+     */
+    public String noticeMessage();
 }

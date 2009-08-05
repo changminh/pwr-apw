@@ -31,10 +31,11 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.gui.par;
+package apw.gui.property;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -47,6 +48,7 @@ import java.util.logging.Logger;
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
 public class PropertyModel {
+
     List<PropertyDescriptor> props;
     Object propertyObject;
 
@@ -77,6 +79,7 @@ public class PropertyModel {
                     pd.anns = field.getAnnotations();
                     pd.name = field.getName();
                     pd.prop = (Property) field.get(propertyObject);
+                    pd.clazz = getTypeClass(field);
                     props.add(pd);
                 } catch (IllegalAccessException ex) {
                     Logger.getLogger(PropertyModel.class.getName()).
@@ -87,4 +90,19 @@ public class PropertyModel {
                 }
         }
     }
+
+    private static Class getTypeClass(Field field) {
+        Class clazz = null;
+        Type genericFieldType = field.getGenericType();
+        if (genericFieldType instanceof ParameterizedType) {
+            ParameterizedType aType = (ParameterizedType) genericFieldType;
+            Type[] fieldArgTypes = aType.getActualTypeArguments();
+            for (Type fieldArgType : fieldArgTypes)
+                clazz = (Class) fieldArgType;
+        }
+        return clazz;
+    }
 }
+
+
+    

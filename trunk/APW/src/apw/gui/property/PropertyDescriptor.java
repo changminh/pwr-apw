@@ -10,8 +10,8 @@
  *     disclaimer.
  *   • Redistributions  in binary  form must  reproduce the  above
  *     copyright notice, this list of conditions and the following
- *     disclaimer  in  the  documentation and / or other materials
- *     provided with the distribution.
+ *     disclaimer in the  documentation and/or other mate provided
+ *     with the distribution.
  *   • Neither  the name of the  Wrocław University of  Technology
  *     nor the names of its contributors may be used to endorse or
  *     promote products derived from this  software without speci-
@@ -31,41 +31,18 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.gui.par;
+package apw.gui.property;
+
+import java.lang.annotation.Annotation;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public abstract class AbstractPropertyComponent implements PropertyComponent {
+public class PropertyDescriptor {
 
-    IPropertyChangeListener listener;
-
-    public void registerListener(IPropertyChangeListener listener) {
-        this.listener = listener;
-    }
-
-    /**
-     * Call this method when validation error occurs. Default implementation
-     * will cause a notification message to be presented.
-     * 
-     * @param text user presented message
-     */
-    public void ValidationErrorMessage(String text) {
-        if (listener != null)
-            listener.validationErrorMessage(text);
-    }
-
-    /**
-     * Call this method every time the property has changed to keep
-     * backing model in sync.
-     *
-     * @param validated wether or not the newValue passes validation
-     * @param oldValue 
-     * @param newValue
-     */
-    public void PropertyChanged(boolean validated, Object oldValue, Object newValue) {
-        if (listener != null)
-            listener.propertyChanged(validated, oldValue, newValue);
-    }
+    Property prop;
+    String name;
+    Annotation [] anns;
+    Class clazz;
 }

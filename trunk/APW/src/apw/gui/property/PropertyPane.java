@@ -31,7 +31,7 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.gui.par;
+package apw.gui.property;
 
 import apw.classifiers.knn.KNNProperties2;
 import java.awt.BorderLayout;
@@ -39,11 +39,16 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
@@ -62,15 +67,12 @@ import javax.swing.text.html.HTMLDocument;
  */
 public class PropertyPane extends JDialog {
 
-    public static final int DEFAULT_NUMBER_OF_ROWS = 10;
-    private static final int DEFAULT_NUMBER_OF_COLUMNS = 70;
     JOptionPane test;
     BorderLayout borderLayout;
     JScrollPane scrollPane;
     JPanel bottomPanel;
     JPanel mainPanel;
     JPanel messagePanel;
-//    JPanel enclosingPanel;
     JSplitPane splitPane;
     JButton okButton;
     JButton cancelButton;
@@ -109,7 +111,6 @@ public class PropertyPane extends JDialog {
         });
 
         bottomPanel = new JPanel(new FlowLayout());
-        bottomPanel.add(showMessagesPaneButton);
         bottomPanel.add(okButton);
         bottomPanel.add(cancelButton);
         getContentPane().
@@ -117,27 +118,23 @@ public class PropertyPane extends JDialog {
 
         messagePanel = new JPanel(new BorderLayout());
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        // enclosingPanel = new JPanel(new BorderLayout());
         mainPanel = new JPanel(new GridBagLayout());
         getContentPane().
                 add(splitPane, BorderLayout.CENTER);
 
-        splitPane.add(new JScrollPane(mainPanel), BorderLayout.CENTER);
-        splitPane.add(messagePanel, BorderLayout.SOUTH);
+        splitPane.add(new JScrollPane(mainPanel), JSplitPane.TOP);
+        splitPane.add(messagePanel, JSplitPane.BOTTOM);
+        splitPane.setDividerSize(6);
+        splitPane.setResizeWeight(1.0);
+        splitPane.setOneTouchExpandable(true);
 
-        JEditorPane messageArea =
-                new JEditorPane();
+        JEditorPane messageArea = new JEditorPane();
         messageArea.setDocument(new HTMLDocument());
         messageArea.setPreferredSize(new Dimension(10, 100));
         JScrollPane sp = new JScrollPane(messageArea);
         sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        messagePanel.add(messageArea, BorderLayout.CENTER);
-        // The message panel section is wildly broken!
-        // If the panel is resized the textpane enlarges accordingly and then
-        // refuses to automatically shrink while making the enlosing panel
-        // smaller.
-        // Consider using JSplitPane instead!
+        messagePanel.add(sp, BorderLayout.CENTER);
 
         boolean DEFAULT_MESSAGE_PANEL_VISIBILITY = true;
         showMessagesPaneButton.setSelected(DEFAULT_MESSAGE_PANEL_VISIBILITY);
@@ -185,34 +182,31 @@ public class PropertyPane extends JDialog {
 
     private void createMockupProperties() {
         // use as a template for real implementation
-        for (int i = 0; i < 14; i++) {
+        for (int i = 0; i < model.props.size(); i++) {
+            PropertyDescriptor desc = model.props.get(i);
             // labelz
-            JLabel label = new JLabel("label " + i);
+//            JLabel label = new JLabel("label " + i);
+            JLabel label = new JLabel(desc.name);
+
             GridBagConstraints constr = new GridBagConstraints();
             constr.gridx = 0;
             constr.gridy = i;
+            constr.insets = new Insets(0, 5, 0, 15);
             constr.anchor = GridBagConstraints.LINE_START;
             mainPanel.add(label, constr);
 
             // buttonz
+
+            System.out.println("Class = " + desc.clazz);
+            JComponent comp = PropertyFactory.mapTypeToGUIComponent(desc.clazz);
             JTextField field = new JTextField("field " + i);
             constr = new GridBagConstraints();
             constr.gridx = 1;
             constr.gridy = i;
             constr.anchor = GridBagConstraints.CENTER;
-            mainPanel.add(field, constr);
+            mainPanel.add(comp, constr);
         }
     }
-//    public static void main(String args[]) {
-//        for (int i = 0; i < o.length; i++) {
-//            Object object = o[i];
-//            System.out.println(object.getClass().
-//                    getName() + ": " +
-//                    mapTypeToGUIComponent(object).
-//                    getClass().
-//                    getName());
-//        }
-//    }
     static Object[] o = new Object[]{
         "test",
         1.0d,

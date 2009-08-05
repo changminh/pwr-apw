@@ -31,7 +31,7 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.gui.par;
+package apw.gui.property;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -82,11 +82,11 @@ public class PropertyFactory {
         });
     }
 
-    public static JComponent mapTypeToGUIComponent(Object o) {
+    public static JComponent mapTypeToGUIComponent(Class o) {
         // TODO: Change fallback value for something relevant
         JComponent comp = new JLabel("Default Type label");
-        if (typeMap.containsKey(o.getClass()))
-            comp = typeMap.get(o.getClass()).
+        if (typeMap.containsKey(o))
+            comp = typeMap.get(o).
                     getComponentForType();
         return comp;
     }
