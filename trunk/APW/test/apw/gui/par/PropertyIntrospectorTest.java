@@ -33,7 +33,7 @@
  */
 package apw.gui.par;
 
-import apw.classifiers.knn.KNNProperties2;
+import apw.gui.par.validation.Range;
 import java.util.Arrays;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -53,7 +53,6 @@ public class PropertyIntrospectorTest {
         /************************************************************/
         /*                 Introspected test class                  */
         /************************************************************/
-
         toIntrospect = new Object() {
 
             @Range(min = 0, max = 5, message = "0..5")
@@ -63,16 +62,14 @@ public class PropertyIntrospectorTest {
     }
 
     /**
-     * Test of listProperties method, of class PropertyIntrospector.
+     * Test of listProperties method, of class PropertyModel.
      */
     @Test
     public void testlistPropertyFields() {
         System.out.println("listProperties");
-        PropertyIntrospector instance = new PropertyIntrospector();
-        instance.listPropertyFields(toIntrospect);
-        System.out.println("Annotations: " + Arrays.deepToString(instance.anns.toArray()));
-        System.out.println("Properties:  " + instance.props);
-        System.out.println("Names:       " + instance.names);
+        PropertyDescriptor instance = new PropertyModel(toIntrospect).props.get(0);
+        System.out.println("Properties:  " + instance.prop);
+        System.out.println("Names:       " + instance.name);
         //assertEquals(expResult, result.get(0).getName());
     }
 }

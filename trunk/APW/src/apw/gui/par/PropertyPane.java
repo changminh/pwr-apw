@@ -33,7 +33,9 @@
  */
 package apw.gui.par;
 
+import apw.classifiers.knn.KNNProperties2;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -43,13 +45,16 @@ import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.UIManager;
+import javax.swing.text.html.HTMLDocument;
 
 /**
  *
@@ -57,20 +62,24 @@ import javax.swing.UIManager;
  */
 public class PropertyPane extends JDialog {
 
+    public static final int DEFAULT_NUMBER_OF_ROWS = 10;
+    private static final int DEFAULT_NUMBER_OF_COLUMNS = 70;
     JOptionPane test;
     BorderLayout borderLayout;
     JScrollPane scrollPane;
     JPanel bottomPanel;
     JPanel mainPanel;
     JPanel messagePanel;
-    JPanel enclosingPanel;
+//    JPanel enclosingPanel;
+    JSplitPane splitPane;
     JButton okButton;
-
     JButton cancelButton;
     JToggleButton showMessagesPaneButton;
+    PropertyModel model;
 
-
-    public PropertyPane() {
+    public PropertyPane(PropertyModel model) {
+        super();
+        this.model = model;
         initialize();
     }
 
@@ -98,22 +107,41 @@ public class PropertyPane extends JDialog {
                 messagePanel.setVisible(showMessagesPaneButton.isSelected());
             }
         });
-        showMessagesPaneButton.setSelected(false);
 
         bottomPanel = new JPanel(new FlowLayout());
+        bottomPanel.add(showMessagesPaneButton);
         bottomPanel.add(okButton);
         bottomPanel.add(cancelButton);
-        bottomPanel.add(showMessagesPaneButton);
         getContentPane().
                 add(bottomPanel, BorderLayout.SOUTH);
 
         messagePanel = new JPanel(new BorderLayout());
-        mainPanel = new JPanel();
-        mainPanel.setLayout(new GridBagLayout());
+        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        // enclosingPanel = new JPanel(new BorderLayout());
+        mainPanel = new JPanel(new GridBagLayout());
+        getContentPane().
+                add(splitPane, BorderLayout.CENTER);
 
-        // getContetPane().
-        messagePanel.
-                add(new JScrollPane(mainPanel), BorderLayout.CENTER);
+        splitPane.add(new JScrollPane(mainPanel), BorderLayout.CENTER);
+        splitPane.add(messagePanel, BorderLayout.SOUTH);
+
+        JEditorPane messageArea =
+                new JEditorPane();
+        messageArea.setDocument(new HTMLDocument());
+        messageArea.setPreferredSize(new Dimension(10, 100));
+        JScrollPane sp = new JScrollPane(messageArea);
+        sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        messagePanel.add(messageArea, BorderLayout.CENTER);
+        // The message panel section is wildly broken!
+        // If the panel is resized the textpane enlarges accordingly and then
+        // refuses to automatically shrink while making the enlosing panel
+        // smaller.
+        // Consider using JSplitPane instead!
+
+        boolean DEFAULT_MESSAGE_PANEL_VISIBILITY = true;
+        showMessagesPaneButton.setSelected(DEFAULT_MESSAGE_PANEL_VISIBILITY);
+        messagePanel.setVisible(DEFAULT_MESSAGE_PANEL_VISIBILITY);
 
         buildCenterView();
         pack();
@@ -137,15 +165,18 @@ public class PropertyPane extends JDialog {
             java.awt.EventQueue.invokeLater(new Runnable() {
 
                 public void run() {
-                    PropertyPane pp = new PropertyPane();
+                    PropertyPane pp = new PropertyPane(
+                            new PropertyModel(new KNNProperties2()));
                     pp.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                     pp.setVisible(true);
                 }
             });
         } catch (Exception ex) {
-            Logger.getLogger(PropertyPane.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PropertyPane.class.getName()).
+                    log(Level.SEVERE, null, ex);
         }
     }
+
     private void buildCenterView() {
         // TODO: replace with real implementation
         createMockupProperties();
@@ -172,7 +203,6 @@ public class PropertyPane extends JDialog {
             mainPanel.add(field, constr);
         }
     }
-
 //    public static void main(String args[]) {
 //        for (int i = 0; i < o.length; i++) {
 //            Object object = o[i];
@@ -188,6 +218,4 @@ public class PropertyPane extends JDialog {
         1.0d,
         123L
     };
-
- 
 }
