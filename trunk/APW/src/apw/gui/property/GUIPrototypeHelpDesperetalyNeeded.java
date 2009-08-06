@@ -40,6 +40,8 @@
 
 package apw.gui.property;
 
+import javax.swing.JDialog;
+
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
@@ -80,7 +82,7 @@ public class GUIPrototypeHelpDesperetalyNeeded extends javax.swing.JPanel {
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 263, Short.MAX_VALUE)
+            .addGap(0, 276, Short.MAX_VALUE)
         );
 
         jSplitPane1.setTopComponent(jPanel1);
@@ -93,6 +95,12 @@ public class GUIPrototypeHelpDesperetalyNeeded extends javax.swing.JPanel {
         add(jSplitPane1, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
+    public static void main(String args[]) {
+        GUIPrototypeHelpDesperetalyNeeded a = new GUIPrototypeHelpDesperetalyNeeded();
+        JDialog dialog = new JDialog();
+        dialog.add(a, null);
+        dialog.setVisible(true);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;

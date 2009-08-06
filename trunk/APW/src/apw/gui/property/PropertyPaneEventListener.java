@@ -34,43 +34,35 @@
 package apw.gui.property;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class PropertyAnnotationMismatchException extends Exception {
+public class PropertyPaneEventListener implements IPropertyChangeListener {
 
-    private Annotation annotation = null;
-    private Class propertyClass = null;
+    private final PropertyPane ownerPane;
+    private final PropertyDescriptor desc;
 
-    /**
-     * Get the value of annotation
-     *
-     * @return the value of annotation
-     */
-    public Annotation getAnnotation() {
-        return annotation;
+
+    public PropertyPaneEventListener(PropertyPane ownerPane,
+            PropertyDescriptor desc) {
+        this.ownerPane = ownerPane;
+        this.desc = desc;
+
     }
 
-    /**
-     * Get the value of propertyClass
-     *
-     * @return the value of propertyClass
-     */
-    public Class getPropertyClass() {
-        return propertyClass;
+    public void propertyChanged(boolean validated, Object oldValue, Object newValue) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public PropertyAnnotationMismatchException(Annotation annotation, Class propertyClass) {
-        this.annotation = annotation;
-        this.propertyClass = propertyClass;
+    public void validationErrorMessage(String text) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
-    public String getMessage() {
-        return "Annotation " + annotation.toString() +
-                " can't be used for property type " + propertyClass.getName() +
-                ".";
+    public void focusGainedEvent() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

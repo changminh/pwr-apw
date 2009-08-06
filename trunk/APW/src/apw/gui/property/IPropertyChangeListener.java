@@ -44,4 +44,6 @@ public interface IPropertyChangeListener {
             Object newValue);
 
     public void validationErrorMessage(String text);
+
+    public void focusGainedEvent();
 }
