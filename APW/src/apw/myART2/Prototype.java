@@ -1,5 +1,6 @@
 package apw.myART2;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
@@ -12,38 +13,40 @@ public class Prototype {
     private int index = -1;
     private double[] weights = null;
     private HashSet<Integer> instances = new HashSet<Integer>();
-    private double alpha, beta, rho, theta;
+    private double beta;
+    private Instance closest = null;
+    private Instance interpretation = null;
 
-    public Prototype(double a, double b, double r, double t, int id, double[] dd) {
-        alpha = a;
-        beta = b;
-        rho = r;
-        theta = t;
+    public Prototype(double beta, int id, double[] dd) {
+        this.beta = beta;
         index = id;
         weights = dd;
         dimension = dd.length;
     }
 
     public void addInstance(Instance inst) {
-        if (inst.getVector().length != dimension)
-            throw new RuntimeException("Dimension error expected (" + dimension +
-                    ") != " + inst.getVector().length);
+        if (inst.getLength() != dimension)
+            throw new RuntimeException("Dimension error, expected (" + dimension +
+                    ") != " + inst.getLength());
         if (weights == null) {
-            weights = new double[inst.getVector().length];
-            for (int i = 0; i < inst.getVector().length; i++)
+            weights = new double[inst.getLength()];
+            for (int i = 0; i < inst.getLength(); i++)
                 weights[i] = inst.at(i);
         }
         else {
+            // Reseting closest instance:
+            closest = null;
             // Updating weights:
-            double[] v = inst.getVector();
+            double[] v = inst.getProcessingVector();
             double[] temp = new double[v.length];
-            for (int i = 0; i < v.length; i++)
+            int length = v.length;
+            for (int i = 0; i < length; i++)
                 temp[i] = (1.d - beta) * weights[i] + beta * v[i];
             double norm = 0.d;
-            for (int i = 0; i < temp.length; i++)
+            for (int i = 0; i < length; i++)
                 norm += temp[i] * temp[i];
             norm = Math.sqrt(norm);
-            for (int i = 0; i < temp.length; i++)
+            for (int i = 0; i < length; i++)
                 weights[i] = temp[i] / norm;
         }
     }
@@ -68,10 +71,25 @@ public class Prototype {
         return index;
     }
 
-    public void print() {
-        System.out.print("Prototype " + index + ": ");
-        for (double d : weights)
-            System.out.print(d + " ");
-        System.out.println("");
+    public Instance findClosestInstance(ArrayList<Instance> instances) {
+        double max = -1.d;
+        double temp = 0.d;
+        closest = null;
+        for (Instance i : instances) {
+            if ((temp = countScore(i)) > max) {
+                max = temp;
+                closest = i;
+            }
+        }
+        interpretation = new Instance(weights, closest.getNorm());
+        return closest;
+    }
+
+    public Instance turnToInstance(ArrayList<Instance> instances) {
+        if (closest == null) {
+            closest = findClosestInstance(instances);
+            interpretation = new Instance(weights, closest.getNorm());
+        }
+        return interpretation;
     }
 }

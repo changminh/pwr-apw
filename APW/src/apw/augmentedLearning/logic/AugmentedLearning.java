@@ -14,6 +14,7 @@ import apw.augmentedLearning.gui.LoadingSamples_Step2;
 import apw.classifiers.RuleClassifier;
 import apw.core.Attribute;
 import apw.core.Nominal;
+import apw.core.meta.ClassifierCapabilities;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -24,6 +25,12 @@ import javax.swing.JOptionPane;
  *
  * @author nitric
  */
+@ClassifierCapabilities(
+    handlesNominalAtts = true,
+    handlesNumericAtts = true,
+    multiClass = true,
+    regression = false
+)
 public class AugmentedLearning extends RuleClassifier {
 
     private static AugmentedLearning inst;
