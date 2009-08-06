@@ -27,17 +27,12 @@ public class ART_2A {
     public static Network createNetwork(
             double a, double b, double r, double t, int p, ArrayList<Instance> instances)
             throws IllegalArgumentException {
-        checkParameters(a, b, r, t, p, instances.get(0).getVector().length);
+        checkParameters(a, b, r, t, p, instances.get(0).getProcessingVector().length);
         alpha = a;
         beta = b;
         rho = r;
         theta = t;
         passes = p;
-        normalizeVectors(instances);
-        normalizeVectors(instances = denoiseVectors(instances));
-        /* System.out.println("Input vectors: ");
-        for (Instance inst : instances)
-            inst.print(); */
         learn(instances);
         return network;
     }
@@ -45,61 +40,23 @@ public class ART_2A {
     private static Network learn(ArrayList<Instance> instances) {
         network = new Network(alpha, beta, rho, theta);
         for (int i = 0; i < passes; i++) {
-            for (Instance inst : instances) {
-                // inst.print();
+            for (Instance inst : instances)
                 network.query(inst);
-                // network.print();
-                // System.out.println("\n\n\n");
-            }
         }
         return network;
-    }
-
-    private static void normalizeVectors(ArrayList<Instance> instances) {
-        double sum, norm;
-        int length = instances.get(0).getVector().length;
-        double[] v;
-        for (Instance i : instances) {
-            sum = 0;
-            v = i.getVector();
-            for (int j = 0; j < length; j++)
-                sum += v[j] * v[j];
-            norm = Math.sqrt(sum);
-            for (int j = 0; j < length; j++)
-                v[j] = v[j] / norm;
-            i.setVector(v);
-        }
-    }
-
-    private static ArrayList<Instance> denoiseVectors(ArrayList<Instance> instances) {
-        ArrayList<Instance> denoised = new ArrayList<Instance>();
-        double[] v;
-        boolean foundNonZero;
-        for (Instance i : instances) {
-            foundNonZero = false;
-            v = i.getVector();
-            for (int j = 0; j < v.length; j++) {
-                if (v[j] < theta)
-                    v[j] = 0.d;
-                else
-                    foundNonZero = true;
-            }
-            if (foundNonZero)
-                denoised.add(i);
-        }
-        System.out.println("Removed " + (instances.size() - denoised.size()) + " samples.");
-        return denoised;
     }
 
     public static void main(String[] args) {
         ArrayList<Instance> instances = new ArrayList<Instance>();
         Network n = null;
         Samples samples = null;
+        double t = 0.1d;
         try {
-            samples = new ARFFLoader(new File("data/wine.arff")).getSamples();
-            instances = shuffleInstances(convertSamples(samples));
+            samples = new ARFFLoader(new File("data/test.arff")).getSamples();
+            // samples.setClassAttributeIndex(0);
+            instances = shuffleInstances(convertSamples(samples, t));
             // n = createNetwork(0.3d, 0.005d, 0.99d, 0.01d, instances); // przy 9 przebiegach 2 błędy dla irysków :D
-            n = createNetwork(0.1d, 0.1d, 0.995d, 0.01d, 15, instances);
+            n = createNetwork(0.1d, 0.5d, 0.97d, t, 9, instances);
         } catch (IllegalArgumentException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage());
             return;
@@ -108,11 +65,16 @@ public class ART_2A {
         }
         n.print();
         n.stopLearning();
+        for (Prototype p : n.getPrototypes()) {
+            System.out.print("Closest instance for " + p.getIndex() + ": ");
+            p.findClosestInstance(instances).print();
+            p.turnToInstance(instances).print();
+            System.out.println("");
+        }
         HashMap<String, Integer> stats = new HashMap<String, Integer>();
         String temp;
         Prototype p;
         for (Instance inst : instances) {
-            // System.out.print("Instance " + inst.getId() + " -> ");
             p = n.query(inst);
             if (labeled) {
                 temp = samples.get(inst.getId()).classAttributeInt().toString() + "_" + p.getIndex();
@@ -132,7 +94,7 @@ public class ART_2A {
             throws IllegalArgumentException {
         double limit = 1.d / Math.sqrt(columnCount);
         StringBuilder sb = new StringBuilder();
-        String s1 = "0 &lt;= alfa &lt;= " + limit;
+        String s1 = "0 &lt;= alpha &lt;= " + limit;
         String s2 = "0 &lt; beta &lt;= 1";
         String s3 = "0 &lt; rho &lt; 1";
         String s4 = "0 &lt;= theta &lt; " + limit;
@@ -175,13 +137,13 @@ public class ART_2A {
             throw new IllegalArgumentException(sb.toString());
     }
 
-    public static ArrayList<Instance> convertSamples(Samples samples) {
+    public static ArrayList<Instance> convertSamples(Samples samples, double t) {
         // checking whether all attribute's (excluding class) are real numbers:
         ArrayList<Attribute> atts = samples.getAtts();
         labels = new HashSet<String>();
         int attCount = atts.size();
         int classAtt = samples.getClassAttributeIndex();
-        System.out.println("classAtt = " + classAtt);
+        // System.out.println("classAtt = " + classAtt);
         for (int i = 0; i < attCount; i++) {
             if (atts.get(i).isNominal() && i != classAtt)
                 throw new IllegalArgumentException("All non-class attributes must be real numbers!");
@@ -191,9 +153,10 @@ public class ART_2A {
         int cc = 0;
         labeled = classAtt != -1;
         int validAtts = labeled ? attCount - 1 : attCount;
-        System.out.println("validAtts = " + validAtts);
+        // System.out.println("validAtts = " + validAtts);
         double[] row;
         Sample s;
+        int instancesCount = 0;
         for (int i = 0; i < samples.size(); i++) {
             cc = 0;
             s = samples.get(i);
@@ -206,13 +169,10 @@ public class ART_2A {
                 }
                 row[cc++] = (Double) s.get(j);
             }
-            instances.add(new Instance(row, i));
-        }
-        if (labeled && false) {
-            System.out.println("Labels: ");
-            for (String st : labels)
-                System.out.print(st + " ");
-            System.out.println("");
+            try {
+                instances.add(new Instance(row, instancesCount, t));
+                instancesCount++;
+            } catch (InstantiationError ex) { }
         }
         return instances;
     }

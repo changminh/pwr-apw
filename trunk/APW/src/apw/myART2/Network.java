@@ -1,5 +1,6 @@
 package apw.myART2;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -34,9 +35,9 @@ public class Network {
         if (!learningMode)
             return p;
         else {
-            if (!similarityTest(p, inst, bestValue))
+            if (!similarityTest(inst, bestValue))
                 return addNeuron(inst);
-            else if (vigilanceTest(p, inst, bestValue)) {
+            else if (vigilanceTest(bestValue)) {
                 p.addInstance(inst);
                 return p;
             }
@@ -48,32 +49,31 @@ public class Network {
     private Prototype addNeuron(Instance inst) {
         int number = prototypes.size();
         Prototype p;
-        prototypes.put(number, p = new Prototype(alpha, beta, rho, theta, number, inst.getVector()));
+        prototypes.put(number, p = new Prototype(beta, number, inst.getProcessingVector()));
         return p;
     }
 
-    private boolean similarityTest(Prototype p, Instance inst, double score) {
+    private boolean similarityTest(Instance inst, double score) {
         double alphaSum = 0;
-        for (double d : inst.getVector())
+        for (double d : inst.getProcessingVector())
             alphaSum += d;
         alphaSum *= alpha;
         return score >= alphaSum;
     }
 
-    private boolean vigilanceTest(Prototype p, Instance inst, double score) {
+    private boolean vigilanceTest(double score) {
         return score >= rho;
     }
     
     public void print() {
         System.out.println("Network has " + prototypes.size() + " neurons.");
-        if (true)
-            return;
-        for (Prototype p : prototypes.values()) {
-            p.print();
-        }
     }
 
     public void stopLearning() {
         learningMode = false;
+    }
+
+    public Collection<Prototype> getPrototypes() {
+        return prototypes.values();
     }
 }
