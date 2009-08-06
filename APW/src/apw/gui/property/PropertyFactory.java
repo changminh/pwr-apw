@@ -33,13 +33,9 @@
  */
 package apw.gui.property;
 
+import apw.gui.property.component.StringComponent;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
 
 /**
  *
@@ -52,41 +48,27 @@ public class PropertyFactory {
         // TODO: the JComponent must be replaced by >>PropertyComponent<< class
 
         // public PropertyComponent getComponentForType();
-        public JComponent getComponentForType();
+        public PropertyComponent getComponentForType();
     }
     /**
      * Map
      */
-    private static Map<Class, TypeToGUIHandler> typeMap = new HashMap();
+    private static Map<Class, TypeToGUIHandler> propertyMap = new HashMap();
 
     static {
-        typeMap.put(Double.class, new TypeToGUIHandler() {
-
-            public JComponent getComponentForType() {
-                return new JSpinner();
+        propertyMap.put(String.class, new TypeToGUIHandler() {
+            public PropertyComponent getComponentForType() {
+                return new StringComponent();
             }
         });
 
-        typeMap.put(Integer.class, new TypeToGUIHandler() {
-
-            public JComponent getComponentForType() {
-                return new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
-            }
-        });
-
-        typeMap.put(String.class, new TypeToGUIHandler() {
-
-            public JComponent getComponentForType() {
-                return new JTextField("Text Field");
-            }
-        });
     }
 
-    public static JComponent mapTypeToGUIComponent(Class o) {
+    public static PropertyComponent mapTypeToGUIComponent(Class o) {
         // TODO: Change fallback value for something relevant
-        JComponent comp = new JLabel("Default Type label");
-        if (typeMap.containsKey(o))
-            comp = typeMap.get(o).
+        PropertyComponent comp = new StringComponent();
+        if (propertyMap.containsKey(o))
+            comp = propertyMap.get(o).
                     getComponentForType();
         return comp;
     }

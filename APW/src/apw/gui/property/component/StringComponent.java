@@ -31,46 +31,33 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.gui.property;
+package apw.gui.property.component;
 
+import apw.gui.property.AbstractPropertyComponent;
+import apw.gui.property.PropertyAnnotationMismatchException;
 import java.lang.annotation.Annotation;
+import javax.swing.JComponent;
+import javax.swing.JTextField;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class PropertyAnnotationMismatchException extends Exception {
+public class StringComponent extends AbstractPropertyComponent {
 
-    private Annotation annotation = null;
-    private Class propertyClass = null;
+    JTextField textField = new JTextField("");
 
-    /**
-     * Get the value of annotation
-     *
-     * @return the value of annotation
-     */
-    public Annotation getAnnotation() {
-        return annotation;
+    public JComponent getComponent() {
+        return textField;
     }
 
-    /**
-     * Get the value of propertyClass
-     *
-     * @return the value of propertyClass
-     */
-    public Class getPropertyClass() {
-        return propertyClass;
+    public void handleAnnotations(Annotation[] annotations)
+            throws PropertyAnnotationMismatchException {
+        // TODO: add validation support e.g. regex, length
+        System.out.println("StringComponent.handleAnnotations");
     }
 
-    public PropertyAnnotationMismatchException(Annotation annotation, Class propertyClass) {
-        this.annotation = annotation;
-        this.propertyClass = propertyClass;
-    }
-
-    @Override
-    public String getMessage() {
-        return "Annotation " + annotation.toString() +
-                " can't be used for property type " + propertyClass.getName() +
-                ".";
+    public String noticeMessage() {
+        return "String type field.";
     }
 }

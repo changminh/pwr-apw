@@ -31,46 +31,13 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.gui.property;
 
-import java.lang.annotation.Annotation;
+package apw.gui.property.validation;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class PropertyAnnotationMismatchException extends Exception {
+public class StringComponent {
 
-    private Annotation annotation = null;
-    private Class propertyClass = null;
-
-    /**
-     * Get the value of annotation
-     *
-     * @return the value of annotation
-     */
-    public Annotation getAnnotation() {
-        return annotation;
-    }
-
-    /**
-     * Get the value of propertyClass
-     *
-     * @return the value of propertyClass
-     */
-    public Class getPropertyClass() {
-        return propertyClass;
-    }
-
-    public PropertyAnnotationMismatchException(Annotation annotation, Class propertyClass) {
-        this.annotation = annotation;
-        this.propertyClass = propertyClass;
-    }
-
-    @Override
-    public String getMessage() {
-        return "Annotation " + annotation.toString() +
-                " can't be used for property type " + propertyClass.getName() +
-                ".";
-    }
 }

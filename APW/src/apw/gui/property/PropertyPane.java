@@ -41,14 +41,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
@@ -56,7 +52,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.UIManager;
 import javax.swing.text.html.HTMLDocument;
@@ -78,6 +73,7 @@ public class PropertyPane extends JDialog {
     JButton cancelButton;
     JToggleButton showMessagesPaneButton;
     PropertyModel model;
+    private JEditorPane messageArea;
 
     public PropertyPane(PropertyModel model) {
         super();
@@ -128,9 +124,10 @@ public class PropertyPane extends JDialog {
         splitPane.setResizeWeight(1.0);
         splitPane.setOneTouchExpandable(true);
 
-        JEditorPane messageArea = new JEditorPane();
+        messageArea = new JEditorPane();
         messageArea.setDocument(new HTMLDocument());
         messageArea.setPreferredSize(new Dimension(10, 100));
+        messageArea.setEditable(false);
         JScrollPane sp = new JScrollPane(messageArea);
         sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -185,7 +182,6 @@ public class PropertyPane extends JDialog {
         for (int i = 0; i < model.props.size(); i++) {
             PropertyDescriptor desc = model.props.get(i);
             // labelz
-//            JLabel label = new JLabel("label " + i);
             JLabel label = new JLabel(desc.name);
 
             GridBagConstraints constr = new GridBagConstraints();
@@ -196,20 +192,19 @@ public class PropertyPane extends JDialog {
             mainPanel.add(label, constr);
 
             // buttonz
-
             System.out.println("Class = " + desc.clazz);
-            JComponent comp = PropertyFactory.mapTypeToGUIComponent(desc.clazz);
-            JTextField field = new JTextField("field " + i);
+            PropertyComponent comp =
+                    PropertyFactory.mapTypeToGUIComponent(desc.clazz);
+            PropertyPaneEventListener listener = new PropertyPaneEventListener(this, desc);
             constr = new GridBagConstraints();
             constr.gridx = 1;
             constr.gridy = i;
             constr.anchor = GridBagConstraints.CENTER;
-            mainPanel.add(comp, constr);
+            mainPanel.add(comp.getComponent(), constr);
         }
     }
-    static Object[] o = new Object[]{
-        "test",
-        1.0d,
-        123L
-    };
+
+    void notify(String message) {
+        messageArea.setText(message);
+    }
 }
