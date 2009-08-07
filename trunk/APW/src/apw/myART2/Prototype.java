@@ -92,4 +92,8 @@ public class Prototype {
         }
         return interpretation;
     }
+
+    public double at(int i) {
+        return weights[i];
+    }
 }
