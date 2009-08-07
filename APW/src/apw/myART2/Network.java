@@ -1,25 +1,38 @@
 package apw.myART2;
 
+import apw.myART2.gui.ViewType;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import javax.swing.JOptionPane;
+import javax.swing.table.AbstractTableModel;
 
 /**
  *
  * @author nitric
  */
-public class Network {
-    private HashMap<Integer, Prototype> prototypes = new HashMap<Integer, Prototype>();
-    private boolean learningMode = true;
-    private double alpha, beta, rho, theta;
+public class Network extends AbstractTableModel {
+    protected HashMap<Integer, Prototype> prototypes = new HashMap<Integer, Prototype>();
+    protected boolean learningMode = true;
+    protected double alpha, beta, rho, theta;
+    protected int columns = -1;
+    protected double[] buffer;
+    protected ViewType viewType = ViewType.CLOSEST_INSTANCE;
+    protected ArrayList<Instance> instances = new ArrayList<Instance>();
+    protected String[] columnNames;
 
-    public Network(double alpha, double beta, double rho, double theta) {
+    public Network(double alpha, double beta, double rho, double theta, int columns) {
         this.alpha = alpha;
         this.beta = beta;
         this.rho = rho;
         this.theta = theta;
+        this.columns = columns;
+        resetBuffer();
     }
 
     public Prototype query(Instance inst) {
+        if (!instances.contains(inst))
+            instances.add(inst);                       // For purposes of table's creation
         if (prototypes.size() == 0 && learningMode)
             addNeuron(inst);
         int bestIndex = -1;
@@ -39,10 +52,14 @@ public class Network {
                 return addNeuron(inst);
             else if (vigilanceTest(bestValue)) {
                 p.addInstance(inst);
+                fireTableRowsUpdated(bestIndex + 1, bestIndex + 1);
                 return p;
             }
-            else
-                return addNeuron(inst);
+            else {
+                p = addNeuron(inst);
+                fireTableRowsInserted(prototypes.size(), prototypes.size());
+                return p;
+            }
         }
     }
 
@@ -67,13 +84,94 @@ public class Network {
     
     public void print() {
         System.out.println("Network has " + prototypes.size() + " neurons.");
+        System.out.println("Parameters: ");
+        System.out.print("alpha = " + alpha);
+        System.out.print(", beta = " + beta);
+        System.out.print(", vigilance = " + rho);
+        System.out.println(", theta = " + theta);
     }
 
-    public void stopLearning() {
-        learningMode = false;
+    public void learningMode(boolean b) {
+        learningMode = b;
     }
 
     public Collection<Prototype> getPrototypes() {
         return prototypes.values();
+    }
+
+    /************** Methods responsible for rendering table **************/
+    private void resetBuffer() {
+        buffer = new double[columns];
+        for (int i = 0; i < columns; i++)
+            buffer[i] = Double.NEGATIVE_INFINITY;
+    }
+
+    @Override
+    public Class getColumnClass(int col) {
+        return Double.class;
+    }
+    
+    public int getRowCount() {
+        return prototypes.size() + 1;
+    }
+
+    public int getColumnCount() {
+        return columns;
+    }
+
+    public Object getValueAt(int row, int col) {
+        if (row == 0)
+            return buffer[col] == Double.NEGATIVE_INFINITY ? "" : buffer[col];
+        else {
+            Prototype p = prototypes.get(row - 1);
+            switch (viewType) {
+                case CLOSEST_INSTANCE:
+                    return p.findClosestInstance(instances).inputAt(col);
+                case SIMULATED_INSTANCE:
+                    return p.turnToInstance(instances).inputAt(col);
+                case WEIGHTS:
+                    return p.at(col);
+            }
+        }
+        return "";
+    }
+
+    @Override
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        buffer[columnIndex] = (Double) aValue;
+    }
+
+    @Override
+    public String getColumnName(int col) {
+        return columnNames[col];
+    }
+    
+    @Override
+    public boolean isCellEditable(int row, int col) {
+        return row == 0;
+    }
+
+    public void commitBuffer() {
+        for (int i = 0; i < columns && true; i++) {
+            if (buffer[i] < 0) {
+                JOptionPane.showMessageDialog(null, "All input values should be greater or equal 0!");
+                return;
+            }
+        }
+        try {
+            query(new Instance(buffer, instances.size(), theta));
+            resetBuffer();
+        } catch (InstantiationError ex) {
+            JOptionPane.showMessageDialog(null, "All input values should be greater or equal 0!");
+        }
+    }
+
+    public void setView(ViewType viewType) {
+        this.viewType = viewType;
+        fireTableDataChanged();
+    }
+
+    public void setColumnNames(String[] columnNames) {
+        this.columnNames = columnNames;
     }
 }

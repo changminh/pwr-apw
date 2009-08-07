@@ -53,6 +53,10 @@ public class Instance {
         return processingVector[index];
     }
 
+    public double inputAt(int index) {
+        return inputVector[index];
+    }
+
     public void print() {
         System.out.print("Instance " + id + ": ");
         for (int i = 0; i < getLength(); i++)
