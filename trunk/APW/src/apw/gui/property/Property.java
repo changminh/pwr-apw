@@ -58,10 +58,11 @@ public class Property<T> {
      *
      * @param value
      */
-    public void set(T value) {
+    public Property<T> set(T value) {
         T oldValue = prop;
         prop = value;
         propertyChangeSupport.firePropertyChange("property", oldValue, value);
+        return this;
     }
 
     /**

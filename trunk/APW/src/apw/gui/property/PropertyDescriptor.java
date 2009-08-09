@@ -41,8 +41,8 @@ import java.lang.annotation.Annotation;
  */
 public class PropertyDescriptor {
 
-    Property prop;
-    String name;
-    Annotation [] anns;
-    Class clazz;
+    public Property prop;
+    public String name;
+    public Annotation [] anns;
+    public Class clazz;
 }

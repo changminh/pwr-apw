@@ -57,6 +57,10 @@ import javax.swing.UIManager;
 import javax.swing.text.html.HTMLDocument;
 
 /**
+ * Here's a link to a very relevant
+ * <a href="http://www.prism.uvsq.fr/~bad/Java/AWTLayoutMgr/shortcourse.html">
+ * tutorial</a> explaining most of layout management used in this class.
+ *
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
@@ -196,9 +200,12 @@ public class PropertyPane extends JDialog {
             PropertyComponent comp =
                     PropertyFactory.mapTypeToGUIComponent(desc.clazz);
             PropertyPaneEventListener listener = new PropertyPaneEventListener(this, desc);
+            comp.registerListener(listener);
+            comp.initialize(desc);
             constr = new GridBagConstraints();
             constr.gridx = 1;
             constr.gridy = i;
+            constr.fill = GridBagConstraints.HORIZONTAL;
             constr.anchor = GridBagConstraints.CENTER;
             mainPanel.add(comp.getComponent(), constr);
         }
@@ -206,5 +213,12 @@ public class PropertyPane extends JDialog {
 
     void notify(String message) {
         messageArea.setText(message);
+    }
+
+    void validationErrorMessage(String error) {
+        JOptionPane.showMessageDialog(this,
+                error,
+                "Validation error",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 }

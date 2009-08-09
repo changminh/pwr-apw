@@ -40,6 +40,7 @@
 
 package apw.gui.property;
 
+import java.awt.GridLayout;
 import javax.swing.JDialog;
 
 /**
@@ -61,11 +62,97 @@ public class GUIPrototypeHelpDesperetalyNeeded extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
+        FileComponentMockup = new javax.swing.JPanel();
+        jTextField1 = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
+        GrigLayoutTest = new javax.swing.JPanel();
+        jPanel6 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jPanel5 = new javax.swing.JPanel();
+        jTextField3 = new javax.swing.JTextField();
+        jTextField4 = new javax.swing.JTextField();
+        jSlider1 = new javax.swing.JSlider();
+        jPanel7 = new javax.swing.JPanel();
+        anotherGridLayoutTest = new javax.swing.JPanel();
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel1 = new javax.swing.JPanel();
+        jButton2 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jTextField2 = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
+
+        FileComponentMockup.setLayout(new java.awt.BorderLayout());
+
+        jTextField1.setText("jTextField1");
+        FileComponentMockup.add(jTextField1, java.awt.BorderLayout.CENTER);
+
+        jButton1.setText("...");
+        FileComponentMockup.add(jButton1, java.awt.BorderLayout.LINE_END);
+
+        GrigLayoutTest.setLayout(new java.awt.BorderLayout());
+
+        jPanel6.setLayout(new java.awt.BorderLayout());
+
+        jPanel4.setLayout(new java.awt.GridLayout(4, 0));
+
+        jLabel3.setText("jLabel3");
+        jPanel4.add(jLabel3);
+
+        jLabel4.setText("jLabel4");
+        jPanel4.add(jLabel4);
+
+        jLabel6.setText("jLabel6");
+        jPanel4.add(jLabel6);
+
+        jLabel5.setText("jLabel5");
+        jPanel4.add(jLabel5);
+
+        jPanel6.add(jPanel4, java.awt.BorderLayout.WEST);
+
+        jPanel5.setLayout(new java.awt.GridLayout(4, 0));
+
+        jTextField3.setText("jTextField3");
+        jPanel5.add(jTextField3);
+
+        jTextField4.setText("jTextField4");
+        jPanel5.add(jTextField4);
+        jPanel5.add(jSlider1);
+
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 486, Short.MAX_VALUE)
+        );
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
+        jPanel5.add(jPanel7);
+
+        jPanel6.add(jPanel5, java.awt.BorderLayout.CENTER);
+
+        GrigLayoutTest.add(jPanel6, java.awt.BorderLayout.PAGE_START);
+
+        javax.swing.GroupLayout anotherGridLayoutTestLayout = new javax.swing.GroupLayout(anotherGridLayoutTest);
+        anotherGridLayoutTest.setLayout(anotherGridLayoutTestLayout);
+        anotherGridLayoutTestLayout.setHorizontalGroup(
+            anotherGridLayoutTestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+        anotherGridLayoutTestLayout.setVerticalGroup(
+            anotherGridLayoutTestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
 
         setLayout(new java.awt.BorderLayout());
 
@@ -74,16 +161,36 @@ public class GUIPrototypeHelpDesperetalyNeeded extends javax.swing.JPanel {
         jSplitPane1.setResizeWeight(1.0);
         jSplitPane1.setOneTouchExpandable(true);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 403, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 276, Short.MAX_VALUE)
-        );
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
+        jButton2.setText("jButton2");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        jPanel1.add(jButton2, gridBagConstraints);
+
+        jLabel1.setText("jLabel1");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        jPanel1.add(jLabel1, gridBagConstraints);
+
+        jLabel2.setText("jLabel2");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        jPanel1.add(jLabel2, gridBagConstraints);
+
+        jTextField2.setText("jTextField2");
+        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField2ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 5;
+        jPanel1.add(jTextField2, gridBagConstraints);
 
         jSplitPane1.setTopComponent(jPanel1);
 
@@ -95,17 +202,42 @@ public class GUIPrototypeHelpDesperetalyNeeded extends javax.swing.JPanel {
         add(jSplitPane1, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField2ActionPerformed
+
     public static void main(String args[]) {
         GUIPrototypeHelpDesperetalyNeeded a = new GUIPrototypeHelpDesperetalyNeeded();
         JDialog dialog = new JDialog();
         dialog.add(a, null);
         dialog.setVisible(true);
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel FileComponentMockup;
+    private javax.swing.JPanel GrigLayoutTest;
+    private javax.swing.JPanel anotherGridLayoutTest;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSlider jSlider1;
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField jTextField4;
     private javax.swing.JTextPane jTextPane1;
     // End of variables declaration//GEN-END:variables
 

@@ -33,6 +33,11 @@
  */
 package apw.gui.property;
 
+import apw.gui.property.validation.Description;
+import java.lang.annotation.Annotation;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
@@ -40,6 +45,7 @@ package apw.gui.property;
 public abstract class AbstractPropertyComponent implements PropertyComponent {
 
     IPropertyChangeListener listener;
+    protected Set<Annotation> annotations;
 
     public void registerListener(IPropertyChangeListener listener) {
         this.listener = listener;
@@ -51,7 +57,7 @@ public abstract class AbstractPropertyComponent implements PropertyComponent {
      * 
      * @param text user presented message
      */
-    public void ValidationErrorMessage(String text) {
+    public void validationErrorMessage(String text) {
         if (listener != null)
             listener.validationErrorMessage(text);
     }
@@ -64,8 +70,44 @@ public abstract class AbstractPropertyComponent implements PropertyComponent {
      * @param oldValue 
      * @param newValue
      */
-    public void PropertyChanged(boolean validated, Object oldValue, Object newValue) {
+    public void propertyChanged(boolean validated, Object oldValue, Object newValue) {
         if (listener != null)
             listener.propertyChanged(validated, oldValue, newValue);
     }
+
+    /**
+     * Perform basic annotation assesments valid for all PropertyTypes.
+     * @param desc
+     */
+    public void initialize(PropertyDescriptor desc) {
+        // Create a Set<Annotation> out of Annotation[] ensuring
+        // no duplicates exist (and there are no multiple interpretations).
+        Annotation[] anns = desc.anns;
+        Set<Class<? extends Annotation>> ac = new HashSet();
+        Set<Annotation> as = new HashSet();
+        Class<? extends Annotation> clazz;
+        for (int i = 0; i < anns.length;
+                i++) {
+            clazz = anns[i].annotationType();
+            if (ac.contains(clazz))
+                throw new DuplicatedPropertyAnnotationException(clazz, desc);
+            ac.add(clazz);
+            as.add(anns[i]);
+        }
+        // Now we check if all annotations can be used with the particular
+        // PropertyComponent
+        Set<Class<? extends Annotation>> valid = new HashSet();
+        // one special case for annotation common for all property types
+        valid.add(Description.class);
+        configureValidAnnotationSet(valid);
+        // now throw an exception if a property is annotated wrong
+        for (Annotation a : as)
+            if (!valid.contains(a.annotationType()))
+                throw new PropertyAnnotationMismatchException(a, desc.clazz);
+        // last step - assigns annotation set
+        this.annotations = as;
+    }
+
+    public abstract void configureValidAnnotationSet(
+            Set<Class<? extends Annotation>> valid);
 }
