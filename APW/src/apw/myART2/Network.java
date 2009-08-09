@@ -57,7 +57,6 @@ public class Network extends AbstractTableModel {
             }
             else {
                 p = addNeuron(inst);
-                fireTableRowsInserted(prototypes.size(), prototypes.size());
                 return p;
             }
         }
@@ -67,6 +66,7 @@ public class Network extends AbstractTableModel {
         int number = prototypes.size();
         Prototype p;
         prototypes.put(number, p = new Prototype(beta, number, inst.getProcessingVector()));
+        fireTableRowsInserted(prototypes.size(), prototypes.size());
         return p;
     }
 

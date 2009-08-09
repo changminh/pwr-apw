@@ -6,9 +6,11 @@ import apw.core.Sample;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
 import java.io.File;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 import javax.swing.JOptionPane;
@@ -17,28 +19,66 @@ import javax.swing.JOptionPane;
  *
  * @author nitric
  */
-public class ART_2A {
+public class ART_2A_Util {
 
-    private static double alpha, beta, rho, theta;
-    private static int passes;
-    private static Network network = null;
-    private static boolean labeled;
+    private double alpha, beta, rho, theta;
+    private int passes;
+    private Network network = null;
+    private boolean labeled;
+    private static NumberFormat formatter;
 
+    static {
+        formatter = NumberFormat.getNumberInstance(Locale.ENGLISH);
+        formatter.setMinimumFractionDigits(4);
+    }
 
-    public static Network createAndLearnNetwork(
-            double a, double b, double r, double t, int p, ArrayList<Instance> instances)
-            throws IllegalArgumentException {
-        checkParameters(a, b, r, t, p, instances.get(0).getProcessingVector().length);
+    private void commitParameters(double a, double b, double r, double t, int p) {
         alpha = a;
         beta = b;
         rho = r;
         theta = t;
         passes = p;
+    }
+
+    /**
+     * Use this method to create network initialized and learned form given set
+     * of instances.
+     * @param a alpha
+     * @param b beta
+     * @param r vigilance
+     * @param t theta
+     * @param passes passes that network has to go through. Each pass consist of
+     * presenting to the network each instance exactly one time.
+     * @param instances
+     * @return learned network
+     * @throws IllegalArgumentException
+     */
+    public Network createAndLearnNetwork(
+            double a, double b, double r, double t, int p, ArrayList<Instance> instances)
+            throws IllegalArgumentException {
+        setParameters(a, b, r, t, p, instances.get(0).getProcessingVector().length);        
         learn(instances);
         return network;
     }
 
-    private static Network learn(ArrayList<Instance> instances) {
+    /**
+     * Use this method to create network, that won't be learned using instances
+     * from file, but instances given interactively by user.
+     * @param a alpha
+     * @param b beta
+     * @param r vigilance
+     * @param t theta
+     * @param col count of count of instance attributes.
+     * @return
+     */
+    public Network createAndLearnNetwork(double a, double b, double r, double t, int col) {
+        setParameters(a, b, r, t, passes, col);
+        Network result = new Network(a, b, r, t, col);
+        result.learningMode(true);
+        return result;
+    }
+
+    private Network learn(ArrayList<Instance> instances) {
         int columns = instances.get(0).getLength();
         network = new Network(alpha, beta, rho, theta, columns);
         for (int i = 0; i < passes; i++) {
@@ -49,6 +89,7 @@ public class ART_2A {
     }
 
     public static void main(String[] args) {
+        ART_2A_Util util = new ART_2A_Util();
         ArrayList<Instance> instances = new ArrayList<Instance>();
         Network n = null;
         Samples samples = null;
@@ -56,9 +97,9 @@ public class ART_2A {
         try {
             samples = new ARFFLoader(new File("data/test.arff")).getSamples();
             // samples.setClassAttributeIndex(0);
-            instances = shuffleInstances(convertSamples(samples, t));
+            instances = util.shuffleInstances(util.convertSamples(samples, t));
             // n = createNetwork(0.3d, 0.005d, 0.99d, 0.01d, instances); // przy 9 przebiegach 2 błędy dla irysków :D
-            n = createAndLearnNetwork(0.1d, 0.5d, 0.97d, t, 9, instances);
+            n = util.createAndLearnNetwork(0.1d, 0.5d, 0.97d, t, 9, instances);
         } catch (IllegalArgumentException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage());
             return;
@@ -67,53 +108,58 @@ public class ART_2A {
         }
     }
 
-    public static void checkParameters(double a, double b, double r, double t, int p, int columnCount)
+    public void setParameters(double a, double b, double r, double t, int p, int columnCount)
             throws IllegalArgumentException {
         double limit = 1.d / Math.sqrt(columnCount);
-        StringBuilder sb = new StringBuilder();
-        String s1 = "0 &lt;= alpha &lt;= " + limit;
-        String s2 = "0 &lt; beta &lt;= 1";
-        String s3 = "0 &lt; vigilance &lt; 1";
-        String s4 = "0 &lt;= theta &lt; " + limit;
-        String s5 = "0 &lt; passes";
-        boolean error = false;
-        sb.append("<html><body>The parameter's values should be: <br><br>");
-        if (a > limit || a <= 0.f) {
-            error = true;
-            sb.append("<u>" + s1 + "</u><br>");
+        try {
+            StringBuilder sb = new StringBuilder();
+            String s1 = "0 &le; alpha &le; " + formatter.format(limit);
+            String s2 = "0 &lt; beta &le; 1";
+            String s3 = "0 &lt; vigilance &lt; 1";
+            String s4 = "0 &le; theta &lt; " + formatter.format(limit);
+            String s5 = "0 &le; passes";
+            boolean error = false;
+            sb.append("<html><body>The parameter's values should be: <br><br>");
+            if (a > limit || a <= 0.f) {
+                error = true;
+                sb.append("<u>" + s1 + "</u><br>");
+            }
+            else
+                sb.append(s1+ "<br>");
+            if (b > 1.f || b <= 0.f) {
+                error = true;
+                sb.append("<u>" + s2 + "</u><br>");
+            }
+            else
+                sb.append(s2 + "<br>");
+            if (r >= 1.f || r <= 0.f) {
+                error = true;
+                sb.append("<u>" + s3 + "</u><br>");
+            }
+            else
+                sb.append(s3 + "<br>");
+            if (t >= limit || t < 0.f) {
+                error = true;
+                sb.append("<u>" + s4 + "</u><br>");
+            }
+            else
+                sb.append(s4 + "<br>");
+            if (p < 0) {
+                error = true;
+                sb.append("<u>" + s5 + "</u><br>");
+            }
+            else
+                sb.append(s5 + "<br>");
+            sb.append("</body></html>");
+            if (error)
+                throw new IllegalArgumentException(sb.toString());
+            commitParameters(a, b, r, t, p);
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            System.out.println("Mam cie");
         }
-        else
-            sb.append(s1+ "<br>");
-        if (b > 1.f || b <= 0.f) {
-            error = true;
-            sb.append("<u>" + s2 + "</u><br>");
-        }
-        else
-            sb.append(s2 + "<br>");
-        if (r >= 1.f || r <= 0.f) {
-            error = true;
-            sb.append("<u>" + s3 + "</u><br>");
-        }
-        else
-            sb.append(s3 + "<br>");
-        if (t >= limit || t < 0.f) {
-            error = true;
-            sb.append("<u>" + s4 + "</u><br>");
-        }
-        else
-            sb.append(s4 + "<br>");
-        if (p < 1) {
-            error = true;
-            sb.append("<u>" + s5 + "</u><br>");
-        }
-        else
-            sb.append(s5 + "<br>");
-        sb.append("</body></html>");
-        if (error)
-            throw new IllegalArgumentException(sb.toString());
     }
 
-    public static ArrayList<Instance> convertSamples(Samples samples, double t) {
+    public ArrayList<Instance> convertSamples(Samples samples, double t) {
         // checking whether all attribute's (excluding class) are real numbers:
         ArrayList<Attribute> atts = samples.getAtts();
         int attCount = atts.size();
@@ -156,7 +202,7 @@ public class ART_2A {
         return instances;
     }
 
-    public static ArrayList<Instance> shuffleInstances(ArrayList<Instance> instances) {
+    public ArrayList<Instance> shuffleInstances(ArrayList<Instance> instances) {
         ArrayList<Instance> result = new ArrayList<Instance>();
         HashSet<Integer> shuffled = new HashSet<Integer>();
         int size = instances.size();
@@ -195,7 +241,7 @@ public class ART_2A {
         }
         for (String s : stats.keySet())
             System.out.println(s + " -> " + stats.get(s));
-        network.learningMode(true);
+        n.learningMode(true);
         System.out.println("-----------------------------------------------------");
     }
 

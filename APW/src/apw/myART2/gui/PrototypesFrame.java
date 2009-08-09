@@ -8,7 +8,7 @@ package apw.myART2.gui;
 
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
-import apw.myART2.ART_2A;
+import apw.myART2.ART_2A_Util;
 import apw.myART2.Instance;
 import apw.myART2.Network;
 import apw.myART2.Prototype;
@@ -16,7 +16,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.JOptionPane;
-import static apw.myART2.ART_2A.*;
+import static apw.myART2.ART_2A_Util.*;
 
 /**
  *
@@ -74,6 +74,7 @@ public class PrototypesFrame extends javax.swing.JFrame {
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
+                ART_2A_Util util = new ART_2A_Util();
                 ArrayList<Instance> instances = new ArrayList<Instance>();
                 Network n = null;
                 Samples samples = null;
@@ -81,9 +82,9 @@ public class PrototypesFrame extends javax.swing.JFrame {
                 try {
                     samples = new ARFFLoader(new File("data/test.arff")).getSamples();
                     // samples.setClassAttributeIndex(0);
-                    instances = shuffleInstances(ART_2A.convertSamples(samples, t));
+                    instances = util.shuffleInstances(util.convertSamples(samples, t));
                     // n = createNetwork(0.3d, 0.005d, 0.99d, 0.01d, instances); // przy 9 przebiegach 2 błędy dla irysków :D
-                    n = ART_2A.createAndLearnNetwork(0.3d, 0.5d, 0.99d, t, 9, instances);
+                    n = util.createAndLearnNetwork(0.3d, 0.5d, 0.99d, t, 9, instances);
                 } catch (IllegalArgumentException ex) {
                     JOptionPane.showMessageDialog(null, ex.getMessage());
                     return;
