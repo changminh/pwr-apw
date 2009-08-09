@@ -31,13 +31,22 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-
 package apw.gui.property.validation;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class StringComponent {
+@Documented
+@Retention(value = RetentionPolicy.RUNTIME)
+@Target(value = ElementType.FIELD)
+public @interface FileMustExist {
 
+    String message() default "File must exist.";
 }

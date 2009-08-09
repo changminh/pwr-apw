@@ -33,10 +33,6 @@
  */
 package apw.gui.property;
 
-import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.Collection;
-
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
@@ -46,7 +42,6 @@ public class PropertyPaneEventListener implements IPropertyChangeListener {
     private final PropertyPane ownerPane;
     private final PropertyDescriptor desc;
 
-
     public PropertyPaneEventListener(PropertyPane ownerPane,
             PropertyDescriptor desc) {
         this.ownerPane = ownerPane;
@@ -55,11 +50,13 @@ public class PropertyPaneEventListener implements IPropertyChangeListener {
     }
 
     public void propertyChanged(boolean validated, Object oldValue, Object newValue) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (!validated) return;
+
+        desc.prop.set(newValue);
     }
 
     public void validationErrorMessage(String text) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        ownerPane.validationErrorMessage(text);
     }
 
     public void focusGainedEvent() {

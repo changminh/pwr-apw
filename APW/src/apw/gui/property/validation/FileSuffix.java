@@ -31,60 +31,24 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI-
  *  BILITY OF SUCH DAMAGE.
  */
-package apw.gui.property;
+package apw.gui.property.validation;
 
-import apw.gui.property.component.FileComponent;
-import apw.gui.property.component.IntegerComponent;
-import apw.gui.property.component.StringComponent;
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class PropertyFactory {
+@Documented
+@Retention(value = RetentionPolicy.RUNTIME)
+@Target(value = ElementType.FIELD)
+public @interface FileSuffix {
 
-    /********* Dynamic type to component mapping section ahead ************/
-    private interface TypeToGUIHandler {
-        // TODO: the JComponent must be replaced by >>PropertyComponent<< class
+    String[] values();
 
-        // public PropertyComponent getComponentForType();
-        public PropertyComponent getComponentForType();
-    }
-    /**
-     * Map
-     */
-    private static Map<Class, TypeToGUIHandler> propertyMap = new HashMap();
-
-    static {
-        propertyMap.put(String.class, new TypeToGUIHandler() {
-
-            public PropertyComponent getComponentForType() {
-                return new StringComponent();
-            }
-        });
-        propertyMap.put(File.class, new TypeToGUIHandler() {
-
-            public PropertyComponent getComponentForType() {
-                return new FileComponent();
-            }
-        });
-        propertyMap.put(Integer.class, new TypeToGUIHandler() {
-
-            public PropertyComponent getComponentForType() {
-                return new IntegerComponent();
-            }
-        });
-    }
-
-    public static PropertyComponent mapTypeToGUIComponent(Class o) {
-        // TODO: Change fallback value for something relevant
-        PropertyComponent comp = new StringComponent();
-        if (propertyMap.containsKey(o))
-            comp = propertyMap.get(o).
-                    getComponentForType();
-        return comp;
-    }
+    String message();
 }

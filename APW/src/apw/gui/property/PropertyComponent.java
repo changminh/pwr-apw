@@ -61,13 +61,12 @@ public interface PropertyComponent {
 
     /**
      * Property Component is expected to handle specific annotations.
-     * T
      *
      * @param annotations to handle
      * @throws PropertyAnnotationMismatchException if annotations contains
      * unhandled element
      */
-    abstract public void handleAnnotations(Annotation[] annotations)
+    abstract public void initialize(PropertyDescriptor desc)
             throws PropertyAnnotationMismatchException;
 
     /**

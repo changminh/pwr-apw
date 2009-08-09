@@ -39,7 +39,7 @@ import java.lang.annotation.Annotation;
  *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public class PropertyAnnotationMismatchException extends Exception {
+public class PropertyAnnotationMismatchException extends RuntimeException {
 
     private Annotation annotation = null;
     private Class propertyClass = null;

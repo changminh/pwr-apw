@@ -34,8 +34,10 @@
 package apw.gui.property.component;
 
 import apw.gui.property.AbstractPropertyComponent;
-import apw.gui.property.PropertyAnnotationMismatchException;
+import apw.gui.property.validation.Length;
+import apw.gui.property.validation.Regex;
 import java.lang.annotation.Annotation;
+import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 
@@ -51,13 +53,14 @@ public class StringComponent extends AbstractPropertyComponent {
         return textField;
     }
 
-    public void handleAnnotations(Annotation[] annotations)
-            throws PropertyAnnotationMismatchException {
-        // TODO: add validation support e.g. regex, length
-        System.out.println("StringComponent.handleAnnotations");
-    }
 
     public String noticeMessage() {
         return "String type field.";
+    }
+
+    @Override
+    public void configureValidAnnotationSet(Set<Class<? extends Annotation>> valid) {
+        valid.add(Length.class);
+        valid.add(Regex.class);
     }
 }
