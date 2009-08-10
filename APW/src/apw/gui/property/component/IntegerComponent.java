@@ -33,13 +33,13 @@
  */
 package apw.gui.property.component;
 
-import apw.gui.property.AbstractPropertyComponent;
-import apw.gui.property.validation.Range;
-import java.lang.annotation.Annotation;
 import java.util.Set;
+import java.lang.annotation.Annotation;
 import javax.swing.JComponent;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import apw.gui.property.AbstractPropertyComponent;
+import apw.gui.property.validation.Range;
 
 /**
  *
@@ -57,6 +57,10 @@ public class IntegerComponent extends AbstractPropertyComponent {
     }
 
     public String noticeMessage() {
-        return "Not supported yet.";
+        return null;
+    }
+
+    @Override
+    public void parseAnnotation(Annotation ans) {
     }
 }

@@ -10,8 +10,8 @@
  *     disclaimer.
  *   • Redistributions  in binary  form must  reproduce the  above
  *     copyright notice, this list of conditions and the following
- *     disclaimer  in  the  documentation and / or other materials
- *     provided with the distribution.
+ *     disclaimer in the  documentation and/or other mate provided
+ *     with the distribution.
  *   • Neither  the name of the  Wrocław University of  Technology
  *     nor the names of its contributors may be used to endorse or
  *     promote products derived from this  software without speci-
@@ -33,58 +33,49 @@
  */
 package apw.gui.property;
 
-import javax.swing.JComponent;
+import java.lang.annotation.Annotation;
 
 /**
  *
- *
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
-public interface PropertyComponent {
+public class PropertyAnnotationIllegalArgumentException
+        extends RuntimeException {
+
+    private final Annotation annotation;
+    private final PropertyDescriptor propertyDescriptor;
+    private final String explanation;
 
     /**
-     * Use this method to provide GUI builder appropriate swing
-     * component which will be used to display and interact with
-     * user.
+     * Get the value of annotation
      *
-     * @return swing component
+     * @return the value of annotation
      */
-    abstract public JComponent getComponent();
+    public Annotation getAnnotation() {
+        return annotation;
+    }
 
-    /**
-     * GUI builder implemenetation uses this class to handle
-     * user input feedback.
-     * @param listener
-     */
-    abstract public void registerListener(IPropertyChangeListener listener);
+    public PropertyDescriptor getpropertyDescriptor() {
+        return propertyDescriptor;
+    }
 
-    /**
-     * Property Component is expected to handle specific annotations.
-     *
-     * @param annotations to handle
-     * @throws PropertyAnnotationMismatchException if annotations contains
-     * unhandled element
-     */
-    abstract public void initialize(PropertyDescriptor desc)
-            throws PropertyAnnotationMismatchException;
+    public String getExplanation() {
+        return explanation;
+    }
 
-    /**
-     * <p>Plain or html text explaining property meaning, e.g. "Value
-     * must be in range [0, 1] inclusively. Low values are recommended
-     * due to low performance penalty, but higher values might be necessary
-     * to discover all solutions. Typically values lower than 0.2 suffice."
-     * </p>
-     *
-     * <p>This method will be called every time a property component will
-     * receive focus. Implementation might look like: </p>
-     *
-     * <pre>
-     * public String noticeMessage() {
-     *    return "A number of trees in your garden.";
-     * }
-     * </pre>
-     *
-     * @return
-     */
-    public String noticeMessage();
+    public PropertyAnnotationIllegalArgumentException(
+            Annotation annotation,
+            PropertyDescriptor propertyDescriptor,
+            String explanation) {
+        this.annotation = annotation;
+        this.propertyDescriptor = propertyDescriptor;
+        this.explanation = explanation;
+    }
+
+    @Override
+    public String getMessage() {
+        return "Annotation: " + annotation.toString() +
+                " of property " + propertyDescriptor.name +
+                " received illegal arguments: " + explanation;
+    }
 }

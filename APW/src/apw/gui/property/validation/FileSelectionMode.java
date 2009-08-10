@@ -46,7 +46,26 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target(value = ElementType.FIELD)
-public @interface NotDirectory {
+public @interface FileSelectionMode {
 
+    /**
+     * Allow or disallow a file to be selected
+     *
+     * @return true if a file can be selected
+     */
+    boolean file() default true;
+
+    /**
+     * Allow or disallow directories to be selected
+     *
+     * @return true if a directory can be selected
+     */
+    boolean directory() default false;
+
+    /**
+     * Validation error message
+     *
+     * @return message to display if validation fails
+     */
     String message() default "Selection contained directory. Please select a file";
 }

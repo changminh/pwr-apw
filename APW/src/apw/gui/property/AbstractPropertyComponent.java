@@ -46,6 +46,7 @@ public abstract class AbstractPropertyComponent implements PropertyComponent {
 
     IPropertyChangeListener listener;
     protected Set<Annotation> annotations;
+    private PropertyDescriptor desc;
 
     public void registerListener(IPropertyChangeListener listener) {
         this.listener = listener;
@@ -82,6 +83,7 @@ public abstract class AbstractPropertyComponent implements PropertyComponent {
     public void initialize(PropertyDescriptor desc) {
         // Create a Set<Annotation> out of Annotation[] ensuring
         // no duplicates exist (and there are no multiple interpretations).
+        this.desc = desc;
         Annotation[] anns = desc.anns;
         Set<Class<? extends Annotation>> ac = new HashSet();
         Set<Annotation> as = new HashSet();
@@ -94,6 +96,7 @@ public abstract class AbstractPropertyComponent implements PropertyComponent {
             ac.add(clazz);
             as.add(anns[i]);
         }
+
         // Now we check if all annotations can be used with the particular
         // PropertyComponent
         Set<Class<? extends Annotation>> valid = new HashSet();
@@ -104,10 +107,22 @@ public abstract class AbstractPropertyComponent implements PropertyComponent {
         for (Annotation a : as)
             if (!valid.contains(a.annotationType()))
                 throw new PropertyAnnotationMismatchException(a, desc.clazz);
+
         // last step - assigns annotation set
         this.annotations = as;
+        for (Annotation a : as)
+            parseAnnotation(a);
     }
 
     public abstract void configureValidAnnotationSet(
             Set<Class<? extends Annotation>> valid);
+
+    public abstract void parseAnnotation(Annotation ans);
+
+    /**
+     * Helper method section ahead
+     */
+    public void annotationIllegalArgument(Annotation ann, String cause) {
+        throw new PropertyAnnotationIllegalArgumentException(ann, desc, cause);
+    }
 }
