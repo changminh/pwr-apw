@@ -33,12 +33,10 @@
  */
 package apw.gui.property;
 
-import apw.gui.property.component.FileComponent;
-import apw.gui.property.component.IntegerComponent;
-import apw.gui.property.component.StringComponent;
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
+import apw.gui.property.component.*;
 
 /**
  *
@@ -48,9 +46,7 @@ public class PropertyFactory {
 
     /********* Dynamic type to component mapping section ahead ************/
     private interface TypeToGUIHandler {
-        // TODO: the JComponent must be replaced by >>PropertyComponent<< class
 
-        // public PropertyComponent getComponentForType();
         public PropertyComponent getComponentForType();
     }
     /**

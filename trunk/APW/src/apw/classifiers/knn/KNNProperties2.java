@@ -37,7 +37,7 @@ import apw.gui.property.Property;
 import apw.gui.property.validation.Description;
 import apw.gui.property.validation.FileMustExist;
 import apw.gui.property.validation.FileSuffix;
-import apw.gui.property.validation.NotDirectory;
+import apw.gui.property.validation.FileSelectionMode;
 import apw.gui.property.validation.Range;
 import apw.gui.property.validation.Regex;
 import java.io.File;
@@ -56,20 +56,20 @@ public class KNNProperties2 {
     Property<Integer> firstProperty = new Property();
     /**
      * REGEX validated name. Expression source:
-     * <a href="http://examples.caspan.com/first_name_validate/" >
+     * <a href="http://examples.caspan.com/first_name_validate/">
      * this site</a>.
      */
     @Regex(value = "/^([a-z]+(\\'|-|\\.\\s|\\s)?[a-z]*){1,2}$/i",
     message = "Please enter your first name only. Please note sir " +
     "names are not part of a first name. If you look at your birth " +
-    "certificate it does not have Dr.,  Mr., Jr., or Miss. Please " +
+    "certificate it does nor have Dr.,  Mr., Jr., or Miss. Please " +
     "only submit your first name in this field.")
     @Description(value = "Property field containing user's first name.")
     Property<String> firstName = new Property("Józek");
     /**
      * Source file in WEKA ARFF format.
      */
-    @NotDirectory
+    @FileSelectionMode(directory = true)
     @FileMustExist(message = "Please select input file.")
     @Description("Input Sample file in WEKA ARFF file format.")
     @FileSuffix(values = {"arff"}, message = "Please select an ARFF file.")

@@ -33,18 +33,11 @@
  */
 package apw.gui.property.component;
 
-import apw.gui.property.DuplicatedPropertyAnnotationException;
-import apw.gui.property.AbstractPropertyComponent;
-import apw.gui.property.PropertyAnnotationMismatchException;
-import apw.gui.property.PropertyDescriptor;
-import apw.gui.property.validation.Description;
-import apw.gui.property.validation.FileMustExist;
-import apw.gui.property.validation.FileSuffix;
-import apw.gui.property.validation.NotDirectory;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
 import java.io.File;
-import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.AbstractAction;
@@ -54,9 +47,18 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.lang.annotation.Annotation;
+import apw.gui.property.AbstractPropertyComponent;
+import apw.gui.property.PropertyAnnotationIllegalArgumentException;
+import apw.gui.property.validation.FileMustExist;
+import apw.gui.property.validation.FileSuffix;
+import apw.gui.property.validation.FileSelectionMode;
 
 /**
- *
+ * TODO: @FileSelectionMode Annotation makes no sense since JFileChooser allows
+ * only files to be selected. Consider changing @FileSelectionMode to @Directory
+ * and displaying some FolderChooser istead of FileChooser.
+ * 
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
 public class FileComponent extends AbstractPropertyComponent {
@@ -65,18 +67,20 @@ public class FileComponent extends AbstractPropertyComponent {
     JButton showFileSelectionDialog;
     JTextField pathTextField;
     File file = null;
+    int fileSelectionMode = JFileChooser.FILES_ONLY;
     Action showDialogAction = new AbstractAction("...") {
 
         public void actionPerformed(ActionEvent e) {
             JFileChooser fc = new JFileChooser();
+            fc.setFileSelectionMode(fileSelectionMode);
+
             int result = fc.showOpenDialog(null);
             if (JFileChooser.APPROVE_OPTION == result) {
                 File f = fc.getSelectedFile();
                 if (f != null && validates(f)) {
                     pathTextField.setText(f.toString());
                     propertyChanged(true, file, f = file);
-                }
-
+                } else validationErrorMessage(message);
             }
         }
     };
@@ -84,7 +88,7 @@ public class FileComponent extends AbstractPropertyComponent {
     private boolean validateExistence = false;
     private Set<String> validationSuffixes = null;
     private boolean validateNotDirectory = false;
-    private Object message;
+    private String message;
     // validation messages
     private String notExistsMessage;
     private String wrongSuffixMessage;
@@ -93,9 +97,9 @@ public class FileComponent extends AbstractPropertyComponent {
     private boolean validates(File f) {
         boolean validates = true;
         validates &= validate(validateExistence, f.exists(), notExistsMessage);
-        validates &= validate(validateNotDirectory, f.isDirectory(), directoryMessage);
+        validates &= validate(validateNotDirectory, !f.isDirectory(), directoryMessage);
 
-        if (validationSuffixes != null) {
+        if (validationSuffixes != null && validationSuffixes.size() > 0) {
             boolean validatedSuffix = false;
             for (String sfx : validationSuffixes)
                 validatedSuffix |= f.getName().
@@ -128,17 +132,56 @@ public class FileComponent extends AbstractPropertyComponent {
         fileComponentPane.add(pathTextField, BorderLayout.CENTER);
         fileComponentPane.add(showFileSelectionDialog, BorderLayout.EAST);
 
+        // focus gain event wiring
+        fileComponentPane.addFocusListener(focusListener);
+        showFileSelectionDialog.addFocusListener(focusListener);
+        pathTextField.addFocusListener(focusListener);
+
         return fileComponentPane;
     }
+    private FocusAdapter focusListener = new FocusAdapter() {
+
+        @Override
+        public void focusGained(java.awt.event.FocusEvent evt) {
+            // Here notify the PropertyComponent listener of gained focus.
+            // GUI is expected to show a message explaining meaning of
+            // property.
+        }
+    };
 
     public void configureValidAnnotationSet(
             Set<Class<? extends Annotation>> valid) {
         valid.add(FileMustExist.class);
         valid.add(FileSuffix.class);
-        valid.add(NotDirectory.class);
+        valid.add(FileSelectionMode.class);
     }
 
     public String noticeMessage() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return "Not supported yet.";
+    }
+
+    @Override
+    public void parseAnnotation(Annotation an) {
+        if (an instanceof FileMustExist) {
+            FileMustExist fme = (FileMustExist) an;
+            notExistsMessage = fme.message();
+            validateExistence = true;
+        } else if (an instanceof FileSuffix) {
+            FileSuffix fsa = (FileSuffix) an;
+            wrongSuffixMessage = fsa.message();
+            validationSuffixes = new HashSet(Arrays.asList(fsa.values()));
+        } else if (an instanceof FileSelectionMode) {
+            FileSelectionMode nd = (FileSelectionMode) an;
+            if (nd.directory() && nd.file())
+                fileSelectionMode = JFileChooser.FILES_AND_DIRECTORIES;
+            if (nd.directory() && !nd.file())
+                fileSelectionMode = JFileChooser.DIRECTORIES_ONLY;
+            if (!nd.directory() && nd.file())
+                fileSelectionMode = JFileChooser.FILES_ONLY;
+            if (!nd.directory() && !nd.file()) annotationIllegalArgument(an,
+                        "FileComponent must select either file or directory");
+            directoryMessage = nd.message();
+            validateNotDirectory = true;
+        }
     }
 }

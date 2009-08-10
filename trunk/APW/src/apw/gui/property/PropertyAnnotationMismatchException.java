@@ -62,7 +62,8 @@ public class PropertyAnnotationMismatchException extends RuntimeException {
         return propertyClass;
     }
 
-    public PropertyAnnotationMismatchException(Annotation annotation, Class propertyClass) {
+    public PropertyAnnotationMismatchException(
+            Annotation annotation, Class propertyClass) {
         this.annotation = annotation;
         this.propertyClass = propertyClass;
     }
