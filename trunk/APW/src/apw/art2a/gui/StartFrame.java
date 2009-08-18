@@ -4,14 +4,14 @@
  * Created on 2009-08-07, 00:03:39
  */
 
-package apw.myART2.gui;
+package apw.art2a.gui;
 
 import apw.core.Attribute;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
-import apw.myART2.ART_2A_Util;
-import apw.myART2.Instance;
-import apw.myART2.Network;
+import apw.art2a.ART_2A_Util;
+import apw.art2a.Instance;
+import apw.art2a.Network;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import static apw.myART2.ART_2A_Util.*;
+import static apw.art2a.ART_2A_Util.*;
 
 /**
  *
@@ -165,6 +165,7 @@ public class StartFrame extends JFrame {
 
         jLabel1.setText("Data set:");
 
+        jtf_filePath.setText("/home/nitric/workspace/NetBeansProjects/trunk/APW/data/cluster-concat-test.arff");
         jtf_filePath.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 jtf_filePathFocusGained(evt);
@@ -201,12 +202,12 @@ public class StartFrame extends JFrame {
 
         jtf_theta.setText("0.05");
 
-        jtf_rho.setText("0.99");
+        jtf_rho.setText("0.986");
 
         jl_passesOrColumns.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jl_passesOrColumns.setText("passes:");
 
-        jtf_passesOrColumns.setText("9");
+        jtf_passesOrColumns.setText("5");
 
         javax.swing.GroupLayout jp_parametersLayout = new javax.swing.GroupLayout(jp_parameters);
         jp_parameters.setLayout(jp_parametersLayout);

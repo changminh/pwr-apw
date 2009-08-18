@@ -1,6 +1,6 @@
-package apw.myART2;
+package apw.art2a;
 
-import apw.myART2.gui.ViewType;
+import apw.art2a.gui.ViewType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,6 +33,7 @@ public class Network extends AbstractTableModel {
     public Prototype query(Instance inst) {
         if (!instances.contains(inst))
             instances.add(inst);                       // For purposes of table's creation
+        // Querying:
         if (prototypes.size() == 0 && learningMode)
             addNeuron(inst);
         int bestIndex = -1;
@@ -61,6 +62,25 @@ public class Network extends AbstractTableModel {
             }
         }
     }
+
+    public ArrayList<Prototype> getActuatedNeurons(Instance instance) {
+        ArrayList<Prototype> result = new ArrayList<Prototype>();
+        double score = 0.d;
+        for (Prototype p : prototypes.values()) {
+            score = p.countScore(instance);
+            if (similarityTest(instance, score) && vigilanceTest(score))
+                result.add(p);
+        }
+        /////////
+        System.out.print("Instance " + instance.getId() + " -> ");
+        for (Prototype p : result)
+            System.out.print(p.getIndex() + " ");
+        System.out.println("");
+        /////////
+        return result;
+    }
+
+
 
     private Prototype addNeuron(Instance inst) {
         int number = prototypes.size();
@@ -173,5 +193,9 @@ public class Network extends AbstractTableModel {
 
     public void setColumnNames(String[] columnNames) {
         this.columnNames = columnNames;
+    }
+
+    public ArrayList<Instance> getInstances() {
+        return instances;
     }
 }

@@ -1,4 +1,4 @@
-package apw.myART2.gui;
+package apw.art2a.gui;
 
 /**
  *

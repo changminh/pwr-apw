@@ -1,4 +1,4 @@
-package apw.myART2;
+package apw.art2a;
 
 /**
  *

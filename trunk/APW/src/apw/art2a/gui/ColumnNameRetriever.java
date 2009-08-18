@@ -4,8 +4,7 @@
  * Created on 2009-08-09, 18:51:59
  */
 
-package apw.myART2.gui;
-
+package apw.art2a.gui;
 import java.util.ArrayList;
 import javax.swing.AbstractListModel;
 
@@ -137,6 +136,7 @@ public class ColumnNameRetriever extends javax.swing.JFrame {
 
     private void jb_okActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_okActionPerformed
         sf.setColumnNames(model.getList());
+        dispose();
     }//GEN-LAST:event_jb_okActionPerformed
 
     private void jb_removeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_removeActionPerformed
