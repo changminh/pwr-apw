@@ -4,19 +4,19 @@
  * Created on 2009-08-06, 13:29:16
  */
 
-package apw.myART2.gui;
+package apw.art2a.gui;
 
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
-import apw.myART2.ART_2A_Util;
-import apw.myART2.Instance;
-import apw.myART2.Network;
-import apw.myART2.Prototype;
+import apw.art2a.ART_2A_Util;
+import apw.art2a.Instance;
+import apw.art2a.Network;
+import apw.art2a.Prototype;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.JOptionPane;
-import static apw.myART2.ART_2A_Util.*;
+import static apw.art2a.ART_2A_Util.*;
 
 /**
  *
@@ -44,7 +44,7 @@ public class PrototypesFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        prototypesPanel1 = new apw.myART2.gui.PrototypesPanel(net);
+        prototypesPanel1 = new apw.art2a.gui.PrototypesPanel(net);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -122,6 +122,6 @@ public class PrototypesFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private apw.myART2.gui.PrototypesPanel prototypesPanel1;
+    private apw.art2a.gui.PrototypesPanel prototypesPanel1;
     // End of variables declaration//GEN-END:variables
 }

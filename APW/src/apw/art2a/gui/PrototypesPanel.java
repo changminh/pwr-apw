@@ -4,9 +4,9 @@
  * Created on 2009-08-06, 13:24:21
  */
 
-package apw.myART2.gui;
+package apw.art2a.gui;
 
-import apw.myART2.Network;
+import apw.art2a.Network;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.text.NumberFormat;
@@ -69,7 +69,7 @@ public class PrototypesPanel extends javax.swing.JPanel
             }
         });
 
-        jcb_view.setModel(new DefaultComboBoxModel(apw.myART2.gui.ViewType.values()));
+        jcb_view.setModel(new DefaultComboBoxModel(apw.art2a.gui.ViewType.values()));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

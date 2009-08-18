@@ -1,4 +1,4 @@
-package apw.myART2;
+package apw.art2a;
 
 import apw.core.Attribute;
 import apw.core.Nominal;
@@ -8,11 +8,13 @@ import apw.core.loader.ARFFLoader;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.swing.JOptionPane;
 
 /**
@@ -154,9 +156,7 @@ public class ART_2A_Util {
             if (error)
                 throw new IllegalArgumentException(sb.toString());
             commitParameters(a, b, r, t, p);
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            System.out.println("Mam cie");
-        }
+        } catch (ArrayIndexOutOfBoundsException ex) { }
     }
 
     public ArrayList<Instance> convertSamples(Samples samples, double t) {
@@ -243,6 +243,8 @@ public class ART_2A_Util {
             System.out.println(s + " -> " + stats.get(s));
         n.learningMode(true);
         System.out.println("-----------------------------------------------------");
+        System.out.println("Concat:");
+        concatenateClusters(n);
     }
 
     public Set<String> retrieveClustersNames(Samples samples) {
@@ -251,5 +253,60 @@ public class ART_2A_Util {
             return ((Nominal) samples.getClassAttribute()).getKeys();
         }
         return result;
+    }
+
+    public static void concatenateClusters(Network network) {
+        ArrayList<Cluster> clusters = new ArrayList<Cluster>();
+        TreeSet<Instance> ordered = new TreeSet<Instance>(new Comparator<Instance> () {
+            public int compare(Instance arg0, Instance arg1) {
+                if (arg0.getId() < arg1.getId())
+                    return -1;
+                else if (arg0.getId() == arg1.getId())
+                    return 0;
+                else return 1;
+            }
+        });
+        ordered.addAll(network.getInstances());
+        for (Instance i : ordered)
+            clusters.add(Cluster.getNewCluster(network.getActuatedNeurons(i)));
+        boolean change = true;
+        Cluster c, temp;
+        outer:
+        while (change) {
+            inner:
+            for (int i = 0; i < clusters.size() - 1; i++) {
+                c = clusters.get(i);
+                for (int j = i + 1; j < clusters.size(); j++) {
+                    temp = clusters.get(j);
+                    if (!c.containsCommonPrototypes(temp))
+                        continue;
+                    if (c.theSame(temp)) {
+                        clusters.remove(j);
+                        continue outer;
+                    }
+                    else if (c.isSubsetOf(temp)) {
+                        clusters.remove(c);
+                        continue outer;
+                    }
+                    else if (c.isSupersetOf(temp)) {
+                        clusters.remove(temp);
+                        continue outer;
+                    }
+                    else {
+                        clusters.add(c.merge(temp));
+                        clusters.remove(c);
+                        clusters.remove(temp);
+                        continue outer;
+                    }
+                }
+            }
+            change = false;
+        }
+        for (Cluster cc : clusters) {
+            System.out.print(cc.getIndex() + ": ");
+            for (Prototype p : cc.getPrototypes())
+                System.out.print(p.getIndex() + " ");
+            System.out.println("");
+        }
     }
 }
