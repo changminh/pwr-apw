@@ -34,9 +34,15 @@
 
 package apw.art2;
 
+import apw.core.Sample;
+import apw.core.Samples;
+import apw.core.loader.ARFFLoader;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
+import javax.swing.JOptionPane;
+import static apw.art2.ART2_Util.*;
 
 /**
  *
@@ -49,33 +55,40 @@ public class Network {
     private boolean resonance = false;
     private int winnerIndex;
     private static int neuronCounter = 0;
-    private double initialBottomUpLimit;
-    private double a, b, c, d, e, rho, theta;
+    private double initialBottomUp;
+    private double a, b, c, d, rho, theta;
+    private final double e = 0.0001d;
     private double[] actualInput;
     private double updateDenominator;
     private AttentionalSubsystem attentional = new AttentionalSubsystem();
     private OrientingSubsystem orienting = new OrientingSubsystem();
     private HashSet<Integer> banned = new HashSet<Integer>();
 
-    private Random rand = new Random();
+    private static final Random rand = new Random();
 
-    public Network(int dimension, double a, double b, double c, double d, double e, 
-                   double rho, double theta) {
+    public Network(int dimension, double a, double b, double c, double d, double rho, double theta) {
         this.dimension = dimension;
         this.a = a;
         this.b = b;
         this.c = c;
         this.d = d;
-        this.e = e;
         this.rho = rho;
         this.theta = theta;
-        checkParameters();
+        try {
+            // ART2_Util.checkParameters(a, b, c, d, rho, theta);
+        }
+        catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+            throw new ExceptionInInitializerError();
+        }
         initialize();
     }
 
-    public void process(double[] input) {
+    public int process(double[] input) {
         winnerIndex = -1;
+        resonance = false;
         resetOutput();
+        banned.clear();
         actualInput = input;
         outer:
         while(!resonance) {
@@ -86,6 +99,7 @@ public class Network {
             while(!resonance) {
                 vigilanceTest();
                 if (reset) {
+                    // Reset...
                     cycleCounter = 1;
                     for (Neuron n : attentional.y)
                         if (n.output > 0)
@@ -95,53 +109,42 @@ public class Network {
                 // As we are here, it means that there is no reset signal
                 if (cycleCounter == 1) {
                     cycleCounter++;
-                    // step 11
+                    // No reset, but too early for resonance - there must be an additional pass
                     int counter = 0;
                     double maxNet = Double.NEGATIVE_INFINITY;
                     double temp;
+                    // Competition:
+                    winnerIndex = -1;
                     for (Neuron n : attentional.y) {
                         temp = n.process();
+                        // System.out.println("temp = " + temp);
                         if (temp > maxNet && !banned.contains(n.id)) {
                             maxNet = temp;
                             winnerIndex = counter;
                         }
                         counter++;
                     }
+                    // System.out.println("");
                     for (Neuron n : attentional.y)
                         n.setWinner(winnerIndex);
+                    // Updating output of layers:
                     attentional.updatePQ();
                     attentional.processF1();
                     continue inner;
                 }
                 else {
+                    // Resonance:
                     resonance = true;
                     attentional.y.get(winnerIndex).updateWeights();
                 }
             }
         }
-    }
-
-    public static double vectorLength(double[] vector) {
-        double sum = 0.d;
-        for (double dd : vector)
-            sum += dd * dd;
-        return Math.sqrt(sum);
-    }
-
-    public static double[] scaleVector(double[] vector, double scale) {
-        double[] result = new double[vector.length];
-        for (int i = 0; i < vector.length; i++)
-            result[i] = vector[i] * scale;
-        return result;
-    }
-
-    private void checkParameters() {
-        // throw new UnsupportedOperationException("Not yet implemented");
+        return winnerIndex;
     }
 
     private void initialize() {
         // Calculate bootom-up initial weights limit:
-        initialBottomUpLimit = (0.5d / ((1 - d) * Math.sqrt(dimension)));
+        initialBottomUp = (1.05d / ((1 - d) * Math.sqrt(dimension)));            // 1.05 - Warning :P
         for (int i = 0; i < 5; i++)
             attentional.y.add(new Neuron(neuronCounter++));
         updateDenominator = 1.d - d;
@@ -156,6 +159,7 @@ public class Network {
     }
 
     private void resetOutput() {
+        cycleCounter = 1;
         attentional.clearOutput();
         orienting.clearOutput();
     }
@@ -221,15 +225,15 @@ public class Network {
         }
 
         private void processP() {
-            System.out.print("procesP: ");
+            // System.out.print("procesP: ");
             if (winnerIndex != -1) {
-                System.out.println("F2 active!");
+                // System.out.println("F2 active!");
                 Neuron winner = attentional.y.get(winnerIndex);
                 for (int i = 0; i < dimension; i++)
                     attentional.p[i] = attentional.u[i] + d * winner.topDown[i];
             }
             else {
-                System.out.println("F2 inactive!");
+                // System.out.println("F2 inactive!");
                 for (int i = 0; i < dimension; i++)
                     attentional.p[i] = attentional.u[i];
             }
@@ -274,10 +278,11 @@ public class Network {
             bottomUp = new double[dimension];
             topDown = new double[dimension];
             for (int i = 0; i < dimension; i++)
-                bottomUp[i] = /* rand.nextDouble() * */ initialBottomUpLimit;
+                bottomUp[i] = initialBottomUp;
         }
 
         private double process() {
+            net = 0.d;
             for (int i = 0; i < dimension; i++) {
                 net += attentional.p[i] * bottomUp[i];
             }
@@ -294,15 +299,23 @@ public class Network {
         }
     }
 
-    public static String print(double[] t) {
-        StringBuilder sb = new StringBuilder("[");
-        for (double d : t)
-            sb.append(t + " ");
-        return sb.append("]").toString();
-    }
-
-    public static void main(String[] args) {
-        Network n = new Network(5, 10.d, 10.d, 0.1d, 0.9d, 0.d, 0.95, 0.2);
-        n.process(new double[] {0.2d, 0.7d, 0.1d, 0.5d, 0.4d});
+    public static void main(String[] args) throws Exception {
+        // Network n = new Network(4, 10, 10, 0.1d, 0.9d, 0.9, 0.2);
+        // Samples samples = new ARFFLoader(new File("data/iris.arff")).getSamples();
+        Network n = new Network(4, 10, 10, 0.1d, 0.9d, 0.99, 0.01);
+        Samples samples = new ARFFLoader(new File("data/iris.arff")).getSamples();
+        ArrayList<double[]> inst = new ArrayList<double[]>();
+        double[] temp;
+        for (Sample s : samples) {
+            temp = new double[4];
+            for (int i = 0; i < 4; i++)
+                temp[i] = (Double) s.get(i);
+            inst.add(temp);
+        }
+        for (int i = 0; i < 0; i++)
+            for (int j = 0; j < inst.size(); j++)
+                n.process(inst.get(j));
+        for (int j = 0; j < inst.size(); j++)
+            System.out.println(j + " = " + n.process(inst.get(j)));
     }
 }

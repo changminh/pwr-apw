@@ -9,7 +9,7 @@ package apw.art2a.gui;
 import apw.core.Attribute;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
-import apw.art2a.ART_2A_Util;
+import apw.art2a.ART2A_Util;
 import apw.art2a.Instance;
 import apw.art2a.Network;
 import java.io.File;
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import static apw.art2a.ART_2A_Util.*;
+import static apw.art2a.ART2A_Util.*;
 
 /**
  *
@@ -34,7 +34,7 @@ public class StartFrame extends JFrame {
     private double a, b, t, r;
     private int columns, passes;
     private Network network;
-    private ART_2A_Util util = new ART_2A_Util();
+    private ART2A_Util util = new ART2A_Util();
     
     /** Creates new form StartFrame */
     public StartFrame() {
