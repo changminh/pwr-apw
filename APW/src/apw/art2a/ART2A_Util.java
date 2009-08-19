@@ -21,7 +21,7 @@ import javax.swing.JOptionPane;
  *
  * @author nitric
  */
-public class ART_2A_Util {
+public class ART2A_Util {
 
     private double alpha, beta, rho, theta;
     private int passes;
@@ -91,7 +91,7 @@ public class ART_2A_Util {
     }
 
     public static void main(String[] args) {
-        ART_2A_Util util = new ART_2A_Util();
+        ART2A_Util util = new ART2A_Util();
         ArrayList<Instance> instances = new ArrayList<Instance>();
         Network n = null;
         Samples samples = null;

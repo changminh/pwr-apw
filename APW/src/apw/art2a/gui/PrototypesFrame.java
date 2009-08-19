@@ -8,7 +8,7 @@ package apw.art2a.gui;
 
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
-import apw.art2a.ART_2A_Util;
+import apw.art2a.ART2A_Util;
 import apw.art2a.Instance;
 import apw.art2a.Network;
 import apw.art2a.Prototype;
@@ -16,7 +16,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.JOptionPane;
-import static apw.art2a.ART_2A_Util.*;
+import static apw.art2a.ART2A_Util.*;
 
 /**
  *
@@ -74,7 +74,7 @@ public class PrototypesFrame extends javax.swing.JFrame {
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ART_2A_Util util = new ART_2A_Util();
+                ART2A_Util util = new ART2A_Util();
                 ArrayList<Instance> instances = new ArrayList<Instance>();
                 Network n = null;
                 Samples samples = null;
