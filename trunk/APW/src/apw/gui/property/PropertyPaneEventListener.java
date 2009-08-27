@@ -59,7 +59,7 @@ public class PropertyPaneEventListener implements IPropertyChangeListener {
         ownerPane.validationErrorMessage(text);
     }
 
-    public void focusGainedEvent() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void focusGainedEvent(String message) {
+        ownerPane.messageArea.setText(message);
     }
 }

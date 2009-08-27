@@ -47,17 +47,25 @@ import apw.gui.property.validation.Range;
  */
 public class IntegerComponent extends AbstractPropertyComponent {
 
+    JSpinner spinner;
+
     @Override
     public void configureValidAnnotationSet(Set<Class<? extends Annotation>> valid) {
         valid.add(Range.class);
     }
 
     public JComponent getComponent() {
-        return new JSpinner(new SpinnerNumberModel());
-    }
+        if (spinner != null) return spinner;
 
-    public String noticeMessage() {
-        return null;
+        spinner = new JSpinner(new SpinnerNumberModel());
+
+        // JSpinner focus listener bug (feature?) makes
+        // JSpinner.addFocusListene unusable. Got the solution from:
+        // http://forums.sun.com/thread.jspa?threadID=5329347
+        bindFocusListener(((JSpinner.DefaultEditor) spinner.getEditor()).
+                getTextField());
+
+        return spinner;
     }
 
     @Override

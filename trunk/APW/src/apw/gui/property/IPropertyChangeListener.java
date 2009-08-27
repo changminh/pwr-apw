@@ -45,5 +45,5 @@ public interface IPropertyChangeListener {
 
     public void validationErrorMessage(String text);
 
-    public void focusGainedEvent();
+    public void focusGainedEvent(String message);
 }

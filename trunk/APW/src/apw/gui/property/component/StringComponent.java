@@ -47,14 +47,14 @@ import apw.gui.property.AbstractPropertyComponent;
  */
 public class StringComponent extends AbstractPropertyComponent {
 
-    JTextField textField = new JTextField("");
+    JTextField textField;
 
     public JComponent getComponent() {
-        return textField;
-    }
+        if (textField!=null) return textField;
 
-    public String noticeMessage() {
-        return "String type field.";
+        textField = new JTextField("");
+        bindFocusListener(textField);
+        return textField;
     }
 
     @Override

@@ -34,9 +34,12 @@
 package apw.gui.property;
 
 import apw.gui.property.validation.Description;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
+import javax.swing.JComponent;
 
 /**
  *
@@ -45,13 +48,38 @@ import java.util.Set;
 public abstract class AbstractPropertyComponent implements PropertyComponent {
 
     IPropertyChangeListener listener;
-    protected Set<Annotation> annotations;
     private PropertyDescriptor desc;
+    protected Set<Annotation> annotations;
+    private FocusAdapter focusListener = new FocusAdapter() {
+
+        @Override
+        public void focusGained(FocusEvent evt) {
+            // Here notify the PropertyComponent listener of gained focus.
+            // GUI is expected to show a message explaining meaning of
+            // property.
+            listener.focusGainedEvent(message);
+        }
+    };
 
     public void registerListener(IPropertyChangeListener listener) {
         this.listener = listener;
     }
 
+    public String noticeMessage() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html>");
+        sb.append("<h2>Type:</h2>");
+        sb.append(desc.clazz.getName().
+                substring(desc.clazz.getName().
+                lastIndexOf('.')));
+        sb.append("<br><h2>Description:<h2>");
+        sb.append(message);
+        return sb.toString();
+    }
+
+    /**
+     * TODO: Make a proper use of message panel. Right away!
+     */
     /**
      * Call this method when validation error occurs. Default implementation
      * will cause a notification message to be presented.
@@ -112,6 +140,11 @@ public abstract class AbstractPropertyComponent implements PropertyComponent {
         this.annotations = as;
         for (Annotation a : as)
             parseAnnotation(a);
+
+        // prepare message String out of @Description annotation
+        for (Annotation a : as)
+            if (a instanceof Description)
+                this.message = ((Description) a).value();
     }
 
     public abstract void configureValidAnnotationSet(
@@ -124,5 +157,18 @@ public abstract class AbstractPropertyComponent implements PropertyComponent {
      */
     public void annotationIllegalArgument(Annotation ann, String cause) {
         throw new PropertyAnnotationIllegalArgumentException(ann, desc, cause);
+    }
+    private String message;
+
+    /**
+     * Use this method to bind property component event listener.
+     * The listener is responsible for dispatching property message
+     * on gained focus events.
+     * 
+     * @param comp
+     */
+    protected void bindFocusListener(JComponent... comp) {
+        for (int i = 0; i < comp.length; i++)
+            comp[i].addFocusListener(focusListener);
     }
 }
