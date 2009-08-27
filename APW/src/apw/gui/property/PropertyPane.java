@@ -77,7 +77,7 @@ public class PropertyPane extends JDialog {
     JButton cancelButton;
     JToggleButton showMessagesPaneButton;
     PropertyModel model;
-    private JEditorPane messageArea;
+    JEditorPane messageArea;
 
     public PropertyPane(PropertyModel model) {
         super();
@@ -205,6 +205,7 @@ public class PropertyPane extends JDialog {
             constr = new GridBagConstraints();
             constr.gridx = 1;
             constr.gridy = i;
+            constr.weightx = 1;
             constr.fill = GridBagConstraints.HORIZONTAL;
             constr.anchor = GridBagConstraints.CENTER;
             mainPanel.add(comp.getComponent(), constr);

@@ -35,7 +35,6 @@ package apw.gui.property.component;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusAdapter;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -49,16 +48,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.lang.annotation.Annotation;
 import apw.gui.property.AbstractPropertyComponent;
-import apw.gui.property.PropertyAnnotationIllegalArgumentException;
 import apw.gui.property.validation.FileMustExist;
 import apw.gui.property.validation.FileSuffix;
 import apw.gui.property.validation.FileSelectionMode;
 
 /**
- * TODO: @FileSelectionMode Annotation makes no sense since JFileChooser allows
- * only files to be selected. Consider changing @FileSelectionMode to @Directory
- * and displaying some FolderChooser istead of FileChooser.
- * 
  * @author Greg Matoga <greg dot matoga at gmail dot com>
  */
 public class FileComponent extends AbstractPropertyComponent {
@@ -83,6 +77,7 @@ public class FileComponent extends AbstractPropertyComponent {
                 } else validationErrorMessage(message);
             }
         }
+
     };
     // validation handling
     private boolean validateExistence = false;
@@ -133,21 +128,10 @@ public class FileComponent extends AbstractPropertyComponent {
         fileComponentPane.add(showFileSelectionDialog, BorderLayout.EAST);
 
         // focus gain event wiring
-        fileComponentPane.addFocusListener(focusListener);
-        showFileSelectionDialog.addFocusListener(focusListener);
-        pathTextField.addFocusListener(focusListener);
+        bindFocusListener(fileComponentPane, showFileSelectionDialog, pathTextField);
 
         return fileComponentPane;
     }
-    private FocusAdapter focusListener = new FocusAdapter() {
-
-        @Override
-        public void focusGained(java.awt.event.FocusEvent evt) {
-            // Here notify the PropertyComponent listener of gained focus.
-            // GUI is expected to show a message explaining meaning of
-            // property.
-        }
-    };
 
     public void configureValidAnnotationSet(
             Set<Class<? extends Annotation>> valid) {
@@ -156,6 +140,7 @@ public class FileComponent extends AbstractPropertyComponent {
         valid.add(FileSelectionMode.class);
     }
 
+    @Override
     public String noticeMessage() {
         return "Not supported yet.";
     }
