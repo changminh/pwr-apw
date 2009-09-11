@@ -32,7 +32,7 @@ public class Network extends AbstractTableModel {
 
     public Prototype query(Instance inst) {
         if (!instances.contains(inst))
-            instances.add(inst);                       // For purposes of table's creation
+            instances.add(inst);
         // Querying:
         if (prototypes.size() == 0 && learningMode)
             addNeuron(inst);

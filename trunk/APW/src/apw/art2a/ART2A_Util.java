@@ -244,7 +244,7 @@ public class ART2A_Util {
         n.learningMode(true);
         System.out.println("-----------------------------------------------------");
         System.out.println("Concat:");
-        concatenateClusters(n);
+        // concatenateClusters(n);
     }
 
     public Set<String> retrieveClustersNames(Samples samples) {

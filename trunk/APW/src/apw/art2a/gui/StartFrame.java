@@ -165,7 +165,7 @@ public class StartFrame extends JFrame {
 
         jLabel1.setText("Data set:");
 
-        jtf_filePath.setText("/home/nitric/workspace/NetBeansProjects/trunk/APW/data/cluster-concat-test.arff");
+        jtf_filePath.setText("/home/nitric/workspace/NetBeansProjects/trunk/APW/data/iris.arff");
         jtf_filePath.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 jtf_filePathFocusGained(evt);
@@ -308,7 +308,7 @@ public class StartFrame extends JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(13, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
                     .addComponent(jcb_learningMode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
