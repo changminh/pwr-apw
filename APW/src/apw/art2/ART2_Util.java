@@ -114,6 +114,6 @@ public class ART2_Util {
         StringBuilder sb = new StringBuilder("[");
         for (double d : t)
             sb.append(d + " ");
-        return sb.append("]").toString();
+        return sb.substring(0, sb.length() - 1) + "]".toString();
     }
 }

@@ -39,6 +39,7 @@ import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import static apw.art2.ART2_Util.*;
 
 /**
@@ -61,6 +62,7 @@ public class Network4 {
     private boolean reset = true;
     private double[] input;
     private boolean debug = false;
+    private boolean fastLearning = false;
 
     public Network4(int dim, double a, double b, double c, double d, double e, 
                     double alpha, double rho, double theta) {
@@ -80,7 +82,7 @@ public class Network4 {
         os = new Orienting();
     }
 
-    public void process(double[] vector) {
+    public int process(double[] vector) {
         reset = true;
         as.prepare();
         for (int i = 0; i < dimension; i++)
@@ -118,6 +120,7 @@ public class Network4 {
         as.processX();
         as.processQ();
         as.processV();
+        return as.winner;
     }
 
     class Attentional {
@@ -225,6 +228,13 @@ public class Network4 {
                     max = temp;
                 }
             }
+            if (winner == -1) {
+                Neuron n = new Neuron();
+                f2.add(n);
+                temp = n.calculateOutput();
+                if (temp > max)
+                    winner = f2.size() - 1;
+            }
             if (debug)
                 System.out.println("Tournament won by " + winner);
             return winner;
@@ -274,10 +284,14 @@ public class Network4 {
 
         public void updateWeights() {
             System.out.println("Update'ing: " + as.winner);
-            for (int i = 0; i < dimension; i++) {
-                bottomUp[i] = alpha * d * as.u[i] + (1 + alpha * d * (d - 1)) * bottomUp[i];
-                topDown[i] = alpha * d * as.u[i] + (1 + alpha * d * (d - 1)) * topDown[i];
-            }
+            if (fastLearning)
+                for (int i = 0; i < dimension; i++)
+                    bottomUp[i] = topDown[i] = (1 / (1 - d)) * as.u[i];
+            else
+                for (int i = 0; i < dimension; i++) {
+                    bottomUp[i] = alpha * d * as.u[i] + (1 + alpha * d * (d - 1)) * bottomUp[i];
+                    topDown[i] = alpha * d * as.u[i] + (1 + alpha * d * (d - 1)) * topDown[i];
+                }
             if (debug) {
                 System.out.println("bottomUp = " + print(bottomUp));
                 System.out.println("topDown = " + print(topDown));
@@ -299,13 +313,10 @@ public class Network4 {
     }
 
     public static void main(String[] args)  throws Exception {
-        Network4 n = new Network4(4, 10, 10, 0.1, 0.9, 0, 0.2, 0.999, 0.1);
-
+        Network4 n = new Network4(4, 10, 10, 0.1, 0.9, 0, 0.6, 0.9999, 0.01d);
         Samples samples = new ARFFLoader(new File("data/iris.arff")).getSamples();
         ArrayList<double[]> inst = new ArrayList<double[]>();
         // n.process(new double[] {0.2, 0.7, 0.1, 0.5, 0.4});
-        if (false)
-            return;
         double[] temp;
         for (Sample s : samples) {
             temp = new double[4];
@@ -313,24 +324,19 @@ public class Network4 {
                 temp[i] = (Double) s.get(i);
             inst.add(temp);
         }
-        int counter = 0;
-        for (int i = 0; i < 3; i++)
-            for (double[] sample : inst) {
-                System.out.print("sample " + counter++ + ": ");
-                n.process(sample);
+        HashMap<String, Integer> results = new HashMap<String, Integer>();
+        String s;
+        for (int i = 0; i < inst.size(); i++) {
+            s = samples.get(i).get(samples.getClassAttributeIndex()) + "_" + n.process(inst.get(i));
+            if (results.containsKey(s)) {
+                results.put(s, results.get(s) + 1);
             }
-        System.out.println("---------------");
-        counter = 0;
-        for (double[] sample : inst) {
-            System.out.print("sample " + counter++ + ": ");
-            n.process(sample);
+            else
+                results.put(s, 1);
         }
-    }
-
-    public static String print(double[] table) {
-        StringBuilder sb = new StringBuilder("[");
-        for (double d : table)
-            sb.append(d + " ");
-        return sb.substring(0, sb.length() - 1) + "]";
+        for (String str : results.keySet()) {
+            System.out.println(str + " --> " + results.get(str));
+        }
+        System.out.println("");
     }
 }
