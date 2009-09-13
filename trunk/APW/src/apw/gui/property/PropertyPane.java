@@ -216,6 +216,10 @@ public class PropertyPane extends JDialog {
         messageArea.setText(message);
     }
 
+    /**
+     * Currenty displays a blocking dialog window.
+     * @param error
+     */
     void validationErrorMessage(String error) {
         JOptionPane.showMessageDialog(this,
                 error,
