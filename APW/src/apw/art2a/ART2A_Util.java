@@ -243,7 +243,7 @@ public class ART2A_Util {
             System.out.println(s + " -> " + stats.get(s));
         n.learningMode(true);
         System.out.println("-----------------------------------------------------");
-        System.out.println("Concat:");
+        // System.out.println("Concat:");
         // concatenateClusters(n);
     }
 

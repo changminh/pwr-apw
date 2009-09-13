@@ -408,7 +408,7 @@ public class GUI extends javax.swing.JFrame {
             out.append("<html><title>Clustering resutls </title><body>\n");
             out.append("<center><b>Parameters</b><br><br>\n");
             // Parameters:
-            out.append("<table cellpadding=\"5\" cellspacing=\"5\" border=\"thin\"><tr>\n");
+            out.append("<table cellpadding=\"5\" cellspacing=\"5\" border=\"thin\">\n");
             out.append("<tr align=\"center\"><td>Name</td><td>Value</td>");
             out.append("<tr align=\"center\"><td>a</td><td>" + a + "</td></tr>");
             out.append("<tr align=\"center\"><td>b</td><td>" + b + "</td></tr>");
@@ -418,8 +418,8 @@ public class GUI extends javax.swing.JFrame {
             out.append("<tr align=\"center\"><td>gamma</td><td>" + gamma + "</td></tr>");
             out.append("<tr align=\"center\"><td>rho</td><td>" + rho + "</td></tr>");
             out.append("<tr align=\"center\"><td>theta</td><td>" + theta + "</td></tr>");
-            out.append("</table>");
-            out.append("<center><b>Clustering results</b><br><br>\n");
+            out.append("</table><br><br>\n");
+            out.append("<b>Clustering results</b><br><br>\n");
             out.append("<table cellpadding=\"5\" cellspacing=\"5\" border=\"thin\"><tr>\n");
             out.append("<td><center>Sample Id</center></td>");
             out.append("<td><center>Whole sample</center></td>");
@@ -444,7 +444,7 @@ public class GUI extends javax.swing.JFrame {
                 for (String str : clusters.keySet())
                     out.append(str + " --> " + clusters.get(str) + "<br>");
             }
-            out.append("</body></html>");
+            out.append("</center></body></html>");
             out.close();
             Desktop.getDesktop().open(f);
         } catch (Exception ex) {

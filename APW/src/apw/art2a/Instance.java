@@ -100,4 +100,12 @@ public class Instance {
     public double getNorm() {
         return norm;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < getLength(); i++)
+            sb.append(inputVector[i] + "  ");
+        return sb.substring(0, sb.length() - 1) + "]";
+    }
 }
