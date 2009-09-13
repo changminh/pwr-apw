@@ -96,4 +96,9 @@ public class Prototype {
     public double at(int i) {
         return weights[i];
     }
+
+    @Override
+    public String toString() {
+        return "" + index;
+    }
 }

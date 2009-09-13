@@ -19,11 +19,13 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jLabel1" alignment="0" pref="502" max="32767" attributes="0"/>
-                  <Component id="jsp" alignment="0" pref="502" max="32767" attributes="0"/>
+                  <Component id="jLabel1" alignment="0" pref="553" max="32767" attributes="0"/>
+                  <Component id="jsp" alignment="0" pref="553" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="jcb_view" min="-2" pref="214" max="-2" attributes="0"/>
-                      <EmptySpace pref="80" max="32767" attributes="0"/>
+                      <Component id="jcb_view" min="-2" pref="197" max="-2" attributes="0"/>
+                      <EmptySpace pref="33" max="32767" attributes="0"/>
+                      <Component id="jb_saveResults" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="jb_commit" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jb_exit" min="-2" max="-2" attributes="0"/>
@@ -38,12 +40,13 @@
           <Group type="102" alignment="0" attributes="0">
               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jsp" pref="172" max="32767" attributes="0"/>
+              <Component id="jsp" pref="174" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jb_exit" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jb_commit" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jcb_view" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jb_saveResults" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
           </Group>
       </Group>
@@ -88,9 +91,17 @@
     <Component class="javax.swing.JComboBox" name="jcb_view">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="new DefaultComboBoxModel(apw.myART2.gui.ViewType.values())" type="code"/>
+          <Connection code="new DefaultComboBoxModel(apw.art2a.gui.ViewType.values())" type="code"/>
         </Property>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="jb_saveResults">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Save results"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jb_saveResultsActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

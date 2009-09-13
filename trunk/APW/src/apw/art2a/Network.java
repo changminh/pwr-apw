@@ -1,6 +1,7 @@
 package apw.art2a;
 
 import apw.art2a.gui.ViewType;
+import apw.core.Samples;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ public class Network extends AbstractTableModel {
     protected ViewType viewType = ViewType.CLOSEST_INSTANCE;
     protected ArrayList<Instance> instances = new ArrayList<Instance>();
     protected String[] columnNames;
+    private Samples samples;
 
     public Network(double alpha, double beta, double rho, double theta, int columns) {
         this.alpha = alpha;
@@ -172,7 +174,7 @@ public class Network extends AbstractTableModel {
     }
 
     public void commitBuffer() {
-        for (int i = 0; i < columns && true; i++) {
+        for (int i = 0; i < columns; i++) {
             if (buffer[i] < 0) {
                 JOptionPane.showMessageDialog(null, "All input values should be greater or equal 0!");
                 return;
@@ -197,5 +199,29 @@ public class Network extends AbstractTableModel {
 
     public ArrayList<Instance> getInstances() {
         return instances;
+    }
+
+    public double getAlpha() {
+        return alpha;
+    }
+
+    public double getBeta() {
+        return beta;
+    }
+
+    public double getRho() {
+        return rho;
+    }
+
+    public double getTheta() {
+        return theta;
+    }
+
+    public Samples getSamples() {
+        return samples;
+    }
+
+    public void setSamples(Samples samples) {
+        this.samples = samples;
     }
 }

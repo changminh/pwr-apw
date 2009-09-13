@@ -116,6 +116,7 @@ public class StartFrame extends JFrame {
             util.setParameters(a, b, r, t, passes, columns);
             network = util.createAndLearnNetwork(a, b, r, t, passes, instances);
             network.setColumnNames(retrieveColumnNames(samples));
+            network.setSamples(samples);
             System.out.println("Network created successfully.");
             showStats(network, instances, samples);
             this.dispose();
