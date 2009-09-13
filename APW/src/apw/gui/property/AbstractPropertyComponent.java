@@ -54,9 +54,8 @@ public abstract class AbstractPropertyComponent implements PropertyComponent {
 
         @Override
         public void focusGained(FocusEvent evt) {
-            // Here notify the PropertyComponent listener of gained focus.
-            // GUI is expected to show a message explaining meaning of
-            // property.
+            // Here we notify the PropertyComponent listener of gained focus
+            // event. GUI is expected to show the message
             listener.focusGainedEvent(message);
         }
     };
@@ -105,7 +104,7 @@ public abstract class AbstractPropertyComponent implements PropertyComponent {
     }
 
     /**
-     * Perform basic annotation assesments valid for all PropertyTypes.
+     * Perform basic annotation assesments common for all PropertyTypes.
      * @param desc
      */
     public void initialize(PropertyDescriptor desc) {
@@ -147,10 +146,59 @@ public abstract class AbstractPropertyComponent implements PropertyComponent {
                 this.message = ((Description) a).value();
     }
 
+    /**
+     * <p>
+     * Annotation parser uses information contained in <code>valid</code>
+     * set to identify valid annotations on certain Property type. Add
+     * relevant Annotation classes to it. E.g. Filenproperty might use
+     * following annotations:
+     * <ul>
+     *     <li>@FileMustExist,    </li>
+     *     <li>@FileSuffix,       </li>
+     *     <li>@FileSelectionMode.</li>
+     * </ul>
+     * This directly maps to following code:
+     * </p>
+     *
+     * <p>
+     * <pre>
+     * public void configureValidAnnotationSet(
+     *     Set<Class<? extends Annotation>> valid) {
+     *   valid.add(FileMustExist.class);
+     *   valid.add(FileSuffix.class);
+     *   valid.add(FileSelectionMode.class);
+     * }
+     * </pre>
+     * </p>
+     *
+     * @param valid annotation classes set
+     */
     public abstract void configureValidAnnotationSet(
             Set<Class<? extends Annotation>> valid);
 
-    public abstract void parseAnnotation(Annotation ans);
+    /**
+     * <p>
+     * Method called by the annotation parser for each annotation found on
+     * particular Property.
+     * </p>
+     *
+     * <p> Example handling code might look like following:
+     * <pre>
+     * public abstract void parseAnnotation(Annotation an) {
+     *   if (an instanceof FirstAnnotation) {
+     *     // configure behaviour according to FirstAnnotation
+     *   } else if (an instanceof SecondAnnotation) {
+     *     // same here according to SecondAnnotation
+     *   } else if (an instanceof AnotherAnnotation) {
+     *     // and so forth
+     *   }
+     * }
+     * </pre>
+     * </p>
+     *
+     * @param an Annotation to handle
+     */
+    public abstract void parseAnnotation(Annotation an);
 
     /**
      * Helper method section ahead
