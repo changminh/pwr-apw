@@ -160,14 +160,13 @@ public class ART2A_Util {
     }
 
     public ArrayList<Instance> convertSamples(Samples samples, double t) {
-        // checking whether all attribute's (excluding class) are real numbers:
+        // checking whether all attribute's (except class) are real numbers:
         ArrayList<Attribute> atts = samples.getAtts();
+        if (!checkAttributes(samples)) {
+            throw new IllegalArgumentException("All non-class attributes must be real numbers!");
+        }
         int attCount = atts.size();
         int classAtt = samples.getClassAttributeIndex();
-        for (int i = 0; i < attCount; i++) {
-            if (atts.get(i).isNominal() && i != classAtt)
-                throw new IllegalArgumentException("All non-class attributes must be real numbers!");
-        }
         ArrayList<Instance> instances = new ArrayList<Instance>();
 
         // determining amount of valid attributes:
@@ -308,5 +307,20 @@ public class ART2A_Util {
                 System.out.print(p.getIndex() + " ");
             System.out.println("");
         }
+    }
+
+    /**
+     * Checks wheter samples contain only numeric attributes (except class attribute).
+     * @return
+     */
+    public static boolean checkAttributes(Samples samples) {
+        ArrayList<Attribute> atts = samples.getAtts();
+        int attCount = atts.size();
+        int classAtt = samples.getClassAttributeIndex();
+        for (int i = 0; i < attCount; i++) {
+            if (atts.get(i).isNominal() && i != classAtt)
+                return false;
+        }
+        return true;
     }
 }
