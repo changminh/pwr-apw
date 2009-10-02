@@ -85,7 +85,7 @@ public class GUI extends javax.swing.JFrame {
         formatter.setMaximumFractionDigits(4);
     }
 
-    private void retrieveParameters() {
+    private void retrieveParameters() throws Exception {
         try {
             a = Double.parseDouble(jt_a.getText());
             b = Double.parseDouble(jt_b.getText());
@@ -98,31 +98,32 @@ public class GUI extends javax.swing.JFrame {
             iterations = Integer.parseInt(jt_learningIterations.getText());
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Illegal number format!");
-            return;
+            throw ex;
         }
         if (a < 0 || b < 0 || c < 0 || d < 0 || e < 0 
                   || alpha < 0 || theta < 0 || rho < 0 || iterations < 0) {
             JOptionPane.showMessageDialog(this,
                     "All parameters should be non-negative."
             );
-            return;
+            throw new IllegalArgumentException();
         }
         if (theta >= 1 || rho >= 1 || alpha >= 1) {
             JOptionPane.showMessageDialog(this,
                     "'theta', 'alpha', 'vigilance' must be less than 1!"
             );
-            return;
+            throw new IllegalArgumentException();
         }
         if (c * d > (1 - d)) {
             JOptionPane.showMessageDialog(this,
                     "Parameters 'c' and 'd' must satisfy constraint: cd > 1-d"
             );
-            return;
+            throw new IllegalArgumentException();
         }
         try {
             samples = new ARFFLoader(new File(jt_samples.getText())).getSamples();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Couldn't read / parse data file!");
+            throw ex;
         }
         if (!ART2A_Util.checkAttributes(samples)) {
             throw new IllegalArgumentException("All non-class attributes must be numeric!");
@@ -572,7 +573,11 @@ public class GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jb_cancelActionPerformed
 
     private void jb_trainActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_trainActionPerformed
-        retrieveParameters();
+        try {
+            retrieveParameters();
+        } catch (Exception ex) {
+            return;
+        }
         ArrayList<Attribute> atts = samples.getAtts();
         int attCount = atts.size();
         boolean labeled = samples.getClassAttributeIndex() != -1;
@@ -595,7 +600,7 @@ public class GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jcb_shuffleActionPerformed
 
     private void jb_helpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_helpActionPerformed
-        // TODO add your handling code here:
+        new JD_ART2_Help(this, false).setVisible(true);
     }//GEN-LAST:event_jb_helpActionPerformed
 
 

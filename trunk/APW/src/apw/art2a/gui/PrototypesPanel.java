@@ -226,20 +226,22 @@ public class PrototypesPanel extends javax.swing.JPanel
             out.append("</table><br><br>");
 
             // Dataset ordering:
-            out.append("<a name=\"dataset_order\"></a>");
-            out.append("<b>Clustering results - dataset ordering:</b><br><br>");
-            out.append("<table cellpadding=\"5\" cellspacing=\"5\" border=\"thin\"><tr>\n");
-            out.append("<td><center>Sample Id</center></td>");
-            out.append("<td><center>Sample</center></td>");
-            out.append("<td><center>Cluster</td></center></tr>");
-            for (int i = 0; i < samples.size(); i++) {
-                out.append("<tr align=\"center\">");
-                out.append("<td> " + i + "</td>");
-                out.append("<td> " + samples.get(i) + " </td>");
-                out.append("<td> " + datasetOrder.get(i) + "</td>");
-                out.append("</tr>\n");
+            if (samples != null) {
+                out.append("<a name=\"dataset_order\"></a>");
+                out.append("<b>Clustering results - dataset ordering:</b><br><br>");
+                out.append("<table cellpadding=\"5\" cellspacing=\"5\" border=\"thin\"><tr>\n");
+                out.append("<td><center>Sample Id</center></td>");
+                out.append("<td><center>Sample</center></td>");
+                out.append("<td><center>Cluster</td></center></tr>");
+                for (int i = 0; i < samples.size(); i++) {
+                    out.append("<tr align=\"center\">");
+                    out.append("<td> " + i + "</td>");
+                    out.append("<td> " + samples.get(i) + " </td>");
+                    out.append("<td> " + datasetOrder.get(i) + "</td>");
+                    out.append("</tr>\n");
+                }
+                out.append("</table><br><br>");
             }
-            out.append("</table><br><br>");
 
             // Cluster contents:
             out.append("<a name=\"cluster_content\"></a>");
@@ -254,7 +256,7 @@ public class PrototypesPanel extends javax.swing.JPanel
                 for (Integer j : clusters.get(i)) {
                     out.append("<tr align=\"center\">");
                     out.append("<td>" + j + "</td>");
-                    if (samples.get(j) != null)
+                    if (samples != null && samples.get(j) != null)
                         out.append("<td>" + samples.get(j) + "</td>");
                     else
                         out.append("<td>" + instances.get(j) + "</td>");

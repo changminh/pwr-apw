@@ -48,7 +48,7 @@ public class StartFrame extends JFrame {
     private void retrieveParameters(boolean fromScratch) {
         try {
             if (!fromScratch) {
-                passes = Integer.parseInt(jtf_passesOrColumns.getText());
+                // passes = Integer.parseInt(jtf_passesOrColumns.getText());
                 columns = instances.get(0).getLength();
                 System.out.println("columns = " + columns);
             }
@@ -57,7 +57,7 @@ public class StartFrame extends JFrame {
             r = Double.parseDouble(jtf_rho.getText());
         } catch (NumberFormatException ex) {
             throw new IllegalArgumentException(
-                    "<html><body>Parameters hould be real numbers (except <i>passes</i>, which " +
+                    "<html><body>Parameters should be real numbers (except <i>passes</i>, which " +
                     "must be integer)!</html></body>");
         }
     }
@@ -162,12 +162,12 @@ public class StartFrame extends JFrame {
         jb_ok = new javax.swing.JButton();
         jLabel8 = new javax.swing.JLabel();
         jcb_learningMode = new javax.swing.JComboBox();
+        jb_help = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setText("Data set:");
 
-        jtf_filePath.setText("/home/nitric/workspace/NetBeansProjects/trunk/APW/data/iris.arff");
         jtf_filePath.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 jtf_filePathFocusGained(evt);
@@ -202,14 +202,13 @@ public class StartFrame extends JFrame {
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel5.setText("vigilance:");
 
-        jtf_theta.setText("0.01");
+        jtf_theta.setText("0");
 
         jtf_rho.setText("0.992");
 
         jl_passesOrColumns.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jl_passesOrColumns.setText("amount of attributes:");
 
-        jtf_passesOrColumns.setText("5");
         jtf_passesOrColumns.setEnabled(false);
 
         javax.swing.GroupLayout jp_parametersLayout = new javax.swing.GroupLayout(jp_parameters);
@@ -284,6 +283,13 @@ public class StartFrame extends JFrame {
             }
         });
 
+        jb_help.setText("Help");
+        jb_help.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jb_helpActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -293,6 +299,8 @@ public class StartFrame extends JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jp_parameters, javax.swing.GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jb_help, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jb_ok, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jb_cancel, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -311,7 +319,7 @@ public class StartFrame extends JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(16, Short.MAX_VALUE)
+                .addContainerGap(17, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
                     .addComponent(jcb_learningMode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -324,7 +332,9 @@ public class StartFrame extends JFrame {
                 .addComponent(jp_parameters, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jb_ok)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jb_ok)
+                        .addComponent(jb_help))
                     .addComponent(jb_cancel))
                 .addContainerGap())
         );
@@ -367,6 +377,10 @@ public class StartFrame extends JFrame {
         jtf_filePath.select(0, 0);
     }//GEN-LAST:event_jtf_filePathFocusLost
 
+    private void jb_helpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_helpActionPerformed
+        new JD_ART2A_Help(this, false).setVisible(true);
+    }//GEN-LAST:event_jb_helpActionPerformed
+
     /**
     * @param args the command line arguments
     */
@@ -387,6 +401,7 @@ public class StartFrame extends JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JButton jb_cancel;
     private javax.swing.JButton jb_choose;
+    private javax.swing.JButton jb_help;
     private javax.swing.JButton jb_ok;
     private javax.swing.JComboBox jcb_learningMode;
     private javax.swing.JLabel jl_passesOrColumns;
