@@ -34,12 +34,11 @@ public class ART2A_Util {
         formatter.setMinimumFractionDigits(4);
     }
 
-    private void commitParameters(double a, double b, double r, double t, int p) {
+    private void commitParameters(double a, double b, double r, double t) {
         alpha = a;
         beta = b;
         rho = r;
         theta = t;
-        passes = p;
     }
 
     /**
@@ -58,7 +57,7 @@ public class ART2A_Util {
     public Network createAndLearnNetwork(
             double a, double b, double r, double t, int p, ArrayList<Instance> instances)
             throws IllegalArgumentException {
-        setParameters(a, b, r, t, p, instances.get(0).getProcessingVector().length);        
+        setParameters(a, b, r, t, instances.get(0).getProcessingVector().length);        
         learn(instances);
         return network;
     }
@@ -73,8 +72,8 @@ public class ART2A_Util {
      * @param col count of count of instance attributes.
      * @return
      */
-    public Network createAndLearnNetwork(double a, double b, double r, double t, int col) {
-        setParameters(a, b, r, t, passes, col);
+    public Network createNetworkForOnlineLearning(double a, double b, double r, double t, int col) {
+        setParameters(a, b, r, t, col);
         Network result = new Network(a, b, r, t, col);
         result.learningMode(true);
         return result;
@@ -82,10 +81,32 @@ public class ART2A_Util {
 
     private Network learn(ArrayList<Instance> instances) {
         int columns = instances.get(0).getLength();
+        boolean cont = true;
+        HashMap<Integer, Integer> changes = new HashMap<Integer, Integer>();
+        int answer;
         network = new Network(alpha, beta, rho, theta, columns);
-        for (int i = 0; i < passes; i++) {
-            for (Instance inst : instances)
-                network.query(inst);
+        for (passes = 0; cont && passes < 1000; passes++) {
+            cont = passes == 0;
+             // one pass isn't enough
+            for (Instance inst : instances) {
+                answer = network.query(inst).getIndex();
+                if (changes.containsKey(inst.getId())) {
+                    if (changes.get(inst.getId()) != answer) {
+                        cont = true;
+                        changes.put(inst.getId(), answer);
+                    }
+                }
+                else
+                    changes.put(inst.getId(), answer);
+            }
+        }
+        if (passes == 1000) {
+            JOptionPane.showMessageDialog(null, "Cannot stabilize network!");
+            network = null;
+        }
+        else {
+            System.out.println("Passes: " + passes + "<br><br>");
+            network.passes = this.passes;
         }
         return network;
     }
@@ -110,7 +131,7 @@ public class ART2A_Util {
         }
     }
 
-    public void setParameters(double a, double b, double r, double t, int p, int columnCount)
+    public void setParameters(double a, double b, double r, double t, int columnCount)
             throws IllegalArgumentException {
         double limit = 1.d / Math.sqrt(columnCount);
         try {
@@ -119,7 +140,6 @@ public class ART2A_Util {
             String s2 = "0 &lt; beta &le; 1";
             String s3 = "0 &lt; vigilance &lt; 1";
             String s4 = "0 &le; theta &lt; " + formatter.format(limit);
-            String s5 = "0 &le; passes";
             boolean error = false;
             sb.append("<html><body>The parameter's values should be: <br><br>");
             if (a > limit || a <= 0.f) {
@@ -146,16 +166,10 @@ public class ART2A_Util {
             }
             else
                 sb.append(s4 + "<br>");
-            if (p < 0) {
-                error = true;
-                sb.append("<u>" + s5 + "</u><br>");
-            }
-            else
-                sb.append(s5 + "<br>");
             sb.append("</body></html>");
             if (error)
                 throw new IllegalArgumentException(sb.toString());
-            commitParameters(a, b, r, t, p);
+            commitParameters(a, b, r, t);
         } catch (ArrayIndexOutOfBoundsException ex) { }
     }
 

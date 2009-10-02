@@ -50,6 +50,7 @@ public class StartFrame extends JFrame {
             if (!fromScratch) {
                 passes = Integer.parseInt(jtf_passesOrColumns.getText());
                 columns = instances.get(0).getLength();
+                System.out.println("columns = " + columns);
             }
             a = Double.parseDouble(jtf_alpha.getText());
             b = Double.parseDouble(jtf_beta.getText());
@@ -81,7 +82,7 @@ public class StartFrame extends JFrame {
                 return;
             }
             retrieveParameters(true);
-            util.setParameters(a, b, r, t, passes, columns);
+            util.setParameters(a, b, r, t, columns);
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Incorect number format!");
             return;
@@ -89,7 +90,7 @@ public class StartFrame extends JFrame {
             JOptionPane.showMessageDialog(this, ex.getMessage());
             return;
         }
-        network = util.createAndLearnNetwork(a, b, r, t, columns);
+        network = util.createNetworkForOnlineLearning(a, b, r, t, columns);
         // Wait for the column (attributes) names and then continue with method...
         new ColumnNameRetriever(columns, this).setVisible(true);
     }
@@ -97,29 +98,29 @@ public class StartFrame extends JFrame {
     private void networkFromScratchContinue(String[] names) {
         network.setColumnNames(names);
         System.out.println("Network initialized successfully.");
-        this.dispose();
+        // this.dispose();
         new PrototypesFrame(network).setVisible(true);
     }
 
     private void networkFromSamples() {
         Samples samples;
         try {
-            if (file == null) {
-                file = new File(jtf_filePath.getText());
-            }
+            file = new File(jtf_filePath.getText());
             // retrieving samples:
             samples = new ARFFLoader(file).getSamples();
             t = Double.parseDouble(jtf_theta.getText());
             // converting to instances:
             instances = util.shuffleInstances(util.convertSamples(samples, t));
             retrieveParameters(false);
-            util.setParameters(a, b, r, t, passes, columns);
+            util.setParameters(a, b, r, t, columns);
             network = util.createAndLearnNetwork(a, b, r, t, passes, instances);
+            if (network == null)                    // Learning can be unsuccesful!
+                return;
             network.setColumnNames(retrieveColumnNames(samples));
             network.setSamples(samples);
             System.out.println("Network created successfully.");
             showStats(network, instances, samples);
-            this.dispose();
+            // this.dispose();
             new PrototypesFrame(network).setVisible(true);
         } catch (FileNotFoundException ex) {
             error("Cannot find specified file.");
@@ -201,14 +202,15 @@ public class StartFrame extends JFrame {
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel5.setText("vigilance:");
 
-        jtf_theta.setText("0.05");
+        jtf_theta.setText("0.01");
 
-        jtf_rho.setText("0.986");
+        jtf_rho.setText("0.992");
 
         jl_passesOrColumns.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jl_passesOrColumns.setText("passes:");
+        jl_passesOrColumns.setText("amount of attributes:");
 
         jtf_passesOrColumns.setText("5");
+        jtf_passesOrColumns.setEnabled(false);
 
         javax.swing.GroupLayout jp_parametersLayout = new javax.swing.GroupLayout(jp_parameters);
         jp_parameters.setLayout(jp_parametersLayout);
@@ -309,7 +311,7 @@ public class StartFrame extends JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(13, Short.MAX_VALUE)
+                .addContainerGap(16, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
                     .addComponent(jcb_learningMode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -354,7 +356,7 @@ public class StartFrame extends JFrame {
         boolean mode = evt.getItem().equals((LearningMode.INTERACTIVE));
         jtf_filePath.setEnabled(!mode);
         jb_choose.setEnabled(!mode);
-        jl_passesOrColumns.setText(mode ? "amount of attributes:" : "passes:");
+        jtf_passesOrColumns.setEnabled(mode);
     }//GEN-LAST:event_jcb_learningModeItemStateChanged
 
     private void jtf_filePathFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jtf_filePathFocusGained

@@ -34,6 +34,10 @@
 
 package apw.art2;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Random;
+
 /**
  *
  * @author nitric
@@ -115,5 +119,24 @@ public class ART2_Util {
         for (double d : t)
             sb.append(d + " ");
         return sb.substring(0, sb.length() - 1) + "]".toString();
+    }
+
+    public static ArrayList<Integer> shuffle(int size, boolean reallyShuffle) {
+        ArrayList<Integer> result = new ArrayList<Integer>();
+        if (reallyShuffle) {
+            HashSet<Integer> shuffled = new HashSet<Integer>();
+            Random r = new Random();
+            while(result.size() != size) {
+                int i = r.nextInt(size);
+                if (shuffled.add(i)) {
+                    result.add(i);
+                }
+            }
+        }
+        else {
+            for (int i = 0; i < size; i++)
+                result.add(i);
+        }
+        return result;
     }
 }
