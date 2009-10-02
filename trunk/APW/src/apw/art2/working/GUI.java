@@ -42,16 +42,22 @@ package apw.art2.working;
 
 import apw.art2a.ART2A_Util;
 import apw.core.Attribute;
+import apw.core.Nominal;
 import apw.core.Sample;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -70,11 +76,13 @@ public class GUI extends javax.swing.JFrame {
     private int dimension;
     private int iterations;
     private static boolean shuffle = true;
+    private NumberFormat formatter = NumberFormat.getNumberInstance();
 
     /** Creates new form ParametersInput */
     public GUI() {
         initComponents();
         setLocationRelativeTo(null);
+        formatter.setMaximumFractionDigits(4);
     }
 
     private void retrieveParameters() {
@@ -118,6 +126,204 @@ public class GUI extends javax.swing.JFrame {
         }
         if (!ART2A_Util.checkAttributes(samples)) {
             throw new IllegalArgumentException("All non-class attributes must be numeric!");
+        }
+    }
+
+    private void showResults(ArrayList<Integer> shuffled, HashMap<Integer, Integer> results) {
+        File outputFile = new File("clustering_results___" + System.currentTimeMillis() + ".htm");
+        FileWriter out;
+        try {
+            out = new FileWriter(outputFile);
+            out.append("<html><title>Clustering results: ART-2</title>\n");
+            out.append("<body>\n");
+
+            // Write parameter's values:
+            out.append("<center>");
+            out.append("<font size=\"5\">");
+            if (network.getSamples() != null)
+                out.append("Dataset <b> " + network.getSamples().getName() + "</b> - ");
+            out.append("Clustering results </font><br><br><br>");
+            out.append("<a href=\"#presentation_order\"> Querying results - presentation order </a><br>");
+            out.append("<a href=\"#dataset_order\"> Querying results - dataset order </a><br>");
+            out.append("<a href=\"#cluster_content\"> Cluster's contetns </a><br>");
+            out.append("<a href=\"#clusters_summary\"> Clusters - summary</a><br>");
+            out.append("<br><br><b>Parameters:</b><br><br>\n");
+            out.append("<table cellpadding=\"5\" cellspacing=\"5\" border=\"thin\">\n");
+            out.append("<tr align=\"center\"><td><b>Name</b></td><td><b>Value</b></td>\n");
+            out.append("<tr align=\"center\"><td>alpha</td><td>" + alpha + "</td></tr>\n");
+            out.append("<tr align=\"center\"><td>theta</td><td>" + theta + "</td></tr>\n");
+            out.append("<tr align=\"center\"><td>vigilance</td><td>" + rho + "</td></tr>\n");
+            out.append("<tr align=\"center\"><td>learning iterations</td><td>" + iterations + "</td></tr>\n");
+            out.append("</table>");
+
+            // Write clustering result for each sample:
+            network.learningMode(false);
+            HashMap<Integer, Integer> datasetOrder = new HashMap<Integer, Integer>();
+            HashMap<Integer, TreeSet<Integer>> clusters = new HashMap<Integer, TreeSet<Integer>>();
+            TreeMap<String, HashMap<Integer, Integer>> clustersContents
+                    = new TreeMap<String, HashMap<Integer, Integer>>();
+            out.append("<a name=\"presentation_order\"></a>");
+            out.append("<br><br><b>Querying results - presentation order:</b><br><br>");
+            out.append("<table cellpadding=\"5\" cellspacing=\"5\" border=\"thin\"><tr>\n");
+            out.append("<td><center>Id</center></td>");
+            out.append("<td><center>Sample</center></td>");
+            boolean labelsAvailable = false;
+            int classId = -1;
+            if ((samples = network.getSamples()) != null && samples.getClassAttributeIndex() != -1) {
+                samples = network.getSamples();
+                classId = samples.getClassAttributeIndex();
+                labelsAvailable = true;
+            }
+            out.append("<td><center>Cluster</td></center></tr>\n");
+            Integer id;
+            int cluster;
+            for (int i = 0; i < shuffled.size(); i++) {
+                id = shuffled.get(i);
+                out.append("<tr align=\"center\"><td>" + id + "</td>");
+                out.append("<td>" + samples.get(id) + "</td><td>");
+                out.append((cluster = results.get(id)) + "</td></tr>\n");
+                // Write results for 'future' summary:
+                datasetOrder.put(id, cluster);
+                if (clusters.containsKey(cluster))
+                    clusters.get(cluster).add(id);
+                else {
+                    TreeSet<Integer> temp = new TreeSet<Integer>();
+                    temp.add(id);
+                    clusters.put(cluster, temp);
+                }
+                if (labelsAvailable) {
+                    String key = samples.get(id).get(classId).toString();
+                    if (!clustersContents.containsKey(key))
+                        clustersContents.put(key, new HashMap<Integer, Integer>());
+                    HashMap<Integer, Integer> map = clustersContents.get(key);
+                    if (map.containsKey(cluster))
+                        map.put(cluster, map.get(cluster) + 1);
+                    else
+                        map.put(cluster, 1);
+                }
+            }
+            out.append("</table><br><br>");
+
+            // Dataset ordering:
+            out.append("<a name=\"dataset_order\"></a>");
+            out.append("<b>Clustering results - dataset ordering:</b><br><br>");
+            out.append("<table cellpadding=\"5\" cellspacing=\"5\" border=\"thin\"><tr>\n");
+            out.append("<td><center>Sample Id</center></td>");
+            out.append("<td><center>Sample</center></td>");
+            out.append("<td><center>Cluster</td></center></tr>");
+            for (int i = 0; i < samples.size(); i++) {
+                out.append("<tr align=\"center\">");
+                out.append("<td> " + i + "</td>");
+                out.append("<td> " + samples.get(i) + " </td>");
+                out.append("<td> " + datasetOrder.get(i) + "</td>");
+                out.append("</tr>\n");
+            }
+            out.append("</table><br><br>");
+
+            // Cluster contents:
+            out.append("<a name=\"cluster_content\"></a>");
+            out.append("<b>Clusters contents:</b><br><br>");
+            out.append("<table cellpadding=\"5\" cellspacing=\"5\" border=\"thin\">\n");
+            out.append("<tr align=\"center\">");
+            out.append("<td><center>Sample Id</center></td>");
+            out.append("<td><center>Sample</center></td>");
+            out.append("</tr>");
+            for (Integer i : clusters.keySet()) {
+                out.append("<tr align=\"center\"><td colspan=\"3\" align=\"center\"> Cluster " + i + "</td></tr>");
+                for (Integer j : clusters.get(i)) {
+                    out.append("<tr align=\"center\">");
+                    out.append("<td>" + j + "</td>");
+                        out.append("<td>" + samples.get(j) + "</td>");
+                    out.append("</tr>\n");
+                }
+            }
+            out.append("</table><br><br>\n");
+
+            // Clusters summary:
+            out.append("<a name=\"clusters_summary\"></a>");
+            out.append("<b>Clusters summary: </b><br><br>");
+            out.append("<table cellpadding=\"5\" cellspacing=\"5\" border=\"thin\">\n");
+            out.append("<tr align=\"center\">");
+            out.append("<td> Cluster Id</td>");
+            out.append("<td> Cluster size</td>");
+            out.append("</tr>");
+            for (Integer i : clusters.keySet()) {
+                out.append("<tr align=\"center\">");
+                out.append("<td> " + i + " </td>");
+                out.append("<td> " + clusters.get(i).size() + "</td>");
+                out.append("</tr>\n");
+            }
+            out.append("</table>");
+
+            // Summary matrix - if labels are available:
+            if (labelsAvailable) {
+                out.append("<br><br><b>Matrix of the truth: </b><br><br>");
+                out.append("<table cellpadding=\"5\" cellspacing=\"5\" border=\"thin\">\n");
+                out.append("<tr align=\"center\">");
+                out.append("<td></td>");
+                for (int i = 0; i < network.getPrototypesCount(); i++)
+                    out.append("<td> " + i + " </td>");
+                out.append("</tr>");
+                /****************** Preparing table *****************/
+                Set<String> tempSet = ((Nominal)samples.getClassAttribute()).getKeys();
+                String[] classes = new String[tempSet.size()];
+                int counter = 0;
+                for (String s : tempSet)
+                    classes[counter++] = s;
+                int rows = classes.length;
+                int cols = network.getPrototypesCount() + 1; // ?!
+                Object[][] matrix = new Object[rows][cols];
+                boolean[][] bg = new boolean[rows][cols];
+                for (int row = 0; row < classes.length; row++) {
+                    matrix[row][0] = classes[row];
+                }
+                int max = 0;
+                int idmax = -1;
+                Integer temp;
+                for (int col = 0; col < cols - 1; col++) {
+                    max = 0;
+                    idmax = -1;
+                    for (int row = 0; row < classes.length; row++) {
+                        temp = clustersContents.get(classes[row]).get(col);
+                        matrix[row][col + 1] = temp == null ? "" : temp;
+                        if (temp != null && temp > max) {
+                            max = temp;
+                            idmax = row;
+                        }
+                    }
+                    for (int row = 0; row < classes.length; row++) {
+                        if (row == idmax)
+                            continue;
+                        else if (clustersContents.get(classes[row]).get(col) != null)
+                            bg[row][col + 1] = true;
+                    }
+                }
+                /****************************************************/
+                int misses = 0;
+                // For each class:
+                for (int i = 0; i < rows; i++) {
+                    out.append("<tr align=\"center\">");
+                    for (int j = 0; j < cols; j++) {
+                        out.append("<td");
+                        if (bg[i][j]) {
+                            out.append(" bgcolor=\"CCCCCC\"");
+                            misses += (Integer) matrix[i][j];
+                        }
+                        out.append("> " + matrix[i][j]);
+                        out.append("</td>");
+                    }
+                    out.append("</tr>");
+                }
+                out.append("</table>");
+                double percent = ((double) (misses * 100)) / ((double) samples.size());
+                out.append("<br><br>Misses: " + misses + " / " + samples.size() + " " +
+                        "(<b>" + formatter.format(percent) + "%</b>)");
+            }
+            out.append("</center></body></html>");
+            out.close();
+            Desktop.getDesktop().open(outputFile);
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -199,7 +405,7 @@ public class GUI extends javax.swing.JFrame {
         jt_e.setText("0");
         jt_e.setToolTipText("Prevents division by zero when vector norm is zero; usually 0");
 
-        jt_theta.setText("0.2");
+        jt_theta.setText("0.01");
         jt_theta.setToolTipText("Noise suppresion;  theta < (1/sqrt(dimension))");
 
         jt_rho.setText("0.9");
@@ -367,12 +573,12 @@ public class GUI extends javax.swing.JFrame {
 
     private void jb_trainActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_trainActionPerformed
         retrieveParameters();
-        // checking whether all attribute's (excluding class) are real numbers:
         ArrayList<Attribute> atts = samples.getAtts();
         int attCount = atts.size();
         boolean labeled = samples.getClassAttributeIndex() != -1;
         dimension = labeled ? attCount - 1 : attCount;
         network = new Network(dimension, a, b, c, d, e, alpha, rho, theta, iterations);
+        network.setSamples(samples);
         trainNetwork(network, samples);
     }//GEN-LAST:event_jb_trainActionPerformed
 
@@ -415,7 +621,7 @@ public class GUI extends javax.swing.JFrame {
             results.put(index, cluster);
         }
         System.out.println("Training completed.");
-        showResults(results, samples);
+        showResults(shuffled, results);
     }
 
     private void showResults(HashMap<Integer, Integer> results, Samples samples) {

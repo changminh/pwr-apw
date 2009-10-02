@@ -58,11 +58,13 @@ public class Network {
     private double alpha;
     private double rho;
     private double theta;
-    private double init;
-    private boolean reset = true;
-    private double[] input;
-    private boolean debug = false;
     private int learningIterations = -1;
+    private double init;
+    private double[] input;
+    private boolean reset = true;
+    private boolean learningMode = true;
+    private boolean debug = false;
+    private Samples samples;
 
     public Network(int dim, double a, double b, double c, double d, double e, 
                     double alpha, double rho, double theta, int learningIterations) {
@@ -77,7 +79,7 @@ public class Network {
         this.theta = theta;
         this.learningIterations = learningIterations;
         input = new double[dimension];
-        init = 1d / ((1.d - d) * Math.sqrt(dimension));
+        init = 0.5d / ((1.d - d) * Math.sqrt(dimension));
         System.out.println("Init bottomUp: " + init);
         System.out.println("learningIterations = " + learningIterations);
         as = new Attentional();
@@ -136,8 +138,7 @@ public class Network {
         private int winner = -1;
 
         public Attentional() {
-            for (int i = 0; i < 5; i++)
-                f2.add(new Neuron());
+            f2.add(new Neuron());
         }
 
         private void prepare() {
@@ -230,13 +231,13 @@ public class Network {
                     max = temp;
                 }
             }
-            if (winner == -1) {
+            /* if (winner == -1) {
                 Neuron n = new Neuron();
                 f2.add(n);
                 temp = n.calculateOutput();
                 if (temp > max)
                     winner = f2.size() - 1;
-            }
+            } */
             if (debug)
                 System.out.println("Tournament won by " + winner);
             return winner;
@@ -285,7 +286,8 @@ public class Network {
         }
 
         public void updateWeights() {
-            System.out.println("Update'ing: " + as.winner);
+            if (!learningMode)
+                return;
             /* Fast learning:
                 for (int i = 0; i < dimension; i++)
                     bottomUp[i] = topDown[i] = (1 / (1 - d)) * as.u[i]; */
@@ -301,6 +303,8 @@ public class Network {
                 as.processQ();
                 as.processV();
             }
+            if (as.winner == as.f2.size() - 1)
+                as.f2.add(new Neuron());    // Add new neuron:
             if (debug) {
                 System.out.println("bottomUp = " + print(bottomUp));
                 System.out.println("topDown = " + print(topDown));
@@ -319,6 +323,22 @@ public class Network {
         public void disable() {
             enabled = false;
         }
+    }
+
+    public int getPrototypesCount() {
+        return as.f2.size();
+    }
+
+    public void learningMode(boolean b) {
+        learningMode = b;
+    }
+
+    public Samples getSamples() {
+        return samples;
+    }
+
+    public void setSamples(Samples samples) {
+        this.samples = samples;
     }
 
     public static void main(String[] args)  throws Exception {

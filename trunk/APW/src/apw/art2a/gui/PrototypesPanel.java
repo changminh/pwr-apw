@@ -42,6 +42,7 @@ public class PrototypesPanel extends javax.swing.JPanel
     /** Creates new form PrototypesPanel */
     PrototypesPanel(Network network) {
         this.network = network;
+        if (network.getSamples() != null)
         initialSamplesSize = network.getSamples().size();
         initComponents();
         jt_prototypes.getModel().addTableModelListener(this);
@@ -265,6 +266,7 @@ public class PrototypesPanel extends javax.swing.JPanel
             // Clusters summary:
             out.append("<a name=\"clusters_summary\"></a>");
             out.append("<b>Clusters summary: </b><br><br>");
+            out.append("Passes: " + network.getPasses());
             out.append("<table cellpadding=\"5\" cellspacing=\"5\" border=\"thin\">\n");
             out.append("<tr align=\"center\">");
             out.append("<td> Cluster Id</td>");

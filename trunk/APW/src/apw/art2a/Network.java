@@ -22,6 +22,7 @@ public class Network extends AbstractTableModel {
     protected ArrayList<Instance> instances = new ArrayList<Instance>();
     protected String[] columnNames;
     private Samples samples;
+    int passes;
 
     public Network(double alpha, double beta, double rho, double theta, int columns) {
         this.alpha = alpha;
@@ -51,7 +52,7 @@ public class Network extends AbstractTableModel {
         if (!learningMode)
             return p;
         else {
-            if (!similarityTest(inst, bestValue))
+            if (uncomittedWins(inst, bestValue))
                 return addNeuron(inst);
             else if (vigilanceTest(bestValue)) {
                 p.addInstance(inst);
@@ -70,7 +71,7 @@ public class Network extends AbstractTableModel {
         double score = 0.d;
         for (Prototype p : prototypes.values()) {
             score = p.countScore(instance);
-            if (similarityTest(instance, score) && vigilanceTest(score))
+            if ((!uncomittedWins(instance, score)) && vigilanceTest(score))
                 result.add(p);
         }
         /////////
@@ -92,12 +93,12 @@ public class Network extends AbstractTableModel {
         return p;
     }
 
-    private boolean similarityTest(Instance inst, double score) {
+    private boolean uncomittedWins(Instance inst, double score) {
         double alphaSum = 0;
         for (double d : inst.getProcessingVector())
             alphaSum += d;
         alphaSum *= alpha;
-        return score >= alphaSum;
+        return score < alphaSum;
     }
 
     private boolean vigilanceTest(double score) {
@@ -223,5 +224,9 @@ public class Network extends AbstractTableModel {
 
     public void setSamples(Samples samples) {
         this.samples = samples;
+    }
+
+    public int getPasses() {
+        return passes;
     }
 }

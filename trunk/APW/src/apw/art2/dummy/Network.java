@@ -35,10 +35,14 @@
 package apw.art2.dummy;
 
 import apw.art2.*;
+import apw.core.Nominal;
 import apw.core.Sample;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,7 +59,7 @@ public class Network {
     private boolean reset = false;
     private boolean resonance = false;
     private int winnerIndex;
-    private int f2InitSize = 6;
+    private int f2InitSize = 1;
     private static int neuronCounter = 0;
     private double initialBottomUp;
     private double a, b, c, d, e, gamma, rho, theta;
@@ -65,7 +69,6 @@ public class Network {
     private OrientingSubsystem orienting;
     private HashSet<Integer> banned = new HashSet<Integer>();
     private static boolean demoSkapuraFreeman = false;
-    private boolean initializeCorrectly = false;
 
     // Sublayer indexes:
     private static final int w = 0;
@@ -141,11 +144,11 @@ public class Network {
                         counter++;
                     }
                     // Check if new neuron is needed:
-                    if (winnerIndex == -1) {
+                    /* if (winnerIndex == -1) {
                         // If so, the new neuron becomes a winner:
                         winnerIndex = attention.f2.size();
                         attention.f2.add(new Neuron(winnerIndex));
-                    }
+                    } */
                     for (Neuron n : attention.f2)
                         n.setWinner(winnerIndex);
                     // Updating output of layers:
@@ -314,6 +317,9 @@ public class Network {
         public void updateWeights() {
             for (int i = 0; i < dimension; i++)
                 bottomUp[i] = topDown[i] = attention.f1[u][i] / updateDenominator;
+            // Check if new neuron is needed:
+            if (id == (attention.f2.size() - 1))
+                attention.f2.add(new Neuron(attention.f2.size()));
         }
     }
 
@@ -334,28 +340,66 @@ public class Network {
             demo();
             return;
         }
+        boolean shuffle = false;
+        int dim = 4;
         
         Samples samples = new ARFFLoader(new File("data/iris.arff")).getSamples();
-        Network n = new Network(4, 10, 10, 0.1d, 0.9d, 0.1d, 0.71d, 0.01d, 1.05);
+        Network n = new Network(dim, 10, 10, 0.1d, 0.9d, 0d,
+                1.055d,
+                0.9d, 0.00d);
         ArrayList<double[]> inst = new ArrayList<double[]>();
         double[] temp;
         for (Sample s : samples) {
-            temp = new double[4];
-            for (int i = 0; i < 4; i++)
+            temp = new double[dim];
+            for (int i = 0; i < dim; i++)
                 temp[i] = (Double) s.get(i);
             inst.add(temp);
         }
+        ArrayList<Integer> shuffled = ART2_Util.shuffle(inst.size(), shuffle);
         HashMap<String, Integer> results = new HashMap<String, Integer>();
+        int clazz = samples.getClassAttributeIndex();
         String s;
+        int cluster;
+        int maxWinner = 0;
         for (int i = 0; i < inst.size(); i++) {
-            s = samples.get(i).get(samples.getClassAttributeIndex()) + "_" + n.process(inst.get(i));
+            cluster = n.process(inst.get(shuffled.get(i)));
+            s = samples.get(i).get(clazz) + "_" + cluster;
             if (results.containsKey(s))
                 results.put(s, results.get(s) + 1);
             else
                 results.put(s, 1);
+            if (cluster > maxWinner)
+                maxWinner = cluster;
         }
         for (String str : results.keySet()) {
             System.out.println(str + " --> " + results.get(str));
         }
+        System.out.println("\nClusters count: " + (maxWinner + 1));
+        // Sum mistakes:
+        ArrayList<Integer> subclusters = new ArrayList<Integer>();
+        int idmax, max, sum = 0;
+        for (int i = 0; i < n.attention.f2.size(); i++) {
+            subclusters.clear();
+            for (String str : ((Nominal)samples.getClassAttribute()).getKeys()) {
+                if (results.containsKey(str + "_" + i))
+                    subclusters.add(results.get(str + "_" + i));
+            }
+            if (subclusters.size() != 1) {
+                idmax = -1; max = 0;
+                for (int j = 0; j < subclusters.size(); j++)
+                    if (subclusters.get(j) > max) {
+                        max = subclusters.get(j);
+                        idmax = j;
+                    }
+                for (int j = 0; j < subclusters.size(); j++)
+                    if (j != idmax)
+                        sum += subclusters.get(j);
+            }
+        }
+        System.out.println("Mistakes = " + sum);
+        if (false)
+        try {
+            new BufferedReader(new InputStreamReader(System.in)).readLine();
+        } catch (IOException ex) { }
     }
 }

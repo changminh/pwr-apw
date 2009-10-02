@@ -68,58 +68,6 @@ public class PrototypesFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                ART2A_Util util = new ART2A_Util();
-                ArrayList<Instance> instances = new ArrayList<Instance>();
-                Network n = null;
-                Samples samples = null;
-                double t = 0.1d;
-                try {
-                    samples = new ARFFLoader(new File("data/test.arff")).getSamples();
-                    // samples.setClassAttributeIndex(0);
-                    instances = util.shuffleInstances(util.convertSamples(samples, t));
-                    // n = createNetwork(0.3d, 0.005d, 0.99d, 0.01d, instances); // przy 9 przebiegach 2 błędy dla irysków :D
-                    n = util.createAndLearnNetwork(0.3d, 0.5d, 0.99d, t, 9, instances);
-                } catch (IllegalArgumentException ex) {
-                    JOptionPane.showMessageDialog(null, ex.getMessage());
-                    return;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                n.print();
-                n.learningMode(true);
-                for (Prototype p : n.getPrototypes()) {
-                    System.out.print("Closest instance for " + p.getIndex() + ": ");
-                    p.findClosestInstance(instances).print();
-                    p.turnToInstance(instances).print();
-                    System.out.println("");
-                }
-                HashMap<String, Integer> stats = new HashMap<String, Integer>();
-                String temp;
-                Prototype p;
-                for (Instance inst : instances) {
-                    p = n.query(inst);
-                    if (labeled) {
-                        temp = samples.get(inst.getId()).classAttributeInt().toString() + "_" + p.getIndex();
-                        if (stats.containsKey(temp))
-                            stats.put(temp, stats.get(temp) + 1);
-                        else
-                            stats.put(temp, 1);
-                    }
-                }
-                if (labeled) {
-                    for (String s : stats.keySet())
-                        System.out.println(s + " -> " + stats.get(s));
-                }
-                new PrototypesFrame(n).setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private apw.art2a.gui.PrototypesPanel prototypesPanel1;
