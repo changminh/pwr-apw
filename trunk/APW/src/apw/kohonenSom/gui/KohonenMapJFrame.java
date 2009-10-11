@@ -1,20 +1,14 @@
 package apw.kohonenSom.gui;
 
-import apw.som.kohonen.KohonenNetwork;
+import apw.kohonenSom.KohonenNetwork;
 
 public class KohonenMapJFrame extends javax.swing.JFrame {
     
     private KohonenNetwork map;
 
-    public KohonenMapJFrame(KohonenNetwork map) {
+    public KohonenMapJFrame() {
         initComponents();
         setLocationRelativeTo(null);
-
-        this.map = map;
-
-        if(map == null){
-            map = new KohonenNetwork();
-        }
 
         this.setVisible(true);
     }
@@ -50,7 +44,7 @@ public class KohonenMapJFrame extends javax.swing.JFrame {
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new KohonenMapJFrame(null).setVisible(true);
+                new KohonenMapJFrame().setVisible(true);
             }
         });
     }
