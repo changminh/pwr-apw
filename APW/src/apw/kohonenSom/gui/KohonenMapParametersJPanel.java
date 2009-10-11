@@ -1,18 +1,14 @@
 package apw.kohonenSom.gui;
 
-import apw.kohonenSom.gui.KohonenMapJFrame;
-import apw.som.kohonen.KohonenNetwork;
 import javax.swing.SpinnerNumberModel;
 
-public class KohonenMapParametersJPanel extends javax.swing.JPanel {
+public class KohonenMapParametersJPanel extends javax.swing.JPanel{
 
-    private KohonenNetwork creator;
     private KohonenMapJFrame parent;
 
-    public KohonenMapParametersJPanel(KohonenNetwork creator, KohonenMapJFrame parent) {
+    public KohonenMapParametersJPanel(KohonenMapJFrame parent) {
         initComponents();
 
-        this.creator = creator;
         this.parent = parent;
 
         maxR_js.setModel(new SpinnerNumberModel(0, 0, 100, 1));
