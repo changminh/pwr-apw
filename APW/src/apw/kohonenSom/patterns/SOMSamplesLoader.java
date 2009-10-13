@@ -1,5 +1,6 @@
-package apw.kohonenSom.util;
+package apw.kohonenSom.patterns;
 
+import apw.kohonenSom.util.*;
 import apw.core.Attribute;
 import apw.core.Sample;
 import apw.core.Samples;
@@ -7,27 +8,32 @@ import java.util.ArrayList;
 
 /**
  *
- * @author Cristopher Wadowski
+ * @author Christopher Wadowski
  */
 public class SOMSamplesLoader {
+    public static final int EXCLUDE_MISSSING_VAL_SAMPLES = -1;
 
-    public static final int NUM_EXCL_MISSING_VAL = 0;
     public static final int NUM_MFREQ_MISSING_VAL = 1;
     public static final int NUM_AVR_MISSING_VAL_ARITHM = 2;
     public static final int NUM_AVR_MISSING_VAL_GEOM = 3;
     public static final int NUM_AVR_MISSING_VAL_SQR = 4;
     public static final int NUM_AVR_MISSING_VAL_HARM = 5;
 
-
-    public static final int NOM_EXCL_MISSING_VAL = 0;
     public static final int NOM_MFREQ_MISSING_VAL = 1;
 
+    //------------------------------------------------------
     private Samples samples;
 
+    private int numMode;
+    private int nomMode;
+    
+    //------------------------------------------------------
     private ArrayList<double[]> numericalData;
-    private ArrayList<Attribute[]> nominalData;
+    private ArrayList<Object[]> nominalData;
+    private ArrayList<Object> nominalDataTypes;
     private ArrayList<String> classTypes;
 
+    //------------------------------------------------------
     private ArrayList<Integer> nomAttribsInd;
     private ArrayList<Integer> numAttribsInd;
     private ArrayList<Integer> missValSamples;
@@ -35,13 +41,26 @@ public class SOMSamplesLoader {
     private double[] numFillers;
     private Attribute[] nomFillers;
 
-    private int numMode;
-    private int nomMode;
-
     private int numAttrNo;
     private int nomAttrNo;
 
-    //TODO
+    private int classInd;
+    //------------------------------------------------------
+
+    public SOMSamplesLoader(Samples samples) {
+
+        this.samples = samples;
+
+        this.numMode = -1;
+        this.nomMode = -1;
+
+        classInd = samples.getClassAttributeIndex();
+
+        checkNominalAttribs();
+        checkMissingValues();
+        evalMissingDataFillers();
+        processSamples();
+    }
 
     public SOMSamplesLoader(Samples samples, int numMode, int nomMode) {
 
@@ -50,63 +69,106 @@ public class SOMSamplesLoader {
         this.numMode = numMode;
         this.nomMode = nomMode;
 
+        classInd = samples.getClassAttributeIndex();
+
         checkNominalAttribs();
         checkMissingValues();
         evalMissingDataFillers();
         processSamples();
     }
 
+   //------------------------------------------------------
     private void processSamples(){
-        //TODO
+        numericalData = new ArrayList<double[]>();
+        nominalData = new ArrayList<Object[]>();
+        classTypes = new ArrayList<String>();
+
+        for(int s=0; s<samples.size(); s++){
+            if(!(numMode == -1 && missValSamples.contains(s)))
+                processSample(samples.get(s));
+        }
     }
 
     private void processSample(Sample sample){
-        //TODO
-        
+        double[] numVector = new double[this.numAttrNo];
+        Object[] nomVector = new Attribute[this.nomAttrNo];
+        int ind;
+
+        for(int a=0; a<numAttrNo; a++){
+            ind = numAttribsInd.get(a);
+
+            if(sample.get(ind) == null){
+                numVector[a] = numFillers[a];
+            }else{
+                numVector[a] = (Double)sample.get(ind);
+            }
+        }
+
+        for(int a=0; a<nomAttrNo; a++){
+            ind = nomAttribsInd.get(a);
+
+            if(sample.get(ind) == null){
+                nomVector[a] = nomFillers[a];
+            }else{
+                nomVector[a] = sample.get(ind);
+            }
+        }
+
+        String classType = (String)sample.get(this.classInd);
+
+        numericalData.add(numVector);
+        nominalData.add(nomVector);
+        classTypes.add(classType);
     }
 
+    //------------------------------------------------------
     private void checkNominalAttribs(){
         nomAttribsInd = new ArrayList<Integer>();
         numAttribsInd = new ArrayList<Integer>();
-        Attribute attr;
-        Sample samp = samples.get(0);
+        nominalDataTypes = new ArrayList<Object>();
 
-        for(int a=0; a<samp.size(); a++){
-            attr = (Attribute)samp.get(a);
+        ArrayList<Attribute> attributes = samples.getAtts();
 
-            if(attr.isNominal()){
-                nomAttribsInd.add(a);
+        for(int a=0; a<attributes.size(); a++){
+            if(a != this.classInd){
+                if(attributes.get(a).isNominal()){
+                    nomAttribsInd.add(a);
+                    nominalDataTypes.add(
+                            attributes.get(a).getInterpretation(a));
+                }
+                else
+                    numAttribsInd.add(a);
             }
-            else
-                numAttribsInd.add(a);
         }
 
         nomAttrNo = nomAttribsInd.size();
         numAttrNo = numAttribsInd.size();
     }
 
+    //------------------------------------------------------
     private void checkMissingValues(){
         missValSamples = new ArrayList<Integer>();
 
         Sample samp;
         boolean miss;
-        Attribute attr;
+        Object attr;
 
         for(int s=0; s<samples.size(); s++){
             samp = samples.get(s);
             miss = false;
 
             for(int a=0; a<samp.size() && !miss; a++){
-                attr = (Attribute)samp.get(a);
+                attr = samp.get(a);
 
-                if(attr.getName() == null){
+                if(attr == null){
                     miss = true;
                     missValSamples.add(s);
                 }
             }
         }
     }
-    
+
+    //------------------------------------------------------
     private void evalMissingDataFillers(){
         numFillers = new double[numAttrNo];
         nomFillers = new Attribute[nomAttrNo];
@@ -128,14 +190,14 @@ public class SOMSamplesLoader {
         }
     }
 
+    //------------------------------------------------------
     private void evalAvrNumFillersArithm(){
         double[] avr = new double[this.numAttrNo];
 
         for(int s=0; s<samples.size(); s++){
             Sample samp = samples.get(s);
             for(int i=0; i<numAttribsInd.size(); i++){
-                Attribute attr =  (Attribute)samp.get(numAttribsInd.get(i));
-                avr[i] += Double.parseDouble(attr.getName());
+                avr[i] += (Double)samp.get(numAttribsInd.get(i));
             }
         }
 
@@ -145,14 +207,14 @@ public class SOMSamplesLoader {
         numFillers = avr;
     }
 
+    //------------------------------------------------------
     private void evalAvrNumFillersGeom(){
         double[] avr = new double[this.numAttrNo];
 
         for(int s=0; s<samples.size(); s++){
             Sample samp = samples.get(s);
             for(int i=0; i<numAttribsInd.size(); i++){
-                Attribute attr =  (Attribute)samp.get(numAttribsInd.get(i));
-                avr[i] = avr[i]*Double.parseDouble(attr.getName());
+                avr[i] = avr[i]*(Double)samp.get(numAttribsInd.get(i));
             }
         }
 
@@ -162,15 +224,15 @@ public class SOMSamplesLoader {
         numFillers = avr;
     }
 
+    //------------------------------------------------------
     private void evalAvrNumFillersSqr(){
         double[] avr = new double[this.numAttrNo];
 
         for(int s=0; s<samples.size(); s++){
             Sample samp = samples.get(s);
             for(int i=0; i<numAttribsInd.size(); i++){
-                Attribute attr =  (Attribute)samp.get(numAttribsInd.get(i));
                 avr[i] += java.lang.Math.pow(
-                        Double.parseDouble(attr.getName()), 2);
+                        (Double)samp.get(numAttribsInd.get(i)), 2);
             }
         }
 
@@ -180,14 +242,14 @@ public class SOMSamplesLoader {
         numFillers = avr;
     }
 
+    //------------------------------------------------------
     private void evalAvrNumFillersHarm(){
         double[] avr = new double[this.numAttrNo];
 
         for(int s=0; s<samples.size(); s++){
             Sample samp = samples.get(s);
             for(int i=0; i<numAttribsInd.size(); i++){
-                Attribute attr =  (Attribute)samp.get(numAttribsInd.get(i));
-                avr[i] +=1/(Double.parseDouble(attr.getName()));
+                avr[i] +=1/(Double)samp.get(numAttribsInd.get(i));
             }
         }
 
@@ -197,6 +259,7 @@ public class SOMSamplesLoader {
         numFillers = avr;
     }
 
+    //------------------------------------------------------
     private void evalFreqNumFillers(){
         double[] freq = new double[this.numAttrNo];
 
@@ -235,6 +298,7 @@ public class SOMSamplesLoader {
         numFillers = freq;
     }
 
+    //------------------------------------------------------
     private void evalFreqNomFillers(){
         Attribute[] freq = new Attribute[this.nomAttrNo];
 
@@ -276,16 +340,25 @@ public class SOMSamplesLoader {
         nomFillers = freq;
     }
 
+    //------------------------------------------------------
     public ArrayList<double[]> getNumericalData(){
         return this.numericalData;
     }
 
-    public ArrayList<Attribute[]> getNominalData(){
+    public ArrayList<Object[]> getNominalData(){
         return this.nominalData;
+    }
+
+    public ArrayList<Object> getNominalAttribsInterpretation(){
+        return this.nominalDataTypes;
     }
 
     public ArrayList<String> getClassNames(){
         return this.classTypes;
+    }
+
+    public int getSampsWithMisValNumber(){
+        return this.missValSamples.size();
     }
 
     public ArrayList<double[]> getNormalizedNumericalData(){
@@ -296,4 +369,65 @@ public class SOMSamplesLoader {
 
        return data;
     }
+
+    public Samples getSamples(){
+        return this.samples;
+    }
+
+    public double getMaxNumValue(){
+        double result = 0;
+
+        for(int i=0; i<numericalData.size(); i++){
+            for(int j=0; j<numericalData.get(i).length; j++){
+                if(numericalData.get(i)[j] > result)
+                    result = numericalData.get(i)[j];
+            }
+        }
+
+        return result;
+    }
+
+    public double getMinNumValue(){
+        double result = 0;
+
+        for(int i=0; i<numericalData.size(); i++){
+            for(int j=0; j<numericalData.get(i).length; j++){
+                if(numericalData.get(i)[j] < result)
+                    result = numericalData.get(i)[j];
+            }
+        }
+
+        return result;
+    }
+
+    public double getMaxNumNormalizedValue(){
+        double result = 0;
+
+        ArrayList<double[]> norm = getNormalizedNumericalData();
+
+        for(int i=0; i<norm.size(); i++){
+            for(int j=0; j<norm.get(i).length; j++){
+                if(norm.get(i)[j] > result)
+                    result = norm.get(i)[j];
+            }
+        }
+
+        return result;
+    }
+
+    public double getMinNumNormalizedValue(){
+        double result = 0;
+
+        ArrayList<double[]> norm = getNormalizedNumericalData();
+
+        for(int i=0; i<norm.size(); i++){
+            for(int j=0; j<norm.get(i).length; j++){
+                if(norm.get(i)[j] < result)
+                    result = norm.get(i)[j];
+            }
+        }
+
+        return result;
+    }
+
 }

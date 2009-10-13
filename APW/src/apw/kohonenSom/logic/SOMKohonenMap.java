@@ -10,6 +10,10 @@ import java.awt.Point;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+/**
+ *
+ * @author Christopher Wadowski
+ */
 public class SOMKohonenMap implements Serializable
 {
 
@@ -36,13 +40,13 @@ public class SOMKohonenMap implements Serializable
 	
 	//------------------------------------------------------
 	private SOMOrderRandomizer orderRand;
-	
-	
+
+    //------------------------------------------------------
 	//constructors
 	public SOMKohonenMap(int TMax, int XMax, int YMax,
 			SOMDistanceFunction distanceType, SOMWinnerSelection selector,
 			SOMWeightsInitializer wInit, SOMTrainingMethod trainer
-			) throws Exception
+			)
 	{	
 		this.TMax = TMax;
 		
@@ -88,7 +92,7 @@ public class SOMKohonenMap implements Serializable
 			for(int p=0; p<patterns.size(); p++, time++)
 			{
 				double[] vector = patterns.get(patternOrder.get(p));
-				
+
 				distances = calcDist(vector);
 				winner = chooseWinner(distances, time);
 				weights = trainer.adaptWeights(vector, weights, winner, time);
@@ -106,6 +110,8 @@ public class SOMKohonenMap implements Serializable
 				map[x][y].clear();
 		centers.clear();	
 		wInit.initializeWeights();
+        if(selector != null)
+			selector.resetSelector();
 	}
 
 	//------------------------------------------------------
@@ -208,7 +214,7 @@ public class SOMKohonenMap implements Serializable
 				map[x][y] = new ArrayList<Integer>();
 		}
 		centers = new ArrayList<Point>();
-		wInit.initializeWeights();
+		weights = wInit.initializeWeights();
 	}
 	
 	//---------------------------------

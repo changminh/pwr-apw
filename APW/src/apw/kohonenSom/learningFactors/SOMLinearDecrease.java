@@ -1,10 +1,10 @@
 package apw.kohonenSom.learningFactors;
 
-public class SOMLinearDecreas implements SOMLearningFactor {
+public class SOMLinearDecrease implements SOMLearningFactor {
 	private double etaMax;
 	private double TMax;
 	
-	public SOMLinearDecreas(double etaMax, double TMax)
+	public SOMLinearDecrease(double etaMax, double TMax)
 	{
 		this.etaMax = etaMax;
 		this.TMax = TMax;

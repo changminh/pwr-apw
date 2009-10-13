@@ -8,7 +8,7 @@ public class SOMWTAMethod implements SOMTrainingMethod {
 
 	private SOMLearningFactor eta;
 	
-	public SOMWTAMethod(SOMLearningFactor eta, int xMax, int yMax)
+	public SOMWTAMethod(SOMLearningFactor eta)
 	{
 		this.eta = eta;
 	}
