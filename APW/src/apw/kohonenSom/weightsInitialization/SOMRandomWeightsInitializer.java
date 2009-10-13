@@ -38,8 +38,10 @@ public class SOMRandomWeightsInitializer implements SOMWeightsInitializer {
 			{
 				w[i][j] = new double[inpNum];
 				
-				for(int k=0; k<inpNum; k++)
-					w[i][j][k] = rand.nextDouble()*(WMax - WMin) + WMin;
+				for(int k=0; k<inpNum; k++){
+                    double number = rand.nextDouble()*(WMax - WMin) + WMin;
+                    w[i][j][k] = number;
+                }
 			}
 		}
 		

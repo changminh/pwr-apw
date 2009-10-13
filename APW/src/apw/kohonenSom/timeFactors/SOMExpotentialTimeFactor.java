@@ -2,9 +2,9 @@ package apw.kohonenSom.timeFactors;
 
 public class SOMExpotentialTimeFactor implements SOMTimeFactor {
 
-	private int C;
+	private double C;
 	
-	public SOMExpotentialTimeFactor(int C)
+	public SOMExpotentialTimeFactor(double C)
 	{
 		this.C = C;
 	}

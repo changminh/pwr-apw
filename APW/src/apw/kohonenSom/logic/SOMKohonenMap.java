@@ -84,18 +84,26 @@ public class SOMKohonenMap implements Serializable
 		Point winner;		
 		int T;
 		int time;
-		
-		for(T=0, time=0; T<TMax; T++)
+
+        boolean train = true;
+
+		for(T=0, time=0; T<TMax && train; T++)
 		{
 			ArrayList<Integer> patternOrder =  orderRand.randomizeOrder(patterns.size());
-			
-			for(int p=0; p<patterns.size(); p++, time++)
-			{
+            
+			for(int p=0; p<patterns.size() && train; p++, time++)
+            {
 				double[] vector = patterns.get(patternOrder.get(p));
-
+                
 				distances = calcDist(vector);
 				winner = chooseWinner(distances, time);
 				weights = trainer.adaptWeights(vector, weights, winner, time);
+                
+                if(checkWeights(weights)){
+                    System.out.println(
+                            "error weights, e: "+T+"; t: "+time+"; ");
+                    train = false;
+                }
 			}
 		}
 		
@@ -332,5 +340,21 @@ public class SOMKohonenMap implements Serializable
 	}
 	
 	//------------------------------------------------------
-	
+    private boolean checkWeights(double[][][] weights) {
+        for(int x=0; x<weights.length; x++)
+            for(int y=0; y<weights[0].length; y++)
+                for(int w=0; w<weights[0][0].length; w++){
+                    String s=Double.toString(weights[x][y][w]);
+                    if(s.equals("NaN")){
+                        System.out.println(
+                                weights[x][y][w]+"; x: "+x
+                                +"; y: "+y+"; w: "+w+";");
+
+                        return true;
+                    }
+                }
+
+        return false;
+    }
+
 }
