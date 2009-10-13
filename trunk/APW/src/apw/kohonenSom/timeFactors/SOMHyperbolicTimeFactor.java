@@ -2,9 +2,9 @@ package apw.kohonenSom.timeFactors;
 
 public class SOMHyperbolicTimeFactor implements SOMTimeFactor {
 	
-	private int C;
+	private double C;
 	
-	public SOMHyperbolicTimeFactor(int C)
+	public SOMHyperbolicTimeFactor(double C)
 	{
 		this.C = C;
 	}

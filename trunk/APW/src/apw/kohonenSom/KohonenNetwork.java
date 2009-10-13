@@ -79,9 +79,9 @@ public class KohonenNetwork {
         }else{
             pat = patterns.getNumericalData();
         }
-
-        this.map.trainIterative(pat);
-    }
+        
+            this.map.trainIterative(pat);
+        }
 
     //TODO return maps for visualizasion
 
@@ -117,13 +117,13 @@ public class KohonenNetwork {
         return new SOMRandomWeightsInitializer(x, y, inpNum, WMax, WMin);
      }
 
-     public static SOMTrainingMethod initTrainingMethodWTA(
+     public static SOMTrainingMethod initTrainingMethodWTM(
              SOMLearningFactor eta, SOMNeighbourhoodFunction neighType,
-			SOMNeuronsDistance nDist){
+			 SOMNeuronsDistance nDist){
         return new SOMWTMMethod(eta, neighType, nDist);
      }
 
-     public static SOMTrainingMethod initTrainingMethodWTM(SOMLearningFactor eta){
+     public static SOMTrainingMethod initTrainingMethodWTA(SOMLearningFactor eta){
         return new SOMWTAMethod(eta);
      }
 
@@ -166,16 +166,16 @@ public class KohonenNetwork {
         return new SOMNeuronNumber();
      }
 
-     public static SOMTimeFactor initTimeFactorExpotential(int C){
+     public static SOMTimeFactor initTimeFactorExpotential(double C){
          return new SOMExpotentialTimeFactor(C);
      }
 
-     public static SOMTimeFactor initTimeFactorHyperbolic(int tMax){
-         return new SOMHyperbolicTimeFactor(tMax);
+     public static SOMTimeFactor initTimeFactorHyperbolic(double C){
+         return new SOMHyperbolicTimeFactor(C);
      }
 
-     public static SOMTimeFactor initTimeFactorLinear(int C){
-         return new SOMLinearTimeFactor(C);
+     public static SOMTimeFactor initTimeFactorLinear(int tMax){
+         return new SOMLinearTimeFactor(tMax);
      }
 
     //------------------------------------------------------

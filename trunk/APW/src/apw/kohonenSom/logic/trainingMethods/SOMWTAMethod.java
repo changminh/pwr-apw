@@ -16,11 +16,20 @@ public class SOMWTAMethod implements SOMTrainingMethod {
 	@Override
 	public double[][][] adaptWeights(double[] vector, double[][][] weights,
 			Point winner, double time) {
-		for(int i=0; i<vector.length; i++)
-			weights[winner.x][winner.y][i] = weights[winner.x][winner.y][i] + 
-				eta.getEta(time)*(vector[i] - weights[winner.x][winner.y][i]); 
+        double[][][] w = weights;
+
+        int x = winner.x;
+        int y = winner.y;
+
+		for(int i=0; i<vector.length; i++){
+			double wi = w[x][y][i];
+            double etai = eta.getEta(time);
+            double vi = vector[i];
+
+            w[x][y][i] = wi + etai*(vi - wi);
+        }
 		
-		return weights;
+		return w;
 	}
 
 }
