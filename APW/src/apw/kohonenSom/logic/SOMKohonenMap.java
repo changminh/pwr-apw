@@ -1,6 +1,7 @@
 package apw.kohonenSom.logic;
 
 import apw.kohonenSom.distances.SOMDistanceFunction;
+import apw.kohonenSom.logic.nuronDistances.SOMNeuronsDistance;
 import apw.kohonenSom.logic.trainingMethods.SOMTrainingMethod;
 import apw.kohonenSom.logic.winnerSelection.SOMWinnerSelection;
 import apw.kohonenSom.util.SOMOrderRandomizer;
@@ -32,6 +33,7 @@ public class SOMKohonenMap implements Serializable
 	private SOMWeightsInitializer wInit;
 	private SOMTrainingMethod trainer;
 	private SOMWinnerSelection selector;
+    private SOMNeuronsDistance links;
 	
 	//------------------------------------------------------
 	private double[][][] weights;
@@ -45,8 +47,8 @@ public class SOMKohonenMap implements Serializable
 	//constructors
 	public SOMKohonenMap(int TMax, int XMax, int YMax,
 			SOMDistanceFunction distanceType, SOMWinnerSelection selector,
-			SOMWeightsInitializer wInit, SOMTrainingMethod trainer
-			)
+			SOMWeightsInitializer wInit, SOMTrainingMethod trainer,
+            SOMNeuronsDistance links)
 	{	
 		this.TMax = TMax;
 		
@@ -57,6 +59,7 @@ public class SOMKohonenMap implements Serializable
 		this.wInit = wInit;
 		this.trainer = trainer;
 		this.selector = selector;
+        this.links = links;
 
 		this.orderRand = new SOMOrderRandomizer();
 		
@@ -113,9 +116,9 @@ public class SOMKohonenMap implements Serializable
 	//---------------------------------
 	public void resetNetwork()
 	{
-		for(int x=0; x<XMax; x++)
-			for(int y=0; y<YMax; y++)
-				map[x][y].clear();
+		for(int iy=0; iy<YMax; iy++)
+			for(int ix=0; ix<XMax; ix++)
+				map[ix][iy].clear();
 		centers.clear();	
 		wInit.initializeWeights();
         if(selector != null)
@@ -144,6 +147,49 @@ public class SOMKohonenMap implements Serializable
 		if(fill)
 			fillEmptyNeurons();
 	}
+
+    //---------------------------------
+    public double[][] generateUMap(){
+        double uMap[][];
+
+        int ux = this.XMax*2 - 1;
+        int uy = this.YMax*2 - 1;
+
+        uMap = new double[ux][];
+
+        for(int iux=0; iux<ux; iux++){
+            uMap[iux] = new double[uy];
+        }
+
+        for(int ix=0, iux=0; ix< this.XMax; ix++, iux+=2){
+            for(int iy=0, iuy=0; iy< this.YMax; iy++, iuy+=2){
+                double xy = 0;
+                int n = 0;
+                Point neuron = new Point(ix, iy);
+                ArrayList<Point> neighbours =
+                        links.getNeighbours(neuron, XMax, YMax);
+
+                for(int in=0; in<neighbours.size(); in++){
+                    Point nNeuron = neighbours.get(in);
+                    int dx = nNeuron.x - neuron.x;
+                    int dy = nNeuron.y - neuron.y;
+                    
+                    double[] v1 = weights[ix][iy];
+                    double[] v2 = weights[nNeuron.x][nNeuron.y];
+
+                    double dist = distType.getDistance(v1, v2);
+
+                    uMap[iux+dx][iuy+dy] = dist;
+
+                    xy += dist; n++;
+                }
+
+                uMap[iux][iuy] = xy/n;
+            }
+        }
+
+        return uMap;
+    }
 	
 	//---------------------------------
 	private void fillEmptyNeurons()
