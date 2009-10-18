@@ -24,7 +24,7 @@ public class SOMOrderRandomizer {
 			}while (order.contains(num));
 			order.add(num);
 		}
-		
+
 		return order;
 	}
 }

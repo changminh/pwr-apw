@@ -85,25 +85,26 @@ public class SOMKohonenMap implements Serializable
 		
 		double[][] distances;	
 		Point winner;		
-		int T;
+		int T, time;
 
-		for(T=0; T<TMax; T++)
+		for(T=0, time=1; T<TMax; T++)
 		{
-			ArrayList<Integer> patternOrder =  orderRand.randomizeOrder(patterns.size());
+            ArrayList<Integer> patternOrder =  orderRand.randomizeOrder(patterns.size());
             
-			for(int p=0; p<patterns.size(); p++)
+			for(int p=0; p<patterns.size(); p++, time++)
             {
 				double[] vector = patterns.get(patternOrder.get(p));
+                //double[] vector = patterns.get(p);
                 
 				distances = calcDist(vector);
 
-				winner = chooseWinner(distances, T);
+				winner = chooseWinner(distances, time);
                 
-				weights = trainer.adaptWeights(vector, weights, winner, T);
+				weights = trainer.adaptWeights(vector, weights, winner, time);
                 
                 if(checkWeights(weights)){
                     System.out.println(
-                            "error weights, e: "+T+";");
+                            "error weights, e: "+T+"; t: "+time+"; ");
                 }
 			}
 		}
@@ -135,6 +136,7 @@ public class SOMKohonenMap implements Serializable
 			vector = patterns.get(p);		
 			winner = sendSignal(vector);		
 			map[winner.x][winner.y].add(p);
+            
 			if(!isCenter(winner))
 				centers.add(winner);
 		}
