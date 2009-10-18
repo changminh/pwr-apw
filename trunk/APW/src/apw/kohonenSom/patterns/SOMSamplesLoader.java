@@ -341,6 +341,14 @@ public class SOMSamplesLoader {
     }
 
     //------------------------------------------------------
+    public int getNumAttrNumber(){
+        return this.numAttrNo;
+    }
+
+    public int getNomAttrNumber(){
+        return this.nomAttrNo;
+    }
+
     public ArrayList<double[]> getNumericalData(){
         return this.numericalData;
     }
