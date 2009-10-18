@@ -3,6 +3,8 @@ package apw.kohonenSom.timeFactors;
 public class SOMExpotentialTimeFactor implements SOMTimeFactor {
 
 	private double C;
+
+    private static final double endModif = 0.0001;
 	
 	public SOMExpotentialTimeFactor(double C)
 	{
@@ -11,7 +13,8 @@ public class SOMExpotentialTimeFactor implements SOMTimeFactor {
 	
 	@Override
 	public double getTimeModifier(double t) {
-		return java.lang.Math.exp(-1*t*C);
+        double modifier = java.lang.Math.exp(-1*t*C);
+		return java.lang.Math.max(modifier, endModif);
 	}
 
 }

@@ -3,6 +3,8 @@ package apw.kohonenSom.timeFactors;
 public class SOMHyperbolicTimeFactor implements SOMTimeFactor {
 	
 	private double C;
+
+    private static final double endModif = 0.0001;
 	
 	public SOMHyperbolicTimeFactor(double C)
 	{
@@ -11,7 +13,8 @@ public class SOMHyperbolicTimeFactor implements SOMTimeFactor {
 	
 	@Override
 	public double getTimeModifier(double t) {
-		return C/(C + t);
+		double modifier =  C/(C + t);
+        return java.lang.Math.max(modifier, endModif);
 	}
 
 }

@@ -161,17 +161,17 @@ public class KohonenNetwork {
 		return new SOMSamplesLoader(samples, numMode, nomMode);
      }
 
-     public static SOMLearningFactor initTimeFactorExponential(
+     public static SOMLearningFactor initLearningFactorExponential(
              double etaMax, double C){
         return new SOMExponentialDecrease(etaMax, C);
      }
 
-     public static SOMLearningFactor initTimeFactorHyperbolic(
+     public static SOMLearningFactor initLearningFactorHyperbolic(
              double etaMax, double C){
         return new SOMHyperbolicdecrease(etaMax, C);
      }
 
-     public static SOMLearningFactor initTimeFactorLinear(
+     public static SOMLearningFactor initLearningFactorLinear(
              double etaMax, double TMax){
         return new SOMLinearDecrease(etaMax, TMax);
      }

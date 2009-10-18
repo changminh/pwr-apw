@@ -3,6 +3,8 @@ package apw.kohonenSom.timeFactors;
 public class SOMLinearTimeFactor implements SOMTimeFactor {
 
 	private int tMax;
+
+    private static final double endModif = 0.0001;
 	
 	public SOMLinearTimeFactor(int tMax)
 	{
@@ -11,7 +13,7 @@ public class SOMLinearTimeFactor implements SOMTimeFactor {
 	
 	@Override
 	public double getTimeModifier(double t) {
-		return (1 - t/tMax);
+		return java.lang.Math.max(1 - t/tMax, endModif);
 	}
 
 }
