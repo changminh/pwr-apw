@@ -29,7 +29,7 @@ public class KohonenNetworkTest {
         String iris = "data/iris.arff";
         String wine = "data/wine.arff";
 
-        int TMax = 10;
+        int TMax = 20;
         int XMax = 10;
         int YMax = 10;
 
@@ -42,11 +42,9 @@ public class KohonenNetworkTest {
 
         double consciencePotential = 0.75;
 
-        int maxTimeSelMet = TMax/2;
-
         KohonenNetwork net;
         Samples samples =  new ARFFLoader(
-                new File(iris)).getSamples();
+                new File(wine)).getSamples();
 
         int numMisVal = SOMSamplesLoader.NUM_AVR_MISSING_VAL_ARITHM;
         int nomMisVal = SOMSamplesLoader.NOM_MFREQ_MISSING_VAL;
@@ -55,15 +53,20 @@ public class KohonenNetworkTest {
                 KohonenNetwork.initLoader(
                     samples ,numMisVal, nomMisVal);
 
+        int pattNum = samples.size();
+        int timeMax = TMax*pattNum;
+
+        int maxTimeSelMet = timeMax/10;
+
         SOMLearningFactor etaExp =
                 KohonenNetwork.initLearningFactorExponential(etaMax, 1);
         SOMLearningFactor etaLin =
-                KohonenNetwork.initLearningFactorLinear(etaMax, TMax);
+                KohonenNetwork.initLearningFactorLinear(etaMax, timeMax);
         SOMLearningFactor etaHyperb =
                 KohonenNetwork.initLearningFactorHyperbolic(etaMax, 1);
 
         SOMTimeFactor timeTypeLin =
-                KohonenNetwork.initTimeFactorExpotential(TMax);
+                KohonenNetwork.initTimeFactorExpotential(timeMax);
 
         SOMTimeFactor timeTypeHyper =
                 KohonenNetwork.initTimeFactorHyperbolic(0.5);
@@ -85,12 +88,24 @@ public class KohonenNetworkTest {
 
         int inputs = patterns.getNumAttrNumber();    
 
-        SOMDistanceFunction distanceType =
+        SOMDistanceFunction distanceEucl =
                 KohonenNetwork.initDistanceEuclidean();
 
-        SOMWinnerSelection selector =
+        SOMDistanceFunction distanceScal =
+                KohonenNetwork.initDistanceScalar();
+
+        SOMDistanceFunction distanceL =
+                KohonenNetwork.initDistanceL();
+
+        SOMDistanceFunction distanceManh =
+                KohonenNetwork.initDistanceManhattan();
+
+        SOMWinnerSelection selectorConsc =
                 KohonenNetwork.initWinnerSelectorConscience(
                 XMax,YMax,consciencePotential,maxTimeSelMet);
+
+        SOMWinnerSelection selectorCount =
+                KohonenNetwork.initWinnerSelectorCount(XMax, YMax, timeMax);
 
         SOMWeightsInitializer wInit =
                 KohonenNetwork.initWeightsInitializerRandom(
@@ -101,16 +116,16 @@ public class KohonenNetworkTest {
                     etaLin, neighTypeGaus, topology);
 
         SOMTrainingMethod trainerWTA =
-                KohonenNetwork.initTrainingMethodWTA(etaExp);
+                KohonenNetwork.initTrainingMethodWTA(etaLin);
 
         SOMVisualization hexVisualizator=
                 KohonenNetwork.initHexVisualization();
 
         net = new KohonenNetwork(
-                TMax, XMax, YMax, distanceType, selector, wInit, trainerWTM,
-                topology, patterns, hexVisualizator, true);
+                TMax, XMax, YMax, distanceScal, null, wInit, trainerWTM,
+                topology, patterns, hexVisualizator, false);
 
-        System.out.println("start;\n");
+        System.out.println("start;");
 
         for(int i=0; i<1; i++)
         {
@@ -119,7 +134,7 @@ public class KohonenNetworkTest {
             net.trainMap();
         }
 
-        System.out.println("stop;\n");
+        System.out.println("stop;");
 
         BufferedImage umap = net.getUMap();
         BufferedImage pdmap = net.getPatternsDensityMap();
