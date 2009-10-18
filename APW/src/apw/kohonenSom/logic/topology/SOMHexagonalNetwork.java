@@ -1,4 +1,4 @@
-package apw.kohonenSom.logic.nuronDistances;
+package apw.kohonenSom.logic.topology;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -7,7 +7,7 @@ import java.util.ArrayList;
  *
  * @author Christopher Wadowski
  */
-public class SOMHexDistPerNeuron implements SOMNeuronsDistance{
+public class SOMHexagonalNetwork implements SOMTopology{
     
     int ox, oy, dx, dy;
 

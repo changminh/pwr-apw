@@ -1,9 +1,9 @@
-package apw.kohonenSom.logic.nuronDistances;
+package apw.kohonenSom.logic.topology;
 
 import java.awt.Point;
 import java.util.ArrayList;
 
-public interface SOMNeuronsDistance {
+public interface SOMTopology {
 	public abstract double calcDistance(
             Point origin, Point destination);
     public ArrayList<Point> getNeighbours(

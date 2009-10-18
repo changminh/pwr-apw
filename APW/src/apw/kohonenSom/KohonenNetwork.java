@@ -4,7 +4,7 @@ import apw.core.Samples;
 import apw.kohonenSom.distances.*;
 import apw.kohonenSom.learningFactors.*;
 import apw.kohonenSom.logic.*;
-import apw.kohonenSom.logic.nuronDistances.*;
+import apw.kohonenSom.logic.topology.*;
 import apw.kohonenSom.logic.trainingMethods.*;
 import apw.kohonenSom.logic.winnerSelection.*;
 import apw.kohonenSom.neighborhoods.*;
@@ -32,7 +32,7 @@ public class KohonenNetwork {
     private SOMWinnerSelection selector;
 	private SOMWeightsInitializer wInit;
     private SOMTrainingMethod trainer;
-    private SOMNeuronsDistance structure;
+    private SOMTopology structure;
 
     private boolean normalizeVectors;
 
@@ -60,7 +60,7 @@ public class KohonenNetwork {
     public KohonenNetwork(int TMax, int XMax, int YMax,
              SOMDistanceFunction distanceType, SOMWinnerSelection selector,
              SOMWeightsInitializer wInit, SOMTrainingMethod trainer,
-             SOMNeuronsDistance structure, SOMSamplesLoader patterns,
+             SOMTopology structure, SOMSamplesLoader patterns,
              SOMVisualization visualizator, boolean normalizeVectors){
         
         this.TMax = TMax;
@@ -148,7 +148,7 @@ public class KohonenNetwork {
 
      public static SOMTrainingMethod initTrainingMethodWTM(
              SOMLearningFactor eta, SOMNeighbourhoodFunction neighType,
-			 SOMNeuronsDistance nDist){
+			 SOMTopology nDist){
         return new SOMWTMMethod(eta, neighType, nDist);
      }
 
@@ -191,12 +191,12 @@ public class KohonenNetwork {
         return new SOMRectangularNeighbourhood(maxR, decrease);
      }
 
-     public static SOMNeuronsDistance initHexNeuronsDistNeurNum(){
-        return new SOMHexDistPerNeuron();
+     public static SOMTopology initHexTopology(){
+        return new SOMHexagonalNetwork();
      }
 
-     public static SOMNeuronsDistance initMatrixNeuronsDistNeurNum(){
-        return new SOMMatrixDistPerNeuron();
+     public static SOMTopology initRectTopology(){
+        return new SOMRectangonalNetwork();
      }
 
      public static SOMTimeFactor initTimeFactorExpotential(double C){
@@ -260,7 +260,7 @@ public class KohonenNetwork {
         this.visualizator = visualizator;
     }
 
-    private void setStructure(SOMNeuronsDistance structure) {
+    public void setStructure(SOMTopology structure) {
         this.structure = structure;
     }
 
@@ -309,7 +309,7 @@ public class KohonenNetwork {
         return this.visualizator;
     }
 
-    private SOMNeuronsDistance getStructure() {
+    private SOMTopology getStructure() {
         return this.structure;
     }
 }
