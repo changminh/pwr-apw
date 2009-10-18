@@ -40,7 +40,7 @@ public class SOMCountSelection extends SOMWinnerSelection {
 
 	@Override
 	public Point complexWinnerSelection(double[][] distances, int time) {
-		if(time<tMax)
+		if(time<=tMax)
 			return chooseWinnerCount(distances);
 		else
 			return super.simpleWinnerSelection(distances);

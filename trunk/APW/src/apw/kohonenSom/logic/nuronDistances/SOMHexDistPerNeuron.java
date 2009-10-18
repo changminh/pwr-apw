@@ -25,7 +25,6 @@ public class SOMHexDistPerNeuron implements SOMNeuronsDistance{
             dist++;
         }
 
-        System.out.println(dist);
 		return dist;
 	}
 

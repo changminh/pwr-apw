@@ -72,7 +72,7 @@ public class SOMConscienceSelection extends SOMWinnerSelection {
 
 	@Override
 	public Point complexWinnerSelection(double[][] distances, int time) {
-		if(time<tMax)
+		if(time<=tMax)
 			return chooseWinnerConscience(distances);
 		else
 			return super.simpleWinnerSelection(distances);
