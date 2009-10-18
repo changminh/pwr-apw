@@ -3,6 +3,8 @@ package apw.kohonenSom.learningFactors;
 public class SOMLinearDecrease implements SOMLearningFactor {
 	private double etaMax;
 	private double TMax;
+
+    private static final double endEta = 0.0001;
 	
 	public SOMLinearDecrease(double etaMax, double TMax)
 	{
@@ -12,7 +14,7 @@ public class SOMLinearDecrease implements SOMLearningFactor {
 	
 	@Override
 	public double getEta(double time) {
-		return etaMax*((1 - time)/TMax);
+		return java.lang.Math.max(etaMax*((1 - time)/TMax), endEta);
 	}
 
 }
