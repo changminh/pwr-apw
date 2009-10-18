@@ -29,8 +29,12 @@ public class KohonenNetworkTest {
         int XMax = 10;
         int YMax = 10;
 
+        int maxR = (int)(0.9*XMax + 0.9*YMax)/2;
+
         double minW = 0.0;
         double maxW = 1.0;
+
+        double etaMax = 0.1;
 
         double consciencePotential = 0.75;
 
@@ -48,9 +52,11 @@ public class KohonenNetworkTest {
                     samples ,numMisVal, nomMisVal);
 
         SOMLearningFactor etaExp =
-                KohonenNetwork.initLearningFactorExponential(0.1, 1);
-
-        int maxR = 10;
+                KohonenNetwork.initLearningFactorExponential(etaMax, 1);
+        SOMLearningFactor etaLin =
+                KohonenNetwork.initLearningFactorLinear(etaMax, TMax);
+        SOMLearningFactor etaHyperb =
+                KohonenNetwork.initLearningFactorHyperbolic(etaMax, 1);
 
         SOMTimeFactor timeTypeLin =
                 KohonenNetwork.initTimeFactorExpotential(TMax);
@@ -88,7 +94,7 @@ public class KohonenNetworkTest {
 
         SOMTrainingMethod trainerWTM =
                 KohonenNetwork.initTrainingMethodWTM(
-                    eta, neighTypeGaus, nDistHex);
+                    etaExp, neighTypeGaus, nDistHex);
 
         SOMTrainingMethod trainerWTA =
                 KohonenNetwork.initTrainingMethodWTA(etaExp);
