@@ -4,7 +4,7 @@ import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
 import apw.kohonenSom.distances.SOMDistanceFunction;
 import apw.kohonenSom.learningFactors.SOMLearningFactor;
-import apw.kohonenSom.logic.nuronDistances.SOMNeuronsDistance;
+import apw.kohonenSom.logic.topology.SOMTopology;
 import apw.kohonenSom.logic.trainingMethods.SOMTrainingMethod;
 import apw.kohonenSom.logic.winnerSelection.SOMWinnerSelection;
 import apw.kohonenSom.neighborhoods.SOMNeighbourhoodFunction;
@@ -25,7 +25,11 @@ import javax.imageio.ImageIO;
 public class KohonenNetworkTest {
     public static void main(String args[]) throws ParseException, IOException{
 
-        int TMax = 3;
+        String segments = "data/segment-challenge.arff";
+        String iris = "data/iris.arff";
+        String wine = "data/wine.arff";
+
+        int TMax = 10;
         int XMax = 10;
         int YMax = 10;
 
@@ -38,11 +42,11 @@ public class KohonenNetworkTest {
 
         double consciencePotential = 0.75;
 
-        int maxTimeSelMet = 1;
+        int maxTimeSelMet = TMax/2;
 
         KohonenNetwork net;
         Samples samples =  new ARFFLoader(
-                new File("data/segment-challenge.arff")).getSamples();
+                new File(iris)).getSamples();
 
         int numMisVal = SOMSamplesLoader.NUM_AVR_MISSING_VAL_ARITHM;
         int nomMisVal = SOMSamplesLoader.NOM_MFREQ_MISSING_VAL;
@@ -68,7 +72,7 @@ public class KohonenNetworkTest {
                 KohonenNetwork.initTimeFactorExpotential(0.5);
 
         SOMNeighbourhoodFunction neighTypeGaus =
-                KohonenNetwork.initNeighFuncGaussian(timeTypeLin, maxR);
+                KohonenNetwork.initNeighFuncGaussian(timeTypeExpo, maxR);
 
         SOMNeighbourhoodFunction neighTypeRec =
                 KohonenNetwork.initNeighFuncRectangular(maxR, 0.2);
@@ -76,8 +80,8 @@ public class KohonenNetworkTest {
         SOMNeighbourhoodFunction neighTypeLin =
                 KohonenNetwork.initNeighFuncLinear(timeTypeLin, maxR);
 
-        SOMNeuronsDistance nDistHex =
-                KohonenNetwork.initHexNeuronsDistNeurNum();
+        SOMTopology topology =
+                KohonenNetwork.initHexTopology();
 
         int inputs = patterns.getNumAttrNumber();    
 
@@ -94,7 +98,7 @@ public class KohonenNetworkTest {
 
         SOMTrainingMethod trainerWTM =
                 KohonenNetwork.initTrainingMethodWTM(
-                    etaExp, neighTypeGaus, nDistHex);
+                    etaLin, neighTypeGaus, topology);
 
         SOMTrainingMethod trainerWTA =
                 KohonenNetwork.initTrainingMethodWTA(etaExp);
@@ -104,7 +108,7 @@ public class KohonenNetworkTest {
 
         net = new KohonenNetwork(
                 TMax, XMax, YMax, distanceType, selector, wInit, trainerWTM,
-                nDistHex, patterns, hexVisualizator, true);
+                topology, patterns, hexVisualizator, true);
 
         System.out.println("start;\n");
 

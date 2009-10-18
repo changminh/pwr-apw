@@ -1,7 +1,7 @@
 package apw.kohonenSom.logic;
 
 import apw.kohonenSom.distances.SOMDistanceFunction;
-import apw.kohonenSom.logic.nuronDistances.SOMNeuronsDistance;
+import apw.kohonenSom.logic.topology.SOMTopology;
 import apw.kohonenSom.logic.trainingMethods.SOMTrainingMethod;
 import apw.kohonenSom.logic.winnerSelection.SOMWinnerSelection;
 import apw.kohonenSom.util.SOMOrderRandomizer;
@@ -33,7 +33,7 @@ public class SOMKohonenMap implements Serializable
 	private SOMWeightsInitializer wInit;
 	private SOMTrainingMethod trainer;
 	private SOMWinnerSelection selector;
-    private SOMNeuronsDistance links;
+    private SOMTopology links;
 	
 	//------------------------------------------------------
 	private double[][][] weights;
@@ -48,7 +48,7 @@ public class SOMKohonenMap implements Serializable
 	public SOMKohonenMap(int TMax, int XMax, int YMax,
 			SOMDistanceFunction distanceType, SOMWinnerSelection selector,
 			SOMWeightsInitializer wInit, SOMTrainingMethod trainer,
-            SOMNeuronsDistance links)
+            SOMTopology links)
 	{	
 		this.TMax = TMax;
 		
@@ -87,13 +87,11 @@ public class SOMKohonenMap implements Serializable
 		Point winner;		
 		int T;
 
-        boolean train = true; 
-		for(T=0; T<TMax && train; T++)
+		for(T=0; T<TMax; T++)
 		{
-            System.out.println("epoch: "+T+";");
 			ArrayList<Integer> patternOrder =  orderRand.randomizeOrder(patterns.size());
             
-			for(int p=0; p<patterns.size() && train; p++)
+			for(int p=0; p<patterns.size(); p++)
             {
 				double[] vector = patterns.get(patternOrder.get(p));
                 
@@ -106,7 +104,6 @@ public class SOMKohonenMap implements Serializable
                 if(checkWeights(weights)){
                     System.out.println(
                             "error weights, e: "+T+";");
-                    train = false;
                 }
 			}
 		}

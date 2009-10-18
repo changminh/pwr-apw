@@ -3,17 +3,17 @@ package apw.kohonenSom.logic.trainingMethods;
 import java.awt.Point;
 
 import apw.kohonenSom.learningFactors.SOMLearningFactor;
-import apw.kohonenSom.logic.nuronDistances.SOMNeuronsDistance;
+import apw.kohonenSom.logic.topology.SOMTopology;
 import apw.kohonenSom.neighborhoods.SOMNeighbourhoodFunction;
 
 public class SOMWTMMethod implements SOMTrainingMethod {
 	
 	SOMLearningFactor eta;
 	SOMNeighbourhoodFunction neighType;
-	SOMNeuronsDistance nDist;
+	SOMTopology nDist;
 	
 	public SOMWTMMethod(SOMLearningFactor eta, SOMNeighbourhoodFunction neighType, 
-			SOMNeuronsDistance nDist)
+			SOMTopology nDist)
 	{
 		this.eta = eta;
 		this.neighType = neighType;
