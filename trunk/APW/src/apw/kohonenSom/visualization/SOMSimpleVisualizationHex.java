@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  *
@@ -69,7 +70,7 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
             }
         }
 
-        int r,g,b;
+        int r,b;
         double amp = maxVal - minVal;
 
         for(int ix=0; ix<x; ix++){
@@ -96,14 +97,15 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
         for(int ix=0; ix<x; ix++)
             colors[ix] = new Color[y];
 
-        ArrayList<Integer>[][] patternsMap = network.getMap();
+        int[][] density =
+                network.generatePatternsDensityMap(samples.getNumericalData());
 
         double minVal, maxVal, val;
-        minVal = maxVal = patternsMap[0][0].size();
+        minVal = maxVal = density[0][0];
 
         for(int ix=0; ix<x; ix++){
             for(int iy=0; iy<y; iy++){
-                val = patternsMap[ix][iy].size();
+                val = density[ix][iy];
 
                 if(val < minVal){
                     minVal = val;
@@ -119,7 +121,7 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
 
         for(int ix=0; ix<x; ix++){
             for(int iy=0; iy<y; iy++){
-                val = patternsMap[ix][iy].size();
+                val = density[ix][iy];
                 r = (int)(((val-minVal)/amp)*255);
                 b = 255 - r;
                 colors[ix][iy] = new Color(r, 0, b);
@@ -130,18 +132,13 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
     }
 
     @Override
-    public BufferedImage generateClassMap(
+    public BufferedImage generateClusterMap(
             SOMKohonenMap network, SOMSamplesLoader samples){
         int
                 x = network.getXMax(),
                 y = network.getYMax();
 
-        Color[][] colors = new Color[x][];
-
-        for(int ix=0; ix<x; ix++)
-            colors[ix] = new Color[y];
-
-        //TODO
+        Color[][] colors = generateClusterColors(x,y, network, samples);
 
         return paintMap(colors, x, y, 1);
     }
@@ -191,7 +188,54 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
     }
 
     //------------------------------------------------
-    private static Color getUMapColor(
+    private Color[][] generateClusterColors(int x, int y,
+            SOMKohonenMap network, SOMSamplesLoader samples) {
+        Random rand = new Random();
+
+        Color[][] colors = new Color[x][];
+
+        for(int ix=0; ix<x; ix++){
+            colors[ix] = new Color[y];
+        }
+
+        ArrayList<Point> centers =
+                network.generateClusterCenters(samples.getNumericalData());
+
+        ArrayList<Integer>[][] clusters =
+                network.generateClustersMap(samples.getNumericalData());
+
+        ArrayList<Color> clusterColors = new ArrayList<Color>();
+
+        for(int ic=0; ic<centers.size(); ic++){
+            Color col;
+            do{
+                col = new Color(
+                        rand.nextInt(256),
+                        rand.nextInt(256),
+                        rand.nextInt(256));
+            }while(this.containsColor(clusterColors, col));
+
+            clusterColors.add(col);
+        }
+
+        for(int ic=0; ic<centers.size(); ic++){
+            Point center = centers.get(ic);
+            ArrayList<Integer> centerPatterns =
+                    clusters[center.x][center.y];
+
+            for(int ix=0; ix<x; ix++){
+                for(int iy=0; iy<y; iy++){
+                    if(clusters[ix][iy].containsAll(centerPatterns)){
+                        colors[ix][iy] = clusterColors.get(ic);
+                    }
+                }
+            }
+        }
+
+        return colors;
+    }
+
+    private Color getUMapColor(
             double minDist, double maxDist, double dist){
         double fa, fb, c;
         
@@ -399,4 +443,28 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
 
         return image;
     }
+
+    //------------------------------------------------
+    private boolean containsString(ArrayList<String> list, String string){
+        for(int l=0; l<list.size(); l++){
+            if(string.equals(list.get(l)))
+                    return true;
+        }
+
+        return false;
+    }
+
+    private boolean containsColor(ArrayList<Color> list, Color color){
+        for(int l=0; l<list.size(); l++){
+            Color c = list.get(l);
+            if(
+                    c.getRed() == color.getRed() &&
+                    c.getGreen() == color.getGreen() &&
+                    c.getBlue() == color.getBlue())
+                    return true;
+        }
+
+        return false;
+    }
+
 }

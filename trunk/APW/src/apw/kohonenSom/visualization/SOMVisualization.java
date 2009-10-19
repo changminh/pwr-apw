@@ -18,7 +18,7 @@ public interface SOMVisualization {
     public BufferedImage generatePatternDensityMap(SOMKohonenMap network,
             SOMSamplesLoader samples);
 
-    public BufferedImage generateClassMap(SOMKohonenMap network,
+    public BufferedImage generateClusterMap(SOMKohonenMap network,
             SOMSamplesLoader samples);
 
     public BufferedImage generateUMap(SOMKohonenMap network,

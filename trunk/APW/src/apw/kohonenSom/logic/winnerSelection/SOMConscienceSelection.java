@@ -1,6 +1,7 @@
 package apw.kohonenSom.logic.winnerSelection;
 
 import java.awt.Point;
+import java.util.Random;
 
 public class SOMConscienceSelection extends SOMWinnerSelection {
 	
@@ -34,23 +35,31 @@ public class SOMConscienceSelection extends SOMWinnerSelection {
 	
 	private Point chooseWinnerConscience(double[][] distances)
 	{
-		Point winner = new Point();
+		Random  rand = new Random();
+
+		int xMax = distances.length;
+		int yMax = distances[0].length;
+
+        int x = rand.nextInt(xMax);
+        int y = rand.nextInt(yMax);
+
+        Point winner = new Point(x,y);
 		
-		for(int x=0; x<xm; x++)
-			for(int y=0; y<ym; y++)
+		for(int ix=0; ix<xm; ix++)
+			for(int iy=0; iy<ym; iy++)
 			{
-				if(distances[x][y] < distances[winner.x][winner.y] &&
-						potentials[x][y] >= pMin)
+				if(distances[ix][iy] < distances[winner.x][winner.y] &&
+						potentials[ix][iy] >= pMin)
 				{
-					winner.x = x;
-					winner.y = y;
+					winner.x = ix;
+					winner.y = iy;
 				}
-				else if(distances[x][y] == distances[winner.x][winner.y] &&
-						potentials[x][y] >= pMin &&
-						potentials[x][y] > potentials[winner.x][winner.y])
+				else if(distances[ix][iy] == distances[winner.x][winner.y] &&
+						potentials[ix][iy] >= pMin &&
+						potentials[ix][iy] > potentials[winner.x][winner.y])
 				{
-					winner.x = x;
-					winner.y = y;
+					winner.x = ix;
+					winner.y = iy;
 				} 
 			}
 			
@@ -60,13 +69,15 @@ public class SOMConscienceSelection extends SOMWinnerSelection {
 	
 	private void adjustPotentials(Point winner)
 	{	
-		for(int x=0; x<xm; x++)
-			for(int y=0; y<ym; y++)
+		for(int ix=0; ix<xm; ix++)
+			for(int iy=0; iy<ym; iy++)
 			{
-				if(x==winner.x && y==winner.y)
-					potentials[x][y] = java.lang.Math.max(0, potentials[x][y] - pMin);
+				if(ix==winner.x && iy==winner.y)
+					potentials[ix][iy] = java.lang.Math.max(
+                            0, potentials[ix][iy] - pMin);
 				else
-					potentials[x][y] = java.lang.Math.min(1, (potentials[x][y] + 1.0/(double)nn));
+					potentials[ix][iy] = java.lang.Math.min(
+                            1, (potentials[ix][iy] + 1.0/(double)nn));
 			}
 	}
 
@@ -75,7 +86,7 @@ public class SOMConscienceSelection extends SOMWinnerSelection {
 		if(time<=tMax)
 			return chooseWinnerConscience(distances);
 		else
-			return super.simpleWinnerSelection(distances);
+			return simpleWinnerSelection(distances);
 	}
 
 	@Override
