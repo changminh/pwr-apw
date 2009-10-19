@@ -5,6 +5,7 @@ import apw.kohonenSom.logic.topology.SOMTopology;
 import apw.kohonenSom.logic.trainingMethods.SOMTrainingMethod;
 import apw.kohonenSom.logic.winnerSelection.SOMWinnerSelection;
 import apw.kohonenSom.util.SOMOrderRandomizer;
+import apw.kohonenSom.util.SOMPrinter;
 import apw.kohonenSom.weightsInitialization.SOMWeightsInitializer;
 
 import java.awt.Point;
@@ -17,7 +18,6 @@ import java.util.ArrayList;
  */
 public class SOMKohonenMap implements Serializable
 {
-
 	/**
 	 * 
 	 */
@@ -37,8 +37,6 @@ public class SOMKohonenMap implements Serializable
 	
 	//------------------------------------------------------
 	private double[][][] weights;
-	private ArrayList<Integer>[][] map;
-	private ArrayList<Point> centers;
 	
 	//------------------------------------------------------
 	private SOMOrderRandomizer orderRand;
@@ -63,13 +61,13 @@ public class SOMKohonenMap implements Serializable
 
 		this.orderRand = new SOMOrderRandomizer();
 		
-		initNetwork();
+		weights = wInit.initializeWeights();
 	}
 
 	//------------------------------------------------------
 	public Point sendSignal(double[] vector)
 	{
-		Point winner = new Point();
+		Point winner;
 		
 		double[][] distances = calcDist(vector);
 		
@@ -79,10 +77,9 @@ public class SOMKohonenMap implements Serializable
 	}
 	
 	//---------------------------------
+    //training
 	public void trainIterative(ArrayList<double[]> patterns)
-	{	
-		resetNetwork();
-		
+	{		
 		double[][] distances;	
 		Point winner;		
 		int T, time;
@@ -91,62 +88,116 @@ public class SOMKohonenMap implements Serializable
 		{
             ArrayList<Integer> patternOrder =  orderRand.randomizeOrder(patterns.size());
             
-			for(int p=0; p<patterns.size(); p++, time++)
+            for(int p=0; p<patterns.size(); p++, time++)
             {
-				double[] vector = patterns.get(patternOrder.get(p));
-                //double[] vector = patterns.get(p);
-                
+				double[] vector = patterns.get(patternOrder.get(p));             
 				distances = calcDist(vector);
-
 				winner = chooseWinner(distances, time);
-                
-				weights = trainer.adaptWeights(vector, weights, winner, time);
-                
-                if(checkWeights(weights)){
-                    System.out.println(
-                            "error weights, e: "+T+"; t: "+time+"; ");
-                }
+				weights = trainer.adaptWeights(vector, weights, winner, time);              
 			}
+            /*
+            if(checkWeights(weights)){
+                System.out.println(
+                        "error weights, e: "+T+"; t: "+time+"; ");
+            }*/
 		}
-		
-		createMap(patterns);
+
+        if(selector != null)
+			selector.resetSelector();
 	}
 	
 	//---------------------------------
 	public void resetNetwork()
 	{
-		for(int iy=0; iy<YMax; iy++)
-			for(int ix=0; ix<XMax; ix++)
-				map[ix][iy].clear();
-		centers.clear();	
-		wInit.initializeWeights();
+		weights = wInit.initializeWeights();
+
         if(selector != null)
 			selector.resetSelector();
 	}
 
 	//------------------------------------------------------
-	//private methods
-	private void createMap(ArrayList<double[]> patterns)
-	{
-		double[] vector;
+	//visualization data generation
+    public ArrayList<Point> generateClusterCenters(
+            ArrayList<double[]> patterns){
+        ArrayList<Point> centers = new ArrayList<Point>();
+
+        double[] vector;
 		Point winner;
-		
-		for(int p=0; p<patterns.size(); p++)
-		{
-			vector = patterns.get(p);		
-			winner = sendSignal(vector);		
-			map[winner.x][winner.y].add(p);
-            
-			if(!isCenter(winner))
+
+		for(int p=0; p<patterns.size(); p++){
+			vector = patterns.get(p);
+			winner = sendSignal(vector);
+
+			if(!isCenter(winner, centers))
 				centers.add(winner);
 		}
+
+        return centers;
+    }
+
+    //---------------------------------
+    public ArrayList<Integer>[][] generateClustersMap(
+            ArrayList<double[]> patterns)
+	{
+        ArrayList<Integer>[][] map =
+                this.generatePatternsPositionsMap(patterns);
+
+        ArrayList<Point> centers =
+                this.generateClusterCenters(patterns);
 		
-		//TODO fill empty neurons with nearest patterns?
-		boolean fill = false;
-		
-		if(fill)
-			fillEmptyNeurons();
+		fillEmptyNeurons(map, centers);
+
+        return map;
 	}
+
+    //---------------------------------
+    public int[][] generatePatternsDensityMap(
+            ArrayList<double[]> patterns){
+        int[][] map = new int[XMax][];
+
+        for(int ix=0; ix<XMax; ix++){
+            map[ix] = new int[YMax];
+            for(int iy=0; iy<YMax; iy++){
+                map[ix][iy] = 0;
+            }
+        }
+
+        double[] vector;
+		Point winner;
+
+		for(int p=0; p<patterns.size(); p++){
+			vector = patterns.get(p);
+			winner = sendSignal(vector);
+
+			map[winner.x][winner.y]++;
+		}
+
+        return map;
+    }
+
+    //---------------------------------
+    public ArrayList<Integer>[][] generatePatternsPositionsMap(
+            ArrayList<double[]> patterns){
+        ArrayList<Integer>[][] map = new ArrayList[XMax][];
+
+        for(int ix=0; ix<XMax; ix++){
+            map[ix] = new ArrayList[YMax];
+            for(int iy=0; iy<YMax; iy++){
+                map[ix][iy] = new ArrayList<Integer>();
+            }
+        }
+
+        double[] vector;
+		Point winner;
+
+		for(int p=0; p<patterns.size(); p++){
+			vector = patterns.get(p);
+			winner = sendSignal(vector);
+			map[winner.x][winner.y].add(p);
+		}
+
+        return map;
+    }
 
     //---------------------------------
     public double[][] generateUMap(){
@@ -190,15 +241,22 @@ public class SOMKohonenMap implements Serializable
 
         return uMap;
     }
+
+    //---------------------------------
+    public void generateVoronoiData(){
+        //TODO
+    }
 	
-	//---------------------------------
-	private void fillEmptyNeurons()
+	//------------------------------------------------------
+    //private methods
+	private void fillEmptyNeurons(
+            ArrayList<Integer>[][] map, ArrayList<Point> centers)
 	{
 		for(int x=0; x<XMax; x++)
 			for(int y=0; y<YMax; y++)
 				if(map[x][y].size() == 0)
 				{
-					int nc = chooseNearestCenter(x,y);
+					int nc = chooseNearestCenter(x,y, centers);
 					
 					map[x][y] = map[centers.get(nc).x][centers.get(nc).y];
 				}
@@ -206,7 +264,7 @@ public class SOMKohonenMap implements Serializable
 	}
 	
 	//---------------------------------
-	private int chooseNearestCenter(int x, int y) {
+	private int chooseNearestCenter(int x, int y, ArrayList<Point> centers) {
 		
 		int result = 0;
 		
@@ -258,134 +316,14 @@ public class SOMKohonenMap implements Serializable
 	}
 	
 	//---------------------------------
-	@SuppressWarnings("unchecked")
-	private void initNetwork() {
-		map = new ArrayList[XMax][];
-		for(int x=0; x<XMax; x++)
-		{
-			map[x] = new ArrayList[YMax];
-			for(int y=0; y<YMax; y++)
-				map[x][y] = new ArrayList<Integer>();
-		}
-		centers = new ArrayList<Point>();
-		weights = wInit.initializeWeights();
-	}
-	
-	//---------------------------------
-	private boolean isCenter(Point p) {
+	private boolean isCenter(Point p, ArrayList<Point> centers) {
 		for(int c=0; c<centers.size(); c++)
 			if(centers.get(c).x == p.x && centers.get(c).y == p.y)
 				return true;
 		return false;
 	}
 
-	//------------------------------------------------------
-	// getters and setters
-	public int getTMax() {
-		return TMax;
-	}
-
-	/*
-	public void setTMax(int tMax) {
-		TMax = tMax;
-	}*/
-
-	public int getXMax() {
-		return XMax;
-	}
-
-	/*
-	public void setXMax(int xMax) {
-		XMax = xMax;
-	}*/
-
-	public int getYMax() {
-		return YMax;
-	}
-
-	/*
-	public void setYMax(int yMax) {
-		YMax = yMax;
-	}*/
-
-	public SOMDistanceFunction getDistType() {
-		return distType;
-	}
-
-	/*
-	public void setDistType(SOMDistanceFunction distType) {
-		this.distType = distType;
-	}*/
-
-	public SOMWeightsInitializer getwInit() {
-		return wInit;
-	}
-
-	/*
-	public void setwInit(SOMWeightsInitializer wInit) {
-		this.wInit = wInit;
-	}*/
-
-	public SOMTrainingMethod getTrainer() {
-		return trainer;
-	}
-
-	/*
-	public void setTrainer(SOMTrainingMethod trainer) {
-		this.trainer = trainer;
-	}*/
-
-	public SOMWinnerSelection getSelector() {
-		return selector;
-	}
-
-	/*
-	public void setSelector(SOMWinnerSelection selector) {
-		this.selector = selector;
-	}*/
-
-	public double[][][] getWeights() {
-		return weights;
-	}
-
-	/*
-	public void setWeights(double[][][] weights) {
-		this.weights = weights;
-	}*/
-
-	public ArrayList<Integer>[][] getMap() {
-		return map;
-	}
-
-	/*
-	public void setMap(ArrayList<Integer>[][] map) {
-		this.map = map;
-	}*/
-
-	public ArrayList<Point> getCenters() {
-		return centers;
-	}
-
-	/*
-	public void setCenters(ArrayList<Point> centers) {
-		this.centers = centers;
-	}*/
-
-	/*
-	public SOMOrderRandomizer getOrderRand() {
-		return orderRand;
-	}*/
-
-	/*
-	public void setOrderRand(SOMOrderRandomizer orderRand) {
-		this.orderRand = orderRand;
-	}*/
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
-	
-	//------------------------------------------------------
+    //---------------------------------
     private boolean checkWeights(double[][][] weights) {
         for(int x=0; x<weights.length; x++)
             for(int y=0; y<weights[0].length; y++)
@@ -402,5 +340,45 @@ public class SOMKohonenMap implements Serializable
 
         return false;
     }
+
+	//------------------------------------------------------
+	// getters
+	public int getTMax() {
+		return TMax;
+	}
+
+	public int getXMax() {
+		return XMax;
+	}
+
+	public int getYMax() {
+		return YMax;
+	}
+
+	public SOMDistanceFunction getDistType() {
+		return distType;
+	}
+
+	public SOMWeightsInitializer getwInit() {
+		return wInit;
+	}
+
+	public SOMTrainingMethod getTrainer() {
+		return trainer;
+	}
+
+	public SOMWinnerSelection getSelector() {
+		return selector;
+	}
+
+	public double[][][] getWeights() {
+		return weights;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	
+	//------------------------------------------------------
 
 }

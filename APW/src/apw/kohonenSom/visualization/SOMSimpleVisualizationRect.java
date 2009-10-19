@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
  *
  * @author Christopher Wadowski
  */
-public class SOMSimpleVisualizationMatrix implements SOMVisualization{
+public class SOMSimpleVisualizationRect implements SOMVisualization{
 
     @Override
     public BufferedImage generateFeatMap(
@@ -28,7 +28,7 @@ public class SOMSimpleVisualizationMatrix implements SOMVisualization{
     }
 
     @Override
-    public BufferedImage generateClassMap(
+    public BufferedImage generateClusterMap(
             SOMKohonenMap network, SOMSamplesLoader samples) {
         throw new UnsupportedOperationException("Not supported yet.");
     }

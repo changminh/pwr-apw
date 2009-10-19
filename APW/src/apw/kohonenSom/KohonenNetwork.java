@@ -11,7 +11,7 @@ import apw.kohonenSom.neighborhoods.*;
 import apw.kohonenSom.patterns.*;
 import apw.kohonenSom.timeFactors.*;
 import apw.kohonenSom.visualization.SOMSimpleVisualizationHex;
-import apw.kohonenSom.visualization.SOMSimpleVisualizationMatrix;
+import apw.kohonenSom.visualization.SOMSimpleVisualizationRect;
 import apw.kohonenSom.visualization.SOMVisualization;
 import apw.kohonenSom.weightsInitialization.*;
 import java.awt.image.BufferedImage;
@@ -34,8 +34,6 @@ public class KohonenNetwork {
     private SOMTrainingMethod trainer;
     private SOMTopology structure;
 
-    private boolean normalizeVectors;
-
     //------------------------------------------------------
     private SOMSamplesLoader patterns;
     private SOMVisualization visualizator;
@@ -51,7 +49,6 @@ public class KohonenNetwork {
         this.trainer = som.getTrainer();
         this.patterns = som.getLoader();
         this.map = som.getMap();
-        this.normalizeVectors = som.getNormalize();
         this.distanceType = som.getDistanceType();
         this.visualizator = som.getVisualizator();
         this.structure = som.getStructure();
@@ -61,7 +58,7 @@ public class KohonenNetwork {
              SOMDistanceFunction distanceType, SOMWinnerSelection selector,
              SOMWeightsInitializer wInit, SOMTrainingMethod trainer,
              SOMTopology structure, SOMSamplesLoader patterns,
-             SOMVisualization visualizator, boolean normalizeVectors){
+             SOMVisualization visualizator){
         
         this.TMax = TMax;
         this.XMax = XMax;
@@ -71,7 +68,6 @@ public class KohonenNetwork {
         this.wInit = wInit;
         this.trainer = trainer;
         this.patterns = patterns;
-        this.normalizeVectors = normalizeVectors;
         this.visualizator = visualizator;
         this.structure = structure;
     }
@@ -84,15 +80,9 @@ public class KohonenNetwork {
 
     public void trainMap(){
         ArrayList<double[]> pat;
-
-        if(this.normalizeVectors){
-            pat = patterns.getNormalizedNumericalData();
-        }else{
-            pat = patterns.getNumericalData();
-        }
-        
-            this.map.trainIterative(pat);
-        }
+        pat = patterns.getNumericalData();
+        this.map.trainIterative(pat);
+    }
 
     public BufferedImage getFeatMap(int feat){
         return visualizator.generateFeatMap(map, feat, patterns);
@@ -106,8 +96,8 @@ public class KohonenNetwork {
         return visualizator.generatePatternDensityMap(map, patterns);
     }
 
-    public BufferedImage getClassMap(){
-        return visualizator.generateClassMap(map, patterns);
+    public BufferedImage getClusterMap(){
+        return visualizator.generateClusterMap(map, patterns);
     }
 
     public BufferedImage getUMap(){
@@ -156,9 +146,10 @@ public class KohonenNetwork {
         return new SOMWTAMethod(eta);
      }
 
-     public static SOMSamplesLoader initLoader(
-             Samples samples, int numMode, int nomMode){
-		return new SOMSamplesLoader(samples, numMode, nomMode);
+     public static SOMSamplesLoader initLoader(Samples samples, int numMode, 
+             int nomMode, boolean normalizeVectors){
+		return new SOMSamplesLoader(
+                samples, numMode, nomMode, normalizeVectors);
      }
 
      public static SOMLearningFactor initLearningFactorExponential(
@@ -215,8 +206,8 @@ public class KohonenNetwork {
          return new SOMSimpleVisualizationHex();
      }
 
-     public static SOMVisualization initMatrixVisualization(){
-         return new SOMSimpleVisualizationMatrix();
+     public static SOMVisualization initRectVisualization(){
+         return new SOMSimpleVisualizationRect();
      }
 
     //------------------------------------------------------
@@ -250,10 +241,6 @@ public class KohonenNetwork {
 
     public void setLoader(SOMSamplesLoader patterns){
         this.patterns = patterns;
-    }
-
-    public void setNormalize(boolean normalizeVectors){
-        this.normalizeVectors = normalizeVectors;
     }
 
     public void setVisualizator(SOMVisualization visualizator){
@@ -299,10 +286,6 @@ public class KohonenNetwork {
 
     public SOMKohonenMap getMap(){
         return this.map;
-    }
-
-    public boolean getNormalize(){
-        return this.normalizeVectors;
     }
 
     public SOMVisualization getVisualizator(){

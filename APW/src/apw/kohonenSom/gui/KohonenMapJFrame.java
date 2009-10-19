@@ -22,18 +22,24 @@ public class KohonenMapJFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        internalPanel = new javax.swing.JPanel();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 519, Short.MAX_VALUE)
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("SOM data visualization");
+        getContentPane().setLayout(new java.awt.FlowLayout());
+
+        javax.swing.GroupLayout internalPanelLayout = new javax.swing.GroupLayout(internalPanel);
+        internalPanel.setLayout(internalPanelLayout);
+        internalPanelLayout.setHorizontalGroup(
+            internalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 338, Short.MAX_VALUE)
+        internalPanelLayout.setVerticalGroup(
+            internalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
         );
+
+        getContentPane().add(internalPanel);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -50,11 +56,7 @@ public class KohonenMapJFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel internalPanel;
     // End of variables declaration//GEN-END:variables
 
-    //--------------------------------------------------------------------------
-    void parametersSet() {
-        //TODO
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
 }

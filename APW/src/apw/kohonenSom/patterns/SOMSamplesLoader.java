@@ -21,6 +21,8 @@ public class SOMSamplesLoader {
 
     public static final int NOM_MFREQ_MISSING_VAL = 1;
 
+    private boolean normalizeVectors;
+
     //------------------------------------------------------
     private Samples samples;
 
@@ -47,12 +49,14 @@ public class SOMSamplesLoader {
     private int classInd;
     //------------------------------------------------------
 
-    public SOMSamplesLoader(Samples samples) {
+    public SOMSamplesLoader(Samples samples, boolean normalizeVectors) {
 
         this.samples = samples;
 
         this.numMode = -1;
         this.nomMode = -1;
+
+        this.normalizeVectors = normalizeVectors;
 
         classInd = samples.getClassAttributeIndex();
 
@@ -62,12 +66,15 @@ public class SOMSamplesLoader {
         processSamples();
     }
 
-    public SOMSamplesLoader(Samples samples, int numMode, int nomMode) {
+    public SOMSamplesLoader(Samples samples, int numMode, int nomMode,
+            boolean normalizeVectors) {
 
         this.samples = samples;
 
         this.numMode = numMode;
         this.nomMode = nomMode;
+
+        this.normalizeVectors = normalizeVectors;
 
         classInd = samples.getClassAttributeIndex();
 
@@ -340,6 +347,113 @@ public class SOMSamplesLoader {
         nomFillers = freq;
     }
 
+    private ArrayList<double[]> getNormalizedNumericalData(){
+       ArrayList <double[]> data = new ArrayList<double[]>();
+
+       for(int d=0; d<numericalData.size(); d++)
+           data.add(SOMNormalizer.normalizeVector(numericalData.get(d)));
+
+       return data;
+    }
+
+    private double getMaxNumNormalizedValue(int a){
+        ArrayList<double[]> norm = getNormalizedNumericalData();
+        double result = norm.get(0)[a];
+
+        for(int i=0; i<norm.size(); i++){
+            if(norm.get(i)[a] > result)
+                result = norm.get(i)[a];
+        }
+
+        return result;
+    }
+
+    private double getMinNumNormalizedValue(int a){
+        ArrayList<double[]> norm = getNormalizedNumericalData();
+        double result = norm.get(0)[a];
+
+        for(int i=0; i<norm.size(); i++){
+            if(norm.get(i)[a] < result)
+                result = norm.get(i)[a];
+        }
+
+        return result;
+    }
+
+    public double getNotNormalizedMaxNumValue(int a){
+        double result = numericalData.get(0)[a];
+
+        for(int i=0; i<numericalData.size(); i++){
+            if(numericalData.get(i)[a] > result)
+                result = numericalData.get(i)[a];
+        }
+
+        return result;
+    }
+
+    public double getNotNormalizedMinNumValue(int a){
+        double result = numericalData.get(0)[a];
+
+        for(int i=0; i<numericalData.size(); i++){
+            if(numericalData.get(i)[a] < result)
+                result = numericalData.get(i)[a];
+        }
+
+        return result;
+    }
+
+    private double getMaxNumNormalizedValue(){
+        double result = this.getMaxNumNormalizedValue(0);
+        double val;
+
+        for(int ia=1; ia<this.numAttrNo; ia++){
+            val = this.getMaxNumNormalizedValue(ia);
+            if(val>result)
+                result = val;
+        }
+
+        return result;
+    }
+
+    private double getMinNumNormalizedValue(){
+        double result = this.getMinNumNormalizedValue(0);
+        double val;
+
+        for(int ia=1; ia<this.numAttrNo; ia++){
+            val = this.getMinNumNormalizedValue(ia);
+            if(val<result)
+                result = val;
+        }
+
+        return result;
+    }
+
+    public double getNotNormalizedMaxNumValue(){
+        double result = this.getNotNormalizedMaxNumValue(0);
+        double val;
+
+        for(int ia=1; ia<this.numAttrNo; ia++){
+            val = this.getNotNormalizedMaxNumValue(ia);
+            if(val>result)
+                result = val;
+        }
+
+        return result;
+    }
+
+    public double getNotNormalizedMinNumValue(){
+        double result = this.getNotNormalizedMinNumValue(0);
+        double val;
+
+        for(int ia=1; ia<this.numAttrNo; ia++){
+            val = this.getNotNormalizedMinNumValue(ia);
+            if(val<result)
+                result = val;
+        }
+
+        return result;
+    }
+
     //------------------------------------------------------
     public int getNumAttrNumber(){
         return this.numAttrNo;
@@ -350,7 +464,10 @@ public class SOMSamplesLoader {
     }
 
     public ArrayList<double[]> getNumericalData(){
-        return this.numericalData;
+        if(normalizeVectors)
+            return this.getNormalizedNumericalData();
+        else
+            return this.numericalData;
     }
 
     public ArrayList<Object[]> getNominalData(){
@@ -369,73 +486,36 @@ public class SOMSamplesLoader {
         return this.missValSamples.size();
     }
 
-    public ArrayList<double[]> getNormalizedNumericalData(){
-       ArrayList <double[]> data = new ArrayList<double[]>();
-
-       for(int d=0; d<numericalData.size(); d++)
-           data.add(SOMNormalizer.normalizeVector(numericalData.get(d)));
-
-       return data;
-    }
-
     public Samples getSamples(){
         return this.samples;
     }
 
     public double getMaxNumValue(){
-        double result = 0;
-
-        for(int i=0; i<numericalData.size(); i++){
-            for(int j=0; j<numericalData.get(i).length; j++){
-                if(numericalData.get(i)[j] > result)
-                    result = numericalData.get(i)[j];
-            }
-        }
-
-        return result;
+        if(normalizeVectors)
+            return this.getMaxNumNormalizedValue();
+        else
+            return this.getNotNormalizedMaxNumValue();
     }
 
     public double getMinNumValue(){
-        double result = 0;
-
-        for(int i=0; i<numericalData.size(); i++){
-            for(int j=0; j<numericalData.get(i).length; j++){
-                if(numericalData.get(i)[j] < result)
-                    result = numericalData.get(i)[j];
-            }
-        }
-
-        return result;
+        if(normalizeVectors)
+            return this.getMinNumNormalizedValue();
+        else
+            return this.getNotNormalizedMinNumValue();
     }
 
-    public double getMaxNumNormalizedValue(){
-        double result = 0;
-
-        ArrayList<double[]> norm = getNormalizedNumericalData();
-
-        for(int i=0; i<norm.size(); i++){
-            for(int j=0; j<norm.get(i).length; j++){
-                if(norm.get(i)[j] > result)
-                    result = norm.get(i)[j];
-            }
-        }
-
-        return result;
+    public double getMaxNumValue(int a){
+        if(normalizeVectors)
+            return this.getMinNumNormalizedValue(a);
+        else
+            return this.getNotNormalizedMaxNumValue(a);
     }
 
-    public double getMinNumNormalizedValue(){
-        double result = 0;
-
-        ArrayList<double[]> norm = getNormalizedNumericalData();
-
-        for(int i=0; i<norm.size(); i++){
-            for(int j=0; j<norm.get(i).length; j++){
-                if(norm.get(i)[j] < result)
-                    result = norm.get(i)[j];
-            }
-        }
-
-        return result;
+    public double getMinNumValue(int a){
+        if(normalizeVectors)
+            return this.getMaxNumNormalizedValue(a);
+        else
+            return this.getNotNormalizedMinNumValue(a);
     }
 
 }

@@ -23,23 +23,37 @@ public class SOMWTMMethod implements SOMTrainingMethod {
 	@Override
 	public double[][][] adaptWeights(double[] vector, double[][][] weights,
 			Point winner, double time) {
-		
+
 		int XMax = weights.length;
 		int YMax = weights[0].length;
-		
-		for(int x=0; x<XMax; x++)
-			for(int y=0; y<YMax; y++)
+        int VMax = vector.length;
+
+        double[][][] nWeights = new double[XMax][][];
+        for(int ix=0; ix<XMax; ix++){
+            nWeights[ix] = new double[YMax][];
+            for(int iy=0; iy<YMax; iy++){
+                nWeights[ix][iy] = new double[VMax];
+            }
+        }
+
+        double e = eta.getEta(time);
+        double d, n, wi, vi;
+
+		for(int ix=0; ix<XMax; ix++)
+			for(int iy=0; iy<YMax; iy++)
 			{
-				double d = nDist.calcDistance(winner, new Point(x,y));
+				d = nDist.calcDistance(winner, new Point(ix,iy));
+                n = neighType.getNeighbourhood(d, time);
 							
-				for(int i=0; i<vector.length; i++)
+				for(int iv=0; iv<VMax; iv++)
 				{
-					weights[x][y][i] = weights[x][y][i] + 
-					eta.getEta(time)*neighType.getNeighbourhood(d, time)*
-					(vector[i] - weights[x][y][i]);
+                    wi = weights[ix][iy][iv];
+                    vi = vector[iv];
+
+					nWeights[ix][iy][iv] = wi + e*n*(vi - wi);
 				}
 			}
 		
-		return weights;
+		return nWeights;
 	}
 }

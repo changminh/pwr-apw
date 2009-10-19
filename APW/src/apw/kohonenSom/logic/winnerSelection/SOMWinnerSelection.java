@@ -1,21 +1,27 @@
 package apw.kohonenSom.logic.winnerSelection;
 
 import java.awt.Point;
+import java.util.Random;
 
 public abstract class SOMWinnerSelection {
 
 	public static Point simpleWinnerSelection(double[][] distances) {
-		Point winner = new Point(0,0);
-		
+        Random  rand = new Random();
+
 		int xMax = distances.length;
 		int yMax = distances[0].length;
-		
-		for(int x=0; x<xMax; x++)
-			for(int y=0; y<yMax; y++)
-				if(distances[x][y] < distances[winner.x][winner.y])
+
+        int x = rand.nextInt(xMax);
+        int y = rand.nextInt(yMax);
+
+        Point winner = new Point(x,y);
+
+		for(int ix=0; ix<xMax; ix++)
+			for(int iy=0; iy<yMax; iy++)
+				if(distances[ix][iy] < distances[winner.x][winner.y])
 				{
-					winner.x = x;
-					winner.y = y;
+					winner.x = ix;
+					winner.y = iy;
 				}
 			
 		return winner;
