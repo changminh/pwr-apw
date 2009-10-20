@@ -1,9 +1,9 @@
 package apw.kohonenSom.logic;
 
 import apw.kohonenSom.distances.SOMDistanceFunction;
-import apw.kohonenSom.logic.topology.SOMTopology;
-import apw.kohonenSom.logic.trainingMethods.SOMTrainingMethod;
-import apw.kohonenSom.logic.winnerSelection.SOMWinnerSelection;
+import apw.kohonenSom.topology.SOMTopology;
+import apw.kohonenSom.trainingMethods.SOMTrainingMethod;
+import apw.kohonenSom.winnerSelection.SOMWinnerSelection;
 import apw.kohonenSom.patterns.SOMSamplesLoader;
 import apw.kohonenSom.util.SOMOrderRandomizer;
 import apw.kohonenSom.weightsInitialization.SOMWeightsInitializer;

@@ -4,9 +4,9 @@ import apw.core.Samples;
 import apw.kohonenSom.distances.*;
 import apw.kohonenSom.learningFactors.*;
 import apw.kohonenSom.logic.*;
-import apw.kohonenSom.logic.topology.*;
-import apw.kohonenSom.logic.trainingMethods.*;
-import apw.kohonenSom.logic.winnerSelection.*;
+import apw.kohonenSom.topology.*;
+import apw.kohonenSom.trainingMethods.*;
+import apw.kohonenSom.winnerSelection.*;
 import apw.kohonenSom.neighborhoods.*;
 import apw.kohonenSom.patterns.*;
 import apw.kohonenSom.timeFactors.*;
@@ -113,6 +113,10 @@ public class KohonenNetwork {
      public static SOMWinnerSelection initWinnerSelectorConscience(int x, int y,
              double pMin, int maxTime){
          return new SOMConscienceSelection(x,y, pMin, maxTime);
+     }
+
+     public static SOMWinnerSelection initWinnerSelector(){
+         return new SOMWinnerSelection();
      }
 
      public static SOMWeightsInitializer initWeightsInitializerRandom(){
