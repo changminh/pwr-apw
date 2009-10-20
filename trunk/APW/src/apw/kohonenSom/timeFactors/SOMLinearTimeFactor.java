@@ -4,11 +4,12 @@ public class SOMLinearTimeFactor implements SOMTimeFactor {
 
 	private int tMax;
 
-    private static final double endModif = 0.0001;
+    private double endModif;
 	
-	public SOMLinearTimeFactor(int tMax)
+	public SOMLinearTimeFactor(int tMax, double minModif)
 	{
 		this.tMax = tMax;
+        this.endModif = minModif;
 	}
 	
 	@Override

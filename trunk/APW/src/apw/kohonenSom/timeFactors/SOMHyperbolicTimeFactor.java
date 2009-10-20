@@ -4,11 +4,12 @@ public class SOMHyperbolicTimeFactor implements SOMTimeFactor {
 	
 	private double C;
 
-    private static final double endModif = 0.0001;
+    private double endModif;
 	
-	public SOMHyperbolicTimeFactor(double C)
+	public SOMHyperbolicTimeFactor(double C, double minModif)
 	{
 		this.C = C;
+        this.endModif = minModif;
 	}
 	
 	@Override

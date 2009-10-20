@@ -9,7 +9,7 @@ public class SOMScalarDistance implements SOMDistanceFunction {
 		for(int i=0; i<w.length; i++)
 			distance += (v[i] * w[i]);
 		
-		return distance;
+		return 1 - distance;
 	}
 
 	@Override
