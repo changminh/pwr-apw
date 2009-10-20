@@ -28,6 +28,7 @@ public class KohonenNetwork {
     private int TMax;
     private int XMax;
     private int YMax;
+
 	private SOMDistanceFunction distanceType;
     private SOMWinnerSelection selector;
 	private SOMWeightsInitializer wInit;
@@ -39,21 +40,6 @@ public class KohonenNetwork {
     private SOMVisualization visualizator;
 	
 	//------------------------------------------------------
-    public KohonenNetwork(KohonenNetwork som){
-        
-        this.TMax = som.getTMax();
-        this.XMax = som.getXMax();
-        this.YMax = som.getYMax();
-        this.selector = som.getSelector();
-        this.wInit = som.getWeightsInitializer();
-        this.trainer = som.getTrainer();
-        this.patterns = som.getLoader();
-        this.map = som.getMap();
-        this.distanceType = som.getDistanceType();
-        this.visualizator = som.getVisualizator();
-        this.structure = som.getStructure();
-	}
-
     public KohonenNetwork(int TMax, int XMax, int YMax,
              SOMDistanceFunction distanceType, SOMWinnerSelection selector,
              SOMWeightsInitializer wInit, SOMTrainingMethod trainer,
@@ -79,9 +65,7 @@ public class KohonenNetwork {
     }
 
     public void trainMap(){
-        ArrayList<double[]> pat;
-        pat = patterns.getNumericalData();
-        this.map.trainIterative(pat);
+        this.map.trainIterative(patterns);
     }
 
     public BufferedImage getFeatMap(int feat){
@@ -131,9 +115,8 @@ public class KohonenNetwork {
          return new SOMConscienceSelection(x,y, pMin, maxTime);
      }
 
-     public static SOMWeightsInitializer initWeightsInitializerRandom(
-             int x, int y, int inpNum, double WMax, double WMin){
-        return new SOMRandomWeightsInitializer(x, y, inpNum, WMax, WMin);
+     public static SOMWeightsInitializer initWeightsInitializerRandom(){
+        return new SOMRandomWeightsInitializer();
      }
 
      public static SOMTrainingMethod initTrainingMethodWTM(

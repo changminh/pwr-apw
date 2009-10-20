@@ -92,8 +92,6 @@ public class KohonenNetworkTest {
         SOMTopology hexTopology =
                 KohonenNetwork.initHexTopology();
 
-        int inputs = patterns.getNumAttrNumber();    
-
         SOMDistanceFunction distanceEucl =
                 KohonenNetwork.initDistanceEuclidean();
 
@@ -115,8 +113,7 @@ public class KohonenNetworkTest {
                 XMax, YMax, maxTimeSelMet);
 
         SOMWeightsInitializer wInit =
-                KohonenNetwork.initWeightsInitializerRandom(
-                    XMax, YMax, inputs, minW, maxW);
+                KohonenNetwork.initWeightsInitializerRandom();
 
         SOMTrainingMethod trainerWTM =
                 KohonenNetwork.initTrainingMethodWTM(
