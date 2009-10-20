@@ -4,11 +4,6 @@ import apw.kohonenSom.patterns.SOMSamplesLoader;
 import java.util.Random;
 
 public class SOMRandomWeightsInitializer implements SOMWeightsInitializer {
-
-	private int x;
-	private int y;
-	private int inpNum;
-	
 	private Random rand;
 	
 	public SOMRandomWeightsInitializer(){
@@ -18,9 +13,11 @@ public class SOMRandomWeightsInitializer implements SOMWeightsInitializer {
 	@Override
 	public double[][][] initializeWeights(
             SOMSamplesLoader samples, int width, int height) {
-		double[][][] weights = new double[width][][];
-        double[] minValues = samples.getMinNumValues();
+		double[] minValues = samples.getMinNumValues();
         double[] maxValues = samples.getMaxNumValues();
+
+        double[][][] weights = new double[width][][];
+        int inputsNumber = samples.getNumericAttrNumber();
 		
 		for(int ix=0; ix<width; ix++)
 		{
@@ -28,9 +25,9 @@ public class SOMRandomWeightsInitializer implements SOMWeightsInitializer {
 			
 			for(int iy=0; iy<height; iy++)
 			{
-				weights[ix][iy] = new double[inpNum];
+				weights[ix][iy] = new double[inputsNumber];
 				
-				for(int iw=0; iw<inpNum; iw++){
+				for(int iw=0; iw<inputsNumber; iw++){
                     double wMax = maxValues[iw];
                     double wMin = minValues[iw];
                     double w = 

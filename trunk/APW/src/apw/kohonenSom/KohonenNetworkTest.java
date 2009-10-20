@@ -4,9 +4,9 @@ import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
 import apw.kohonenSom.distances.SOMDistanceFunction;
 import apw.kohonenSom.learningFactors.SOMLearningFactor;
-import apw.kohonenSom.logic.topology.SOMTopology;
-import apw.kohonenSom.logic.trainingMethods.SOMTrainingMethod;
-import apw.kohonenSom.logic.winnerSelection.SOMWinnerSelection;
+import apw.kohonenSom.topology.SOMTopology;
+import apw.kohonenSom.trainingMethods.SOMTrainingMethod;
+import apw.kohonenSom.winnerSelection.SOMWinnerSelection;
 import apw.kohonenSom.neighborhoods.SOMNeighbourhoodFunction;
 import apw.kohonenSom.patterns.SOMSamplesLoader;
 import apw.kohonenSom.timeFactors.SOMTimeFactor;
@@ -32,15 +32,12 @@ public class KohonenNetworkTest {
         String wine = "data/wine.arff";
         String animals = "data/animals.arff";
 
-        int TMax = 100;
-        int XMax = 10;
-        int YMax = 10;
+        int TMax = 10;
+        int XMax = 5;
+        int YMax = 5;
 
-        int maxR = 9;
+        int maxR = 5;
         int maxTimeSelMet = TMax/10;
-
-        double minW;
-        double maxW;
 
         double etaMax = 0.1;
 
@@ -50,7 +47,7 @@ public class KohonenNetworkTest {
 
         KohonenNetwork net;
         Samples samples =
-                new ARFFLoader(new File(iris)).getSamples();
+                new ARFFLoader(new File(iris2)).getSamples();
 
         int numMisVal = SOMSamplesLoader.NUM_AVR_MISSING_VAL_ARITHM;
         int nomMisVal = SOMSamplesLoader.NOM_MFREQ_MISSING_VAL;
@@ -58,9 +55,6 @@ public class KohonenNetworkTest {
         SOMSamplesLoader patterns =
                 KohonenNetwork.initLoader(
                     samples ,numMisVal, nomMisVal, normalize);
-
-        minW = patterns.getMinNumValue();
-        maxW = patterns.getMaxNumValue();
 
         SOMLearningFactor etaExp =
                 KohonenNetwork.initLearningFactorExponential(etaMax, 0.1);
@@ -112,6 +106,9 @@ public class KohonenNetworkTest {
                 KohonenNetwork.initWinnerSelectorCount(
                 XMax, YMax, maxTimeSelMet);
 
+        SOMWinnerSelection selector =
+                KohonenNetwork.initWinnerSelector();
+
         SOMWeightsInitializer wInit =
                 KohonenNetwork.initWeightsInitializerRandom();
 
@@ -130,7 +127,7 @@ public class KohonenNetworkTest {
                 XMax,
                 YMax,
                 distanceEucl,
-                null,
+                selector,
                 wInit,
                 trainerWTM,
                 hexTopology,
