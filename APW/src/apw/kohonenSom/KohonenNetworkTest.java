@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 /**
@@ -27,26 +28,29 @@ public class KohonenNetworkTest {
 
         String segments = "data/segment-challenge.arff";
         String iris = "data/iris.arff";
+        String iris2 = "data/iris-mini.arff";
         String wine = "data/wine.arff";
+        String animals = "data/animals.arff";
 
         int TMax = 100;
         int XMax = 10;
         int YMax = 10;
 
-        int maxR = 4;
+        int maxR = 9;
+        int maxTimeSelMet = TMax/10;
 
         double minW;
         double maxW;
 
-        double etaMax = 0.8;
+        double etaMax = 0.1;
 
         double consciencePotential = 0.75;
 
-        boolean normalize = false;
+        boolean normalize = true;
 
         KohonenNetwork net;
-        Samples samples =  new ARFFLoader(
-                new File(iris)).getSamples();
+        Samples samples =
+                new ARFFLoader(new File(iris)).getSamples();
 
         int numMisVal = SOMSamplesLoader.NUM_AVR_MISSING_VAL_ARITHM;
         int nomMisVal = SOMSamplesLoader.NOM_MFREQ_MISSING_VAL;
@@ -58,26 +62,23 @@ public class KohonenNetworkTest {
         minW = patterns.getMinNumValue();
         maxW = patterns.getMaxNumValue();
 
-        int pattNum = samples.size();
-        int timeMax = TMax*pattNum;
-
-        int maxTimeSelMet = timeMax/10;
-
         SOMLearningFactor etaExp =
-                KohonenNetwork.initLearningFactorExponential(etaMax, 1);
+                KohonenNetwork.initLearningFactorExponential(etaMax, 0.1);
+
         SOMLearningFactor etaLin =
-                KohonenNetwork.initLearningFactorLinear(etaMax, timeMax);
+                KohonenNetwork.initLearningFactorLinear(etaMax, TMax);
+
         SOMLearningFactor etaHyperb =
-                KohonenNetwork.initLearningFactorHyperbolic(etaMax, 1);
+                KohonenNetwork.initLearningFactorHyperbolic(etaMax, 0.1);
 
         SOMTimeFactor timeTypeLin =
-                KohonenNetwork.initTimeFactorExpotential(timeMax);
+                KohonenNetwork.initTimeFactorExpotential(TMax);
 
         SOMTimeFactor timeTypeHyper =
-                KohonenNetwork.initTimeFactorHyperbolic(0.5);
+                KohonenNetwork.initTimeFactorHyperbolic(0.1);
 
         SOMTimeFactor timeTypeExpo =
-                KohonenNetwork.initTimeFactorExpotential(0.5);
+                KohonenNetwork.initTimeFactorExpotential(0.1);
 
         SOMNeighbourhoodFunction neighTypeGaus =
                 KohonenNetwork.initNeighFuncGaussian(timeTypeLin, maxR);
@@ -110,7 +111,8 @@ public class KohonenNetworkTest {
                 XMax,YMax,consciencePotential,maxTimeSelMet);
 
         SOMWinnerSelection selectorCount =
-                KohonenNetwork.initWinnerSelectorCount(XMax, YMax, timeMax);
+                KohonenNetwork.initWinnerSelectorCount(
+                XMax, YMax, maxTimeSelMet);
 
         SOMWeightsInitializer wInit =
                 KohonenNetwork.initWeightsInitializerRandom(
@@ -121,14 +123,23 @@ public class KohonenNetworkTest {
                     etaLin, neighTypeGaus, hexTopology);
 
         SOMTrainingMethod trainerWTA =
-                KohonenNetwork.initTrainingMethodWTA(etaHyperb);
+                KohonenNetwork.initTrainingMethodWTA(etaLin);
 
         SOMVisualization hexVisualizator=
                 KohonenNetwork.initHexVisualization();
 
         net = new KohonenNetwork(
-                TMax, XMax, YMax, distanceEucl, null, wInit, trainerWTM,
-                hexTopology, patterns, hexVisualizator);
+                TMax,
+                XMax,
+                YMax,
+                distanceEucl,
+                null,
+                wInit,
+                trainerWTM,
+                hexTopology,
+                patterns,
+                hexVisualizator
+                );
 
         System.out.println("start;");
 

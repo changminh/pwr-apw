@@ -21,16 +21,11 @@ public class SOMConscienceSelection extends SOMWinnerSelection {
 		potentials = new double[x][];
 		
 		for(int i=0; i<x; i++)
-		{
 			potentials[i] = new double[y];
-			
-			for(int j=0; j<y; j++)
-				potentials[i][j] = 1;
-		}
 		
-		xm = potentials.length;
-		ym =  potentials[0].length;
-		nn = ym*xm;
+		xm = x;
+		ym = y;
+		nn = x*y;
 	}
 	
 	private Point chooseWinnerConscience(double[][] distances)
@@ -82,19 +77,22 @@ public class SOMConscienceSelection extends SOMWinnerSelection {
 	}
 
 	@Override
-	public Point complexWinnerSelection(double[][] distances, int time) {
-		if(time<=tMax)
+	public Point winnerSelection(double[][] distances, int time) {
+        if(time<tMax){
+            if(time == 0){
+                this.resetSelector();
+            }
 			return chooseWinnerConscience(distances);
-		else
-			return simpleWinnerSelection(distances);
+        }
+		else{
+			return winnerSelection(distances);
+        }
 	}
 
-	@Override
-	public void resetSelector() {
+	private void resetSelector() {
 		for(int i=0; i<potentials.length; i++)
 			for(int j=0; j<potentials[i].length; j++)
-				potentials[i][j] = 1;
-		
+				potentials[i][j] = 1;		
 	}
 	
 }

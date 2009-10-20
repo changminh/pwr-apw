@@ -21,8 +21,6 @@ public class SOMSamplesLoader {
 
     public static final int NOM_MFREQ_MISSING_VAL = 1;
 
-    private boolean normalizeVectors;
-
     //------------------------------------------------------
     private Samples samples;
 
@@ -43,45 +41,51 @@ public class SOMSamplesLoader {
     private double[] numFillers;
     private Attribute[] nomFillers;
 
-    private int numAttrNo;
-    private int nomAttrNo;
+    private int numumericAttrNumber;
+    private int nominalAttrNumber;
 
     private int classInd;
     //------------------------------------------------------
 
-    public SOMSamplesLoader(Samples samples, boolean normalizeVectors) {
+    public SOMSamplesLoader(Samples samples,
+            boolean normalizeVectors) {
 
         this.samples = samples;
 
         this.numMode = -1;
         this.nomMode = -1;
 
-        this.normalizeVectors = normalizeVectors;
-
         classInd = samples.getClassAttributeIndex();
 
         checkNominalAttribs();
         checkMissingValues();
         evalMissingDataFillers();
         processSamples();
+
+        if(normalizeVectors){
+            numericalData = normalizeNumericalData();
+        }
     }
 
-    public SOMSamplesLoader(Samples samples, int numMode, int nomMode,
-            boolean normalizeVectors) {
+    public SOMSamplesLoader(
+            Samples samples, int numMode,
+            int nomMode, boolean normalizeVectors) {
 
         this.samples = samples;
 
         this.numMode = numMode;
         this.nomMode = nomMode;
 
-        this.normalizeVectors = normalizeVectors;
-
         classInd = samples.getClassAttributeIndex();
 
         checkNominalAttribs();
         checkMissingValues();
         evalMissingDataFillers();
         processSamples();
+
+        if(normalizeVectors){
+            numericalData = normalizeNumericalData();
+        }
     }
 
    //------------------------------------------------------
@@ -97,11 +101,11 @@ public class SOMSamplesLoader {
     }
 
     private void processSample(Sample sample){
-        double[] numVector = new double[this.numAttrNo];
-        Object[] nomVector = new Attribute[this.nomAttrNo];
+        double[] numVector = new double[this.numumericAttrNumber];
+        Object[] nomVector = new Attribute[this.nominalAttrNumber];
         int ind;
 
-        for(int a=0; a<numAttrNo; a++){
+        for(int a=0; a<numumericAttrNumber; a++){
             ind = numAttribsInd.get(a);
 
             if(sample.get(ind) == null){
@@ -111,7 +115,7 @@ public class SOMSamplesLoader {
             }
         }
 
-        for(int a=0; a<nomAttrNo; a++){
+        for(int a=0; a<nominalAttrNumber; a++){
             ind = nomAttribsInd.get(a);
 
             if(sample.get(ind) == null){
@@ -121,7 +125,7 @@ public class SOMSamplesLoader {
             }
         }
 
-        String classType = (String)sample.get(this.classInd);
+        String classType = sample.get(this.classInd).toString();
 
         numericalData.add(numVector);
         nominalData.add(nomVector);
@@ -148,8 +152,8 @@ public class SOMSamplesLoader {
             }
         }
 
-        nomAttrNo = nomAttribsInd.size();
-        numAttrNo = numAttribsInd.size();
+        nominalAttrNumber = nomAttribsInd.size();
+        numumericAttrNumber = numAttribsInd.size();
     }
 
     //------------------------------------------------------
@@ -177,8 +181,8 @@ public class SOMSamplesLoader {
 
     //------------------------------------------------------
     private void evalMissingDataFillers(){
-        numFillers = new double[numAttrNo];
-        nomFillers = new Attribute[nomAttrNo];
+        numFillers = new double[numumericAttrNumber];
+        nomFillers = new Attribute[nominalAttrNumber];
 
         if(numMode == NUM_MFREQ_MISSING_VAL){
             evalFreqNumFillers();
@@ -199,7 +203,7 @@ public class SOMSamplesLoader {
 
     //------------------------------------------------------
     private void evalAvrNumFillersArithm(){
-        double[] avr = new double[this.numAttrNo];
+        double[] avr = new double[this.numumericAttrNumber];
 
         for(int s=0; s<samples.size(); s++){
             Sample samp = samples.get(s);
@@ -216,7 +220,7 @@ public class SOMSamplesLoader {
 
     //------------------------------------------------------
     private void evalAvrNumFillersGeom(){
-        double[] avr = new double[this.numAttrNo];
+        double[] avr = new double[this.numumericAttrNumber];
 
         for(int s=0; s<samples.size(); s++){
             Sample samp = samples.get(s);
@@ -233,7 +237,7 @@ public class SOMSamplesLoader {
 
     //------------------------------------------------------
     private void evalAvrNumFillersSqr(){
-        double[] avr = new double[this.numAttrNo];
+        double[] avr = new double[this.numumericAttrNumber];
 
         for(int s=0; s<samples.size(); s++){
             Sample samp = samples.get(s);
@@ -251,7 +255,7 @@ public class SOMSamplesLoader {
 
     //------------------------------------------------------
     private void evalAvrNumFillersHarm(){
-        double[] avr = new double[this.numAttrNo];
+        double[] avr = new double[this.numumericAttrNumber];
 
         for(int s=0; s<samples.size(); s++){
             Sample samp = samples.get(s);
@@ -268,12 +272,12 @@ public class SOMSamplesLoader {
 
     //------------------------------------------------------
     private void evalFreqNumFillers(){
-        double[] freq = new double[this.numAttrNo];
+        double[] freq = new double[this.numumericAttrNumber];
 
         ArrayList<Double> values = new ArrayList<Double>();
         ArrayList<Integer> valCounters = new ArrayList<Integer>();
 
-        for(int a=0; a<numAttrNo; a++){
+        for(int a=0; a<numumericAttrNumber; a++){
             int attrNo = this.numAttribsInd.get(a);
             values.clear();
             valCounters.clear();
@@ -307,12 +311,12 @@ public class SOMSamplesLoader {
 
     //------------------------------------------------------
     private void evalFreqNomFillers(){
-        Attribute[] freq = new Attribute[this.nomAttrNo];
+        Attribute[] freq = new Attribute[this.nominalAttrNumber];
 
         ArrayList<Attribute> values = new ArrayList<Attribute>();
         ArrayList<Integer> valCounters = new ArrayList<Integer>();
 
-        for(int a=0; a<nomAttrNo; a++){
+        for(int a=0; a<nominalAttrNumber; a++){
             int attrNo = this.nomAttribsInd.get(a);
             values.clear();
             valCounters.clear();
@@ -347,7 +351,7 @@ public class SOMSamplesLoader {
         nomFillers = freq;
     }
 
-    private ArrayList<double[]> getNormalizedNumericalData(){
+    private ArrayList<double[]> normalizeNumericalData(){
        ArrayList <double[]> data = new ArrayList<double[]>();
 
        for(int d=0; d<numericalData.size(); d++)
@@ -356,118 +360,17 @@ public class SOMSamplesLoader {
        return data;
     }
 
-    private double getMaxNumNormalizedValue(int a){
-        ArrayList<double[]> norm = getNormalizedNumericalData();
-        double result = norm.get(0)[a];
-
-        for(int i=0; i<norm.size(); i++){
-            if(norm.get(i)[a] > result)
-                result = norm.get(i)[a];
-        }
-
-        return result;
-    }
-
-    private double getMinNumNormalizedValue(int a){
-        ArrayList<double[]> norm = getNormalizedNumericalData();
-        double result = norm.get(0)[a];
-
-        for(int i=0; i<norm.size(); i++){
-            if(norm.get(i)[a] < result)
-                result = norm.get(i)[a];
-        }
-
-        return result;
-    }
-
-    public double getNotNormalizedMaxNumValue(int a){
-        double result = numericalData.get(0)[a];
-
-        for(int i=0; i<numericalData.size(); i++){
-            if(numericalData.get(i)[a] > result)
-                result = numericalData.get(i)[a];
-        }
-
-        return result;
-    }
-
-    public double getNotNormalizedMinNumValue(int a){
-        double result = numericalData.get(0)[a];
-
-        for(int i=0; i<numericalData.size(); i++){
-            if(numericalData.get(i)[a] < result)
-                result = numericalData.get(i)[a];
-        }
-
-        return result;
-    }
-
-    private double getMaxNumNormalizedValue(){
-        double result = this.getMaxNumNormalizedValue(0);
-        double val;
-
-        for(int ia=1; ia<this.numAttrNo; ia++){
-            val = this.getMaxNumNormalizedValue(ia);
-            if(val>result)
-                result = val;
-        }
-
-        return result;
-    }
-
-    private double getMinNumNormalizedValue(){
-        double result = this.getMinNumNormalizedValue(0);
-        double val;
-
-        for(int ia=1; ia<this.numAttrNo; ia++){
-            val = this.getMinNumNormalizedValue(ia);
-            if(val<result)
-                result = val;
-        }
-
-        return result;
-    }
-
-    public double getNotNormalizedMaxNumValue(){
-        double result = this.getNotNormalizedMaxNumValue(0);
-        double val;
-
-        for(int ia=1; ia<this.numAttrNo; ia++){
-            val = this.getNotNormalizedMaxNumValue(ia);
-            if(val>result)
-                result = val;
-        }
-
-        return result;
-    }
-
-    public double getNotNormalizedMinNumValue(){
-        double result = this.getNotNormalizedMinNumValue(0);
-        double val;
-
-        for(int ia=1; ia<this.numAttrNo; ia++){
-            val = this.getNotNormalizedMinNumValue(ia);
-            if(val<result)
-                result = val;
-        }
-
-        return result;
-    }
-
     //------------------------------------------------------
-    public int getNumAttrNumber(){
-        return this.numAttrNo;
+    public int getNumericAttrNumber(){
+        return this.numumericAttrNumber;
     }
 
-    public int getNomAttrNumber(){
-        return this.nomAttrNo;
+    public int getNominalAttrNumber(){
+        return this.nominalAttrNumber;
     }
 
     public ArrayList<double[]> getNumericalData(){
-        if(normalizeVectors)
-            return this.getNormalizedNumericalData();
-        else
-            return this.numericalData;
+        return this.numericalData;
     }
 
     public ArrayList<Object[]> getNominalData(){
@@ -482,7 +385,7 @@ public class SOMSamplesLoader {
         return this.classTypes;
     }
 
-    public int getSampsWithMisValNumber(){
+    public int getMissingValuesSamplesNumber(){
         return this.missValSamples.size();
     }
 
@@ -491,31 +394,73 @@ public class SOMSamplesLoader {
     }
 
     public double getMaxNumValue(){
-        if(normalizeVectors)
-            return this.getMaxNumNormalizedValue();
-        else
-            return this.getNotNormalizedMaxNumValue();
+        double[] values = getMaxNumValues();
+        double value = values[0];
+
+        for(int ia=0; ia<values.length; ia++){
+            if(values[ia] > value){
+                value = values[ia];
+            }
+        }
+
+        return value;
     }
 
     public double getMinNumValue(){
-        if(normalizeVectors)
-            return this.getMinNumNormalizedValue();
-        else
-            return this.getNotNormalizedMinNumValue();
+        double[] values = getMinNumValues();
+        double value = values[0];
+
+        for(int ia=0; ia<values.length; ia++){
+            if(values[ia] < value){
+                value = values[ia];
+            }
+        }
+
+        return value;
+    }
+
+    public double[] getMaxNumValues(){
+        double[] values = new double[numumericAttrNumber];
+
+        for(int ia=0; ia<this.numumericAttrNumber; ia++){
+            values[ia] = getMaxNumValue(ia);
+        }
+
+        return values;
+    }
+
+    public double[] getMinNumValues(){
+        double[] values = new double[numumericAttrNumber];
+
+        for(int ia=0; ia<this.numumericAttrNumber; ia++){
+            values[ia] = getMinNumValue(ia);
+        }
+
+        return values;
     }
 
     public double getMaxNumValue(int a){
-        if(normalizeVectors)
-            return this.getMinNumNormalizedValue(a);
-        else
-            return this.getNotNormalizedMaxNumValue(a);
+        double value = this.numericalData.get(0)[a];
+
+        for(int ip=1; ip<numericalData.size(); ip++){
+            if(numericalData.get(ip)[a] > value){
+                value = numericalData.get(ip)[a];
+            }
+        }
+
+        return value;
     }
 
     public double getMinNumValue(int a){
-        if(normalizeVectors)
-            return this.getMaxNumNormalizedValue(a);
-        else
-            return this.getNotNormalizedMinNumValue(a);
+        double value = this.numericalData.get(0)[a];
+
+        for(int ip=1; ip<numericalData.size(); ip++){
+            if(numericalData.get(ip)[a] < value){
+                value = numericalData.get(ip)[a];
+            }
+        }
+
+        return value;
     }
 
 }

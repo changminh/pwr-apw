@@ -14,7 +14,8 @@ public class SOMLinearDecrease implements SOMLearningFactor {
 	
 	@Override
 	public double getEta(double time) {
-		return java.lang.Math.max(etaMax*((1 - time)/TMax), endEta);
+        double eta = etaMax*((TMax - time)/TMax);
+		return java.lang.Math.max(eta, endEta);
 	}
 
 }

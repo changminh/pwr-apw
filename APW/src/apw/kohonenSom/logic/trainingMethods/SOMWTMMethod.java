@@ -21,8 +21,8 @@ public class SOMWTMMethod implements SOMTrainingMethod {
 	}
 	
 	@Override
-	public double[][][] adaptWeights(double[] vector, double[][][] weights,
-			Point winner, double time) {
+	public double[][][] adaptWeights(
+            double[] vector, double[][][] weights, Point winner, double time) {
 
 		int XMax = weights.length;
 		int YMax = weights[0].length;
@@ -44,6 +44,8 @@ public class SOMWTMMethod implements SOMTrainingMethod {
 			{
 				d = nDist.calcDistance(winner, new Point(ix,iy));
                 n = neighType.getNeighbourhood(d, time);
+
+                //System.out.println("dist: "+d+"; neigh: "+n);
 							
 				for(int iv=0; iv<VMax; iv++)
 				{

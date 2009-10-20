@@ -17,15 +17,11 @@ public class SOMCountSelection extends SOMWinnerSelection {
 		
 		counts = new int[x][];
 		
-		for(int i=0; i<x; i++){
+		for(int i=0; i<x; i++)
 			counts[i] = new int[y];
-            for(int j=0; j<counts[i].length; j++){
-                counts[i][j] = 0;
-            }
-        }
 	
-		xm = counts.length;
-		ym =  counts[0].length;
+		xm = x;
+		ym = y;
 	}
 
 	private Point chooseWinnerCount(double[][] distances) {
@@ -54,15 +50,19 @@ public class SOMCountSelection extends SOMWinnerSelection {
 	}
 
 	@Override
-	public Point complexWinnerSelection(double[][] distances, int time) {
-		if(time<=tMax)
+	public Point winnerSelection(double[][] distances, int time) {
+		if(time<tMax){
+            if(time == 0){
+                this.resetSelector();
+            }
 			return chooseWinnerCount(distances);
-		else
-			return simpleWinnerSelection(distances);
+        }
+		else{
+			return winnerSelection(distances);
+        }
 	}
 
-	@Override
-	public void resetSelector() {
+	private void resetSelector() {
 		for(int i=0; i<counts.length; i++)
 			for(int j=0; j<counts[i].length; j++)
 				counts[i][j] = 0;

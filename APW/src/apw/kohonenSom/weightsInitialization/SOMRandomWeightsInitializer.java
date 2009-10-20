@@ -1,5 +1,6 @@
 package apw.kohonenSom.weightsInitialization;
 
+import apw.kohonenSom.patterns.SOMSamplesLoader;
 import java.util.Random;
 
 public class SOMRandomWeightsInitializer implements SOMWeightsInitializer {
@@ -8,44 +9,38 @@ public class SOMRandomWeightsInitializer implements SOMWeightsInitializer {
 	private int y;
 	private int inpNum;
 	
-	private double WMax;
-	private double WMin;
-	
 	private Random rand;
 	
-	public SOMRandomWeightsInitializer(int x, int y, int inpNum, double WMax, double WMin)
-	{
-		this.x = x;
-		this.y = y;
-		this.inpNum = inpNum;
-		this.WMax = WMax;
-		this.WMin = WMin;
-		
+	public SOMRandomWeightsInitializer(){
 		rand = new Random();
 	}
 	
 	@Override
-	public double[][][] initializeWeights() {
-		double[][][] w;
+	public double[][][] initializeWeights(
+            SOMSamplesLoader samples, int width, int height) {
+		double[][][] weights = new double[width][][];
+        double[] minValues = samples.getMinNumValues();
+        double[] maxValues = samples.getMaxNumValues();
 		
-		w = new double[x][][];
-		
-		for(int i=0; i<x; i++)
+		for(int ix=0; ix<width; ix++)
 		{
-			w[i] = new double[y][];
+			weights[ix] = new double[height][];
 			
-			for(int j=0; j<y; j++)
+			for(int iy=0; iy<height; iy++)
 			{
-				w[i][j] = new double[inpNum];
+				weights[ix][iy] = new double[inpNum];
 				
-				for(int k=0; k<inpNum; k++){
-                    double number = rand.nextDouble()*(WMax - WMin) + WMin;
-                    w[i][j][k] = number;
+				for(int iw=0; iw<inpNum; iw++){
+                    double wMax = maxValues[iw];
+                    double wMin = minValues[iw];
+                    double w = 
+                            rand.nextDouble()*(wMax - wMin) + wMin;
+                    weights[ix][iy][iw] = w;
                 }
 			}
 		}
 		
-		return w;
+		return weights;
 	}
 
 }
