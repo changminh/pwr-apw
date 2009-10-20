@@ -1,12 +1,12 @@
 package apw.kohonenSom.learningFactors;
 
-public class SOMHyperbolicdecrease implements SOMLearningFactor {
+public class SOMHyperbolicDecrease implements SOMLearningFactor {
 	private double etaMax;
 	private double C;
 
     private static final double endEta = 0.0001;
 
-	public SOMHyperbolicdecrease(double etaMax, double C)
+	public SOMHyperbolicDecrease(double etaMax, double C)
 	{
 		this.etaMax = etaMax;
 		this.C = C;

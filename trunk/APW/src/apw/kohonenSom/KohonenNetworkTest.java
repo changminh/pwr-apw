@@ -33,13 +33,13 @@ public class KohonenNetworkTest {
         String animals = "data/animals.arff";
 
         int TMax = 10;
-        int XMax = 5;
-        int YMax = 5;
+        int XMax = 50;
+        int YMax = 50;
 
-        int maxR = 5;
+        int maxR = 40;
         int maxTimeSelMet = TMax/10;
 
-        double etaMax = 0.1;
+        double etaMax = 0.4;
 
         double consciencePotential = 0.75;
 
@@ -47,7 +47,7 @@ public class KohonenNetworkTest {
 
         KohonenNetwork net;
         Samples samples =
-                new ARFFLoader(new File(iris2)).getSamples();
+                new ARFFLoader(new File(animals)).getSamples();
 
         int numMisVal = SOMSamplesLoader.NUM_AVR_MISSING_VAL_ARITHM;
         int nomMisVal = SOMSamplesLoader.NOM_MFREQ_MISSING_VAL;
