@@ -140,18 +140,23 @@ public class KohonenNetwork {
      }
 
      public static SOMLearningFactor initLearningFactorExponential(
-             double etaMax, double C){
-        return new SOMExponentialDecrease(etaMax, C);
+             double etaMax, double C, double etaMin){
+        return new SOMExponentialDecrease(etaMax, C, etaMin);
      }
 
      public static SOMLearningFactor initLearningFactorHyperbolic(
-             double etaMax, double C){
-        return new SOMHyperbolicDecrease(etaMax, C);
+             double etaMax, double C, double etaMin){
+        return new SOMHyperbolicDecrease(etaMax, C, etaMin);
      }
 
      public static SOMLearningFactor initLearningFactorLinear(
-             double etaMax, double TMax){
-        return new SOMLinearDecrease(etaMax, TMax);
+             double etaMax, double TMax, double etaMin){
+        return new SOMLinearDecrease(etaMax, TMax, etaMin);
+     }
+
+     public static SOMLearningFactor initLearningFactorConstant(
+             double eta){
+        return new SOMConstantEta(eta);
      }
 
      public static SOMNeighbourhoodFunction initNeighFuncGaussian(
@@ -177,16 +182,23 @@ public class KohonenNetwork {
         return new SOMRectangonalNetwork();
      }
 
-     public static SOMTimeFactor initTimeFactorExpotential(double C){
-         return new SOMExpotentialTimeFactor(C);
+     public static SOMTimeFactor initTimeFactorExpotential(
+             double C, double minModif){
+         return new SOMExpotentialTimeFactor(C, minModif);
      }
 
-     public static SOMTimeFactor initTimeFactorHyperbolic(double C){
-         return new SOMHyperbolicTimeFactor(C);
+     public static SOMTimeFactor initTimeFactorHyperbolic(
+             double C, double minModif){
+         return new SOMHyperbolicTimeFactor(C, minModif);
      }
 
-     public static SOMTimeFactor initTimeFactorLinear(int tMax){
-         return new SOMLinearTimeFactor(tMax);
+     public static SOMTimeFactor initTimeFactorLinear(
+             int tMax, double minModif){
+         return new SOMLinearTimeFactor(tMax, minModif);
+     }
+
+     public static SOMTimeFactor initTimeFactorConstant(double modif){
+         return new SOMConstantModifier(modif);
      }
 
      public static SOMVisualization initHexVisualization(){

@@ -32,14 +32,14 @@ public class KohonenNetworkTest {
         String wine = "data/wine.arff";
         String animals = "data/animals.arff";
 
-        int TMax = 10;
-        int XMax = 50;
-        int YMax = 50;
+        int TMax = 1000;
+        int XMax = 30;
+        int YMax = 30;
 
-        int maxR = 40;
+        int maxR = 8;
         int maxTimeSelMet = TMax/10;
 
-        double etaMax = 0.4;
+        double etaMax = 0.8;
 
         double consciencePotential = 0.75;
 
@@ -47,7 +47,7 @@ public class KohonenNetworkTest {
 
         KohonenNetwork net;
         Samples samples =
-                new ARFFLoader(new File(animals)).getSamples();
+                new ARFFLoader(new File(iris)).getSamples();
 
         int numMisVal = SOMSamplesLoader.NUM_AVR_MISSING_VAL_ARITHM;
         int nomMisVal = SOMSamplesLoader.NOM_MFREQ_MISSING_VAL;
@@ -57,22 +57,25 @@ public class KohonenNetworkTest {
                     samples ,numMisVal, nomMisVal, normalize);
 
         SOMLearningFactor etaExp =
-                KohonenNetwork.initLearningFactorExponential(etaMax, 0.1);
+                KohonenNetwork.initLearningFactorExponential(
+                etaMax, 0.1, 0.000001);
 
         SOMLearningFactor etaLin =
-                KohonenNetwork.initLearningFactorLinear(etaMax, TMax);
+                KohonenNetwork.initLearningFactorLinear(
+                etaMax, TMax, 0.000001);
 
         SOMLearningFactor etaHyperb =
-                KohonenNetwork.initLearningFactorHyperbolic(etaMax, 0.1);
+                KohonenNetwork.initLearningFactorHyperbolic(
+                etaMax, 0.1, 0.000001);
 
         SOMTimeFactor timeTypeLin =
-                KohonenNetwork.initTimeFactorExpotential(TMax);
+                KohonenNetwork.initTimeFactorExpotential(TMax, 0.000001);
 
         SOMTimeFactor timeTypeHyper =
-                KohonenNetwork.initTimeFactorHyperbolic(0.1);
+                KohonenNetwork.initTimeFactorHyperbolic(0.1, 0.000001);
 
         SOMTimeFactor timeTypeExpo =
-                KohonenNetwork.initTimeFactorExpotential(0.1);
+                KohonenNetwork.initTimeFactorExpotential(0.1, 0.000001);
 
         SOMNeighbourhoodFunction neighTypeGaus =
                 KohonenNetwork.initNeighFuncGaussian(timeTypeLin, maxR);

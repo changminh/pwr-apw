@@ -1,21 +1,21 @@
 package apw.kohonenSom.learningFactors;
 
-public class SOMLinearDecrease implements SOMLearningFactor {
+public class SOMHyperbolicDecrease implements SOMLearningFactor {
 	private double etaMax;
-	private double TMax;
+	private double C;
 
     private double endEta;
-	
-	public SOMLinearDecrease(double etaMax, double TMax, double etaMin)
+
+	public SOMHyperbolicDecrease(double etaMax, double C, double etaMin)
 	{
 		this.etaMax = etaMax;
         this.endEta = etaMin;
-		this.TMax = TMax;
+		this.C = C;
 	}
-	
+
 	@Override
 	public double getEta(double time) {
-        double eta = etaMax*((TMax - time)/TMax);
+        double eta = etaMax*(C/(C+time));
 		return java.lang.Math.max(eta, endEta);
 	}
 

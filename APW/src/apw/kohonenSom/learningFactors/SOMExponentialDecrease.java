@@ -4,11 +4,12 @@ public class SOMExponentialDecrease implements SOMLearningFactor {
 	private double etaMax;
 	private double C;
 
-    private static final double endEta = 0.0001;
+    private double endEta;
 
-	public SOMExponentialDecrease(double etaMax, double C)
+	public SOMExponentialDecrease(double etaMax, double C, double etaMin)
 	{
 		this.etaMax = etaMax;
+        this.endEta = etaMin;
 		this.C = C;
 	}
 	
