@@ -146,7 +146,7 @@ public class KohonenNetwork {
 
      public static SOMLearningFactor initLearningFactorHyperbolic(
              double etaMax, double C){
-        return new SOMHyperbolicdecrease(etaMax, C);
+        return new SOMHyperbolicDecrease(etaMax, C);
      }
 
      public static SOMLearningFactor initLearningFactorLinear(
