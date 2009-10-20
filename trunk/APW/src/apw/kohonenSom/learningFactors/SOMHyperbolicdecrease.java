@@ -14,7 +14,8 @@ public class SOMHyperbolicdecrease implements SOMLearningFactor {
 	
 	@Override
 	public double getEta(double time) {
-		return java.lang.Math.max(etaMax*(C/(C+time)), endEta);
+        double eta = etaMax*(C/(C+time));
+		return java.lang.Math.max(eta, endEta);
 	}
 
 }

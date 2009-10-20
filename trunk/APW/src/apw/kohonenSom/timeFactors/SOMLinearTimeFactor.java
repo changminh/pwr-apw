@@ -13,7 +13,8 @@ public class SOMLinearTimeFactor implements SOMTimeFactor {
 	
 	@Override
 	public double getTimeModifier(double t) {
-		return java.lang.Math.max(1 - t/tMax, endModif);
+        double modif = tMax - t/tMax;
+		return java.lang.Math.max(modif, endModif);
 	}
 
 }

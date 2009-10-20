@@ -5,7 +5,7 @@ import java.util.Random;
 
 public abstract class SOMWinnerSelection {
 
-	public static Point simpleWinnerSelection(double[][] distances) {
+	public Point winnerSelection(double[][] distances) {
         Random  rand = new Random();
 
 		int xMax = distances.length;
@@ -27,7 +27,5 @@ public abstract class SOMWinnerSelection {
 		return winner;
 	}
 	
-	public abstract Point complexWinnerSelection(double[][] distances, int time);
-	
-	public abstract void resetSelector();
+	public abstract Point winnerSelection(double[][] distances, int time);
 }

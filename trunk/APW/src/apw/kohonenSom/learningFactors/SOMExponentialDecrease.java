@@ -14,8 +14,8 @@ public class SOMExponentialDecrease implements SOMLearningFactor {
 	
 	@Override
 	public double getEta(double time) {
-		return java.lang.Math.max(
-                etaMax*java.lang.Math.exp(-(C*time)), endEta);
+        double eta = etaMax*java.lang.Math.exp(-(C*time));
+		return java.lang.Math.max(eta, endEta);
 	}
 
 }

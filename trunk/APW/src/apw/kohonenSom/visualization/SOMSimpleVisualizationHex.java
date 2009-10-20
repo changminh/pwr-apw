@@ -123,8 +123,7 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
             for(int iy=0; iy<y; iy++){
                 val = density[ix][iy];
                 r = (int)(((val-minVal)/amp)*255);
-                b = 255 - r;
-                colors[ix][iy] = new Color(r, 0, b);
+                colors[ix][iy] = new Color(255-r, 255-r, 255-r);
             }
         }
 
@@ -200,8 +199,8 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
 
         ArrayList<Point> centers =
                 network.generateClusterCenters(samples.getNumericalData());
-
-        ArrayList<Integer>[][] clusters =
+        
+        int[][] clusters =
                 network.generateClustersMap(samples.getNumericalData());
 
         ArrayList<Color> clusterColors = new ArrayList<Color>();
@@ -218,17 +217,9 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
             clusterColors.add(col);
         }
 
-        for(int ic=0; ic<centers.size(); ic++){
-            Point center = centers.get(ic);
-            ArrayList<Integer> centerPatterns =
-                    clusters[center.x][center.y];
-
-            for(int ix=0; ix<x; ix++){
-                for(int iy=0; iy<y; iy++){
-                    if(clusters[ix][iy].containsAll(centerPatterns)){
-                        colors[ix][iy] = clusterColors.get(ic);
-                    }
-                }
+        for(int ix=0; ix<x; ix++){
+            for(int iy=0; iy<y; iy++){
+                colors[ix][iy] = clusterColors.get(clusters[ix][iy]);
             }
         }
 
@@ -251,7 +242,7 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
 
     private BufferedImage paintMap(
             Color[][] colors, int x, int y, int shift){
-        int xp = x*hexX;
+        int xp = x*hexX+((hexX/2-1)*shift);
         int yp = (y-1)*(hexY/2 + hexY/4) + hexY;
 
         BufferedImage map =
