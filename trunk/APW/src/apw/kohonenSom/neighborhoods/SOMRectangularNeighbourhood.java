@@ -14,7 +14,9 @@ public class SOMRectangularNeighbourhood implements SOMNeighbourhoodFunction {
 	public double getNeighbourhood(double dist, double time) {
 		int n = 0;
 
-        double lambda = java.lang.Math.max(maxR - decrease*time*maxR, 0);
+        double lambda = 
+                java.lang.Math.max(0, 
+                java.lang.Math.max(maxR - decrease*time*maxR, 0));
 
 		if(dist <= (lambda))
 			n=1;
