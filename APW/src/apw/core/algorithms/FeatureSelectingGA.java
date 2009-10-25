@@ -37,11 +37,16 @@ import apw.classifiers.Classifier;
 import apw.core.Attribute;
 import apw.core.Sample;
 import apw.core.Samples;
+import apw.core.loader.ARFFLoader;
+import apw.core.util.PropertiesManager;
 import apw.ga.FitnessFunction;
 import apw.ga.GeneticAlgorithm;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
 /**
  *
@@ -50,10 +55,27 @@ import java.util.Arrays;
 public class FeatureSelectingGA {
 	private final static Class[] CLASSIFIER_CONSTRUCTOR_PARAMETERS = new Class[]{Samples.class};
 
-	private final static float CROSSOVER_PROBABILITY = 0.9f;
-	private final static float MUTATION_PROBABILITY = 0.1f;
-	private final static int POPULATION_SIZE = 50;
-	private final static int GENERATION_COUNT = 50;
+	private final float CROSSOVER_PROBABILITY;
+	private final float MUTATION_PROBABILITY;
+	private final int POPULATION_SIZE;
+	private final int GENERATION_COUNT;
+	private Class<Classifier> EVALUATOR_CLASSIFIER_CLASS;
+	{
+		final Properties properties = PropertiesManager.getProperties("featureSelectingGA");
+
+		CROSSOVER_PROBABILITY = Float.valueOf(properties.getProperty("crossoverProbability"));
+		MUTATION_PROBABILITY = Float.valueOf(properties.getProperty("mutationProbability"));
+		POPULATION_SIZE = Integer.valueOf(properties.getProperty("populationSize"));
+		GENERATION_COUNT = Integer.valueOf(properties.getProperty("generationCount"));
+
+		try {
+			EVALUATOR_CLASSIFIER_CLASS = (Class<Classifier>) FeatureSelectingGA.class.getClassLoader().loadClass(
+					properties.getProperty("classifierToUse"));
+		} catch (ClassNotFoundException e) {
+			EVALUATOR_CLASSIFIER_CLASS = null;
+			e.printStackTrace();
+		}
+	}
 
 	private Classifier evaluatorClassifierClass;
 	private Samples samples;
@@ -63,13 +85,17 @@ public class FeatureSelectingGA {
 	private final int CLASS_ATTR_INDEX;
 
 
-	private FeatureSelectingGA(final Class<Classifier> evaluatorClassifierClass, final Samples samples)
+	private FeatureSelectingGA(final Samples samples)
 			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException {
+		if (EVALUATOR_CLASSIFIER_CLASS == null) {
+			throw new RuntimeException("Classifier class could not be loaded ");
+		}
+		
 		this.FEATURES = samples.getSelected();
 		this.FEATURES_COUNT = FEATURES.length - 1;
 		this.CLASS_ATTR_INDEX = samples.getClassAttributeIndex();
 
-		this.evaluatorClassifierClass = evaluatorClassifierClass.getConstructor(CLASSIFIER_CONSTRUCTOR_PARAMETERS).newInstance(samples);
+		this.evaluatorClassifierClass = EVALUATOR_CLASSIFIER_CLASS.getConstructor(CLASSIFIER_CONSTRUCTOR_PARAMETERS).newInstance(samples);
 		this.samples = samples;
 
 		final int noOfConditionalAtts = samples.getAtts().size()-1;	// = the number of features
@@ -143,14 +169,19 @@ public class FeatureSelectingGA {
 		return ((double) classifiedIncorrectly) / samples.size();
 	}
 
-	public static ArrayList<Attribute> getAttributes(final Class<Classifier> evaluatorClassifierClass, final Samples samples)
+	public static List<Attribute> getAttributes(final Samples samples)
 		throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException {
-		final FeatureSelectingGA selectorInstance = new FeatureSelectingGA(evaluatorClassifierClass, samples);
-		final ArrayList<Attribute> result = selectorInstance.samples.getSelectedAtts();	// all attributes selected and not the class attribute
+		final FeatureSelectingGA selectorInstance = new FeatureSelectingGA(samples);
+		final List<Attribute> result = selectorInstance.samples.getSelectedAtts();	// all attributes selected and not the class attribute
 
 		selectorInstance.resetAttsSelectedStatus();
 
 		return result;
+	}
+
+	public static void main(String[] args) throws Exception {
+		List<Attribute> l = FeatureSelectingGA.getAttributes(new ARFFLoader(new File("data/test2.arff")).getSamples());
+		System.out.println();
 	}
 
 	private void resetAttsSelectedStatus() {
