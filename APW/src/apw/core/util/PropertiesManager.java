@@ -44,7 +44,7 @@ import java.util.Properties;
 /**
  * This file returns a Properties reference, 
  *
- * @author Waldemar Szostak < wszostak@wp.pl >
+ * @author Waldemar Szostak
  */
 public final class PropertiesManager {
 //	public static Properties getProperties(String fileName) {
