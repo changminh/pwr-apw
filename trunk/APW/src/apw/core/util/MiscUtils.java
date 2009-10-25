@@ -36,7 +36,7 @@ package apw.core.util;
 
 /**
  *
- * @author Waldemar Szostak < wszostak@wp.pl >
+ * @author Waldemar Szostak
  */
 public final class MiscUtils {
 	public static double[][] copyMatrix(final int rowsCount, final int columnsCount, final double[][] origMatrix) {

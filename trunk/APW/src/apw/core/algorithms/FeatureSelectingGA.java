@@ -50,7 +50,7 @@ import java.util.Properties;
 
 /**
  *
- * @author Waldemar Szostak < wszostak@wp.pl >
+ * @author Waldemar Szostak
  */
 public class FeatureSelectingGA {
 	private final static Class[] CLASSIFIER_CONSTRUCTOR_PARAMETERS = new Class[]{Samples.class};
