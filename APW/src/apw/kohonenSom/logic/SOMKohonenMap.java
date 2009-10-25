@@ -103,7 +103,8 @@ public class SOMKohonenMap{
 	//------------------------------------------------------
 	//visualization data generation
     public ArrayList<Point> generateClusterCenters(
-            ArrayList<double[]> patterns){
+            SOMSamplesLoader samples){
+        ArrayList<double[]> patterns = samples.getNumericalData();
         ArrayList<Point> centers = new ArrayList<Point>();
 
         double[] vector;
@@ -122,13 +123,13 @@ public class SOMKohonenMap{
 
     //---------------------------------
     public ArrayList<Integer>[][] generatePatternClustersMap(
-            ArrayList<double[]> patterns)
+            SOMSamplesLoader samples)
 	{
         ArrayList<Point> centers =
-                this.generateClusterCenters(patterns);
+                this.generateClusterCenters(samples);
 
         ArrayList<Integer>[][] map =
-                this.generatePatternsPositionsMap(patterns);
+                this.generatePatternsPositionsMap(samples);
 		
 		map = fillEmptyNeurons(map, centers);
 
@@ -137,10 +138,10 @@ public class SOMKohonenMap{
 
     //---------------------------------
     public int[][] generateClustersMap(
-            ArrayList<double[]> patterns)
+            SOMSamplesLoader samples)
 	{
         ArrayList<Point> centers =
-                this.generateClusterCenters(patterns);
+                this.generateClusterCenters(samples);
 
         int[][] map = new int[xMax][];
         for(int ix=0; ix<xMax; ix++){
@@ -185,7 +186,9 @@ public class SOMKohonenMap{
 
     //---------------------------------
     public ArrayList<Integer>[][] generatePatternsPositionsMap(
-            ArrayList<double[]> patterns){
+            SOMSamplesLoader samples){
+        ArrayList<double[]> patterns = samples.getNumericalData();
+
         ArrayList<Integer>[][] map = new ArrayList[xMax][];
         for(int ix=0; ix<xMax; ix++){
             map[ix] = new ArrayList[yMax];

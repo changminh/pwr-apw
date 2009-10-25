@@ -2,7 +2,10 @@ package apw.kohonenSom.visualization;
 
 import apw.kohonenSom.logic.SOMKohonenMap;
 import apw.kohonenSom.patterns.SOMSamplesLoader;
+
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -16,11 +19,15 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
     private int hexX;
     private int hexY;
     private int dotSize;
+    private int fontSize;
+    private Color textColor;
 
     public SOMSimpleVisualizationHex(){
-        hexX = 15;
-        hexY = 23;
+        hexX = 31;
+        hexY = 49;
         dotSize = 5;
+        fontSize = 12;
+        textColor = Color.BLACK;
     }
 
     @Override
@@ -37,7 +44,12 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
 
         //TODO
 
-        return paintMap(colors, x, y, 1);
+        String[][] text = generateText(network, samples);
+
+        BufferedImage map;
+        map = paintMap(colors, x, y, 1);
+        map = paintTextOnMap(map, text, x, y, 1, 1);
+        return map;
     }
 
     @Override
@@ -82,7 +94,12 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
             }
         }
 
-        return paintMap(colors, x, y, 1);
+        String[][] text = generateText(network, samples);
+
+        BufferedImage map;
+        map = paintMap(colors, x, y, 1);
+        map = paintTextOnMap(map, text, x, y, 1, 1);
+        return map;
     }
 
     @Override
@@ -127,7 +144,12 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
             }
         }
 
-        return paintMap(colors, x, y, 1);
+        String[][] text = generateText(network, samples);
+
+        BufferedImage map;
+        map = paintMap(colors, x, y, 1);
+        map = paintTextOnMap(map, text, x, y, 1, 1);
+        return map;
     }
 
     @Override
@@ -139,7 +161,12 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
 
         Color[][] colors = generateClusterColors(x,y, network, samples);
 
-        return paintMap(colors, x, y, 1);
+        String[][] text = generateText(network, samples);
+
+        BufferedImage map;
+        map = paintMap(colors, x, y, 1);
+        map = paintTextOnMap(map, text, x, y, 1, 1);
+        return map;
     }
 
     @Override
@@ -180,9 +207,12 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
             }
         }
 
+        String[][] text = generateText(network, samples);
+
         BufferedImage map;
         map = paintMap(colors, xm, ym, 2);
         map = paintDotsOnMap(map, x, y, 2, 2);
+        map = paintTextOnMap(map, text, x, y, 2, 2);
         return map;
     }
 
@@ -198,10 +228,10 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
         }
 
         ArrayList<Point> centers =
-                network.generateClusterCenters(samples.getNumericalData());
+                network.generateClusterCenters(samples);
         
         int[][] clusters =
-                network.generateClustersMap(samples.getNumericalData());
+                network.generateClustersMap(samples);
 
         ArrayList<Color> clusterColors = new ArrayList<Color>();
 
@@ -240,6 +270,46 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
         return new Color(color,color,color);
     }
 
+    private String[][] generateText(
+            SOMKohonenMap network, SOMSamplesLoader samples){
+        ArrayList<String> patternsClasses =
+                samples.getClassNames();
+        ArrayList<Integer>[][] patternsPositions =
+                network.generatePatternsPositionsMap(samples);
+
+        String[][] text = new String[network.getXMax()][];
+        for(int ix=0; ix<network.getXMax(); ix++){
+            text[ix] = new String[network.getYMax()];
+            for(int iy=0; iy<network.getYMax(); iy++){
+                text[ix][iy] = new String("");
+            }
+        }
+
+        for(int ix=0; ix<network.getXMax(); ix++){
+            for(int iy=0; iy<network.getYMax(); iy++){
+
+                ArrayList<Integer> patterns = patternsPositions[ix][iy];
+
+                StringBuffer classes = new StringBuffer("");
+
+                for(int ic=0; ic<patterns.size(); ic++){
+                    classes.append(
+                            patternsClasses.get(
+                                patterns.get(ic)
+                                )
+                            );
+                    if(ic+1<patterns.size()){
+                        classes.append(",\n");
+                    }
+                }
+
+                text[ix][iy] = classes.toString();
+            }
+        }
+
+        return text;
+    }
+
     private BufferedImage paintMap(
             Color[][] colors, int x, int y, int shift){
         int xp = x*hexX+((hexX/2-1)*shift);
@@ -264,6 +334,38 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
 
         return map;
     }
+
+    private BufferedImage paintTextOnMap(
+            BufferedImage map, String[][] text,
+            int x, int y,
+            int step, int shift) {
+
+        Point[][] textCenters = findTextCenters(x, y, step, shift);
+
+        map = paintText(map, text, textCenters);
+
+        return map;
+    }
+
+     private BufferedImage paintText(
+             BufferedImage map, String[][] text, Point[][] textCenters) {
+        Graphics g = map.getGraphics();
+        Font f = new Font("mapFont", Font.PLAIN, fontSize);
+        g.setFont(f);
+        g.setColor(textColor);
+
+        for(int ix=0; ix<text.length; ix++){
+            for(int iy=0; iy<text[ix].length; iy++){
+                int hx = textCenters[ix][iy].x;
+                int hy = textCenters[ix][iy].y;
+
+                String s = text[ix][iy];
+                g.drawString(s, hx-(s.length()/2), hy - fontSize);
+            }
+        }
+
+        return map;
+    }
     
     private ArrayList<Point> findDots(
             int x, int y, int step, int shift) {
@@ -283,6 +385,35 @@ public class SOMSimpleVisualizationHex implements SOMVisualization{
 
             for(int ix=0; ix<x; ix++){
                 neurons.add(new Point(mix, miy));
+                mix += (2*rx)*step;
+            }
+            miy+=(ry +ry/2)*step;
+        }
+
+        return neurons;
+    }
+
+    private Point[][] findTextCenters(
+            int x, int y, int step, int shift) {
+        Point[][]  neurons = new Point[x][];
+        for(int ix=0; ix<x; ix++){
+            neurons[ix] = new Point[y];
+        }
+
+        int rx = this.hexX/2;
+        int ry = this.hexY/2;
+
+        for(int iy=0, miy=ry, mix; iy<y; iy++){
+            int s = 1 + shift;
+
+            if(iy%2==0){
+                mix = rx;
+            }else{
+                mix = s*rx;
+            }
+
+            for(int ix=0; ix<x; ix++){
+                neurons[ix][iy] = new Point(mix, miy);
                 mix += (2*rx)*step;
             }
             miy+=(ry +ry/2)*step;

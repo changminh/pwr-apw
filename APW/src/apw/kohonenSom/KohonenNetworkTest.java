@@ -36,10 +36,10 @@ public class KohonenNetworkTest {
         int XMax = 30;
         int YMax = 30;
 
-        int maxR = 8;
+        int maxR = 10;
         int maxTimeSelMet = TMax/10;
 
-        double etaMax = 0.8;
+        double etaMax = 0.1;
 
         double consciencePotential = 0.75;
 
