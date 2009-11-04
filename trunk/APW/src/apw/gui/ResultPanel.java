@@ -70,17 +70,19 @@ public class ResultPanel extends javax.swing.JPanel {
     Evaluator evaluator;
 
     public TableModel getConfusionMatrixTableModel() {
-        if (evaluator == null)
+        if (evaluator == null) {
             return null;
+        }
 
         return new DefaultTableModel() {
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 0)
+                if (columnIndex == 0) {
                     return String.class;
-                else
+                } else {
                     return Integer.class;
+                }
             }
 
             @Override
@@ -100,16 +102,17 @@ public class ResultPanel extends javax.swing.JPanel {
 
             @Override
             public String getColumnName(int column) {
-                if (column == 0)
+                if (column == 0) {
                     return "Classified as =>";
+                }
                 return evaluator.classes[column - 1].className;
             }
 
             @Override
             public Object getValueAt(int row, int column) {
-                if (column == 0)
+                if (column == 0) {
                     return evaluator.classes[row].className;
-                else {
+                } else {
                     column--;
                     return Integer.valueOf(evaluator.confMtx[row][column]);
                 }
@@ -128,8 +131,9 @@ public class ResultPanel extends javax.swing.JPanel {
     public static final int DEFAULT_MARGIN_WIDTH = 2;
 
     public TableModel getMeasuresMatrixTableModel() {
-        if (evaluator == null)
+        if (evaluator == null) {
             return null;
+        }
         return new DefaultTableModel() {
 
             @Override
@@ -151,20 +155,25 @@ public class ResultPanel extends javax.swing.JPanel {
             public Object getValueAt(int row, int column) {
                 Measures m;
                 if (row == evaluator.classes.length) {
-                    if (column == 0)
+                    if (column == 0) {
                         return "<html><i>weighted";
-                    if (column == 1)
+                    }
+                    if (column == 1) {
                         return "—";
+                    }
                     m = evaluator.weighted;
-                } else
+                } else {
                     m = evaluator.classes[row];
+                }
                 Object o = getCoreValueAt(m, column);
                 if (o instanceof Double) {
                     Double d = (Double) o;
-                    if (d == 0)
+                    if (d == 0) {
                         return new Integer(0);
-                    if (d == 1)
+                    }
+                    if (d == 1) {
                         return new Integer(1);
+                    }
                     double e = round(d, NUMBER_OF_DIGITS_AFTER_PERIOD);
                     return Double.valueOf(e);
                 }
@@ -275,8 +284,9 @@ public class ResultPanel extends javax.swing.JPanel {
     }
 
     public void updateLabels() {
-        if (evaluator == null)
+        if (evaluator == null) {
             return;
+        }
         // weighted value labels deprecated
         // no op
     }
@@ -315,21 +325,22 @@ public class ResultPanel extends javax.swing.JPanel {
     }
 
     private static void packAllColumns(JTable table, int margin) {
-        for (int i = 0; i < table.getColumnCount(); i++)
+        for (int i = 0; i < table.getColumnCount(); i++) {
             packColumn(table, i, margin);
+        }
     }
 
     private static void packColumn(JTable table, int vColIndex, int margin) {
-        DefaultTableColumnModel colModel = (DefaultTableColumnModel) table.
-                getColumnModel();
+        DefaultTableColumnModel colModel = (DefaultTableColumnModel) table.getColumnModel();
         TableColumn col = colModel.getColumn(vColIndex);
         int width = 0;
 
         // Get width of column header
         TableCellRenderer renderer = col.getHeaderRenderer();
-        if (renderer == null)
+        if (renderer == null) {
             renderer = table.getTableHeader().
                     getDefaultRenderer();
+        }
         Component comp = renderer.getTableCellRendererComponent(
                 table, col.getHeaderValue(), false, false, 0, 0);
         width = comp.getPreferredSize().width;
@@ -475,14 +486,20 @@ public class ResultPanel extends javax.swing.JPanel {
     }
 
     private void updateRulesTab() {
-        if (evaluator.getClassifier() == null) return;
-        if (!(evaluator.getClassifier() instanceof RuleClassifier)) return;
+        if (evaluator.getClassifier() == null) {
+            return;
+        }
+        if (!(evaluator.getClassifier() instanceof RuleClassifier)) {
+            rulesPanel.setVisible(false);
+            return;
+        }
 
         RuleClassifier rc = (RuleClassifier) evaluator.getClassifier();
         String[] rules = rc.getRules();
         DefaultTableModel tm = (DefaultTableModel) rulesTable.getModel();
-        for (int i = 0; i < rules.length; i++)
+        for (int i = 0; i < rules.length; i++) {
             tm.addRow(new Object[]{i, rules[i]});
+        }
         rulesTable.setVisible(true);
         packAllColumns(rulesTable);
 
