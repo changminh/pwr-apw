@@ -178,7 +178,6 @@ public class PropertyPane extends JDialog {
     private void buildCenterView() {
         // TODO: replace with real implementation
         createMockupProperties();
-
     }
 
     private void createMockupProperties() {

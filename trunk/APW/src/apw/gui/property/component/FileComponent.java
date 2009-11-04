@@ -62,6 +62,7 @@ public class FileComponent extends AbstractPropertyComponent {
     JTextField pathTextField;
     File file = null;
     int fileSelectionMode = JFileChooser.FILES_ONLY;
+
     Action showDialogAction = new AbstractAction("...") {
 
         public void actionPerformed(ActionEvent e) {
@@ -115,6 +116,9 @@ public class FileComponent extends AbstractPropertyComponent {
     }
 
     public JComponent getComponent() {
+        // FIXME: The question is if lazy instatiation is necessary here...
+        // If getComponent() is called only once by GUI builder lazy creation
+        // is redundant. Solve this and update documentation.
         if (fileComponentPane != null) return fileComponentPane;
 
         // object creation

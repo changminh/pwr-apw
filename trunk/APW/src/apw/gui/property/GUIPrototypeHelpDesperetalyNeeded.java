@@ -69,16 +69,14 @@ public class GUIPrototypeHelpDesperetalyNeeded extends javax.swing.JPanel {
         jButton1 = new javax.swing.JButton();
         GrigLayoutTest = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
-        jPanel4 = new javax.swing.JPanel();
+        jTextField3 = new javax.swing.JTextField();
+        jTextField4 = new javax.swing.JTextField();
+        jSlider1 = new javax.swing.JSlider();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jPanel5 = new javax.swing.JPanel();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
-        jSlider1 = new javax.swing.JSlider();
-        jPanel7 = new javax.swing.JPanel();
+        jToggleButton1 = new javax.swing.JToggleButton();
         anotherGridLayoutTest = new javax.swing.JPanel();
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel1 = new javax.swing.JPanel();
@@ -99,49 +97,66 @@ public class GUIPrototypeHelpDesperetalyNeeded extends javax.swing.JPanel {
 
         GrigLayoutTest.setLayout(new java.awt.BorderLayout());
 
-        jPanel6.setLayout(new java.awt.BorderLayout());
-
-        jPanel4.setLayout(new java.awt.GridLayout(4, 0));
-
-        jLabel3.setText("jLabel3");
-        jPanel4.add(jLabel3);
-
-        jLabel4.setText("jLabel4");
-        jPanel4.add(jLabel4);
-
-        jLabel6.setText("jLabel6");
-        jPanel4.add(jLabel6);
-
-        jLabel5.setText("jLabel5");
-        jPanel4.add(jLabel5);
-
-        jPanel6.add(jPanel4, java.awt.BorderLayout.WEST);
-
-        jPanel5.setLayout(new java.awt.GridLayout(4, 0));
+        jPanel6.setLayout(new java.awt.GridBagLayout());
 
         jTextField3.setText("jTextField3");
-        jPanel5.add(jTextField3);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        jPanel6.add(jTextField3, gridBagConstraints);
 
         jTextField4.setText("jTextField4");
-        jPanel5.add(jTextField4);
-        jPanel5.add(jSlider1);
+        jTextField4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField4ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        jPanel6.add(jTextField4, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        jPanel6.add(jSlider1, gridBagConstraints);
 
-        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
-        jPanel7.setLayout(jPanel7Layout);
-        jPanel7Layout.setHorizontalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 486, Short.MAX_VALUE)
-        );
-        jPanel7Layout.setVerticalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
+        jLabel3.setText("jLabel3");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        jPanel6.add(jLabel3, gridBagConstraints);
 
-        jPanel5.add(jPanel7);
+        jLabel4.setText("jLabel4");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        jPanel6.add(jLabel4, gridBagConstraints);
 
-        jPanel6.add(jPanel5, java.awt.BorderLayout.CENTER);
+        jLabel6.setText("jLabel6");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        jPanel6.add(jLabel6, gridBagConstraints);
 
-        GrigLayoutTest.add(jPanel6, java.awt.BorderLayout.PAGE_START);
+        jLabel5.setText("jLabel5");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        jPanel6.add(jLabel5, gridBagConstraints);
+
+        jToggleButton1.setText("jToggleButton1");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        jPanel6.add(jToggleButton1, gridBagConstraints);
+
+        GrigLayoutTest.add(jPanel6, java.awt.BorderLayout.CENTER);
 
         javax.swing.GroupLayout anotherGridLayoutTestLayout = new javax.swing.GroupLayout(anotherGridLayoutTest);
         anotherGridLayoutTest.setLayout(anotherGridLayoutTestLayout);
@@ -206,6 +221,10 @@ public class GUIPrototypeHelpDesperetalyNeeded extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField2ActionPerformed
 
+    private void jTextField4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField4ActionPerformed
+
     public static void main(String args[]) {
         GUIPrototypeHelpDesperetalyNeeded a = new GUIPrototypeHelpDesperetalyNeeded();
         JDialog dialog = new JDialog();
@@ -227,10 +246,7 @@ public class GUIPrototypeHelpDesperetalyNeeded extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
-    private javax.swing.JPanel jPanel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSlider jSlider1;
     private javax.swing.JSplitPane jSplitPane1;
@@ -239,6 +255,7 @@ public class GUIPrototypeHelpDesperetalyNeeded extends javax.swing.JPanel {
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextPane jTextPane1;
+    private javax.swing.JToggleButton jToggleButton1;
     // End of variables declaration//GEN-END:variables
 
 }
