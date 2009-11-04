@@ -92,6 +92,10 @@ public class MainFrame extends javax.swing.JFrame {
         updateSample();
         updateClassifier();
     }
+    boolean numAtt;
+    boolean nomAtt;
+    boolean numClz;
+    boolean nomClz;
 
     private void updateClassifier() {
         evalBtn.setEnabled(classifier != null);
@@ -145,6 +149,11 @@ public class MainFrame extends javax.swing.JFrame {
         org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${selectedSampleName}"), jList1, org.jdesktop.beansbinding.BeanProperty.create("selectedElement"));
         bindingGroup.addBinding(binding);
 
+        jList1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jList1MouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(jList1);
 
         jButton3.setText("select");
@@ -187,6 +196,11 @@ public class MainFrame extends javax.swing.JFrame {
         });
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("Construct");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -257,10 +271,12 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void evalBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_evalBtnActionPerformed
         try {
-            if (classifier == null)
+            if (classifier == null) {
                 warn("Classifier not specified.");
-            if (samples == null)
+            }
+            if (samples == null) {
                 warn("Samples not loaded.");
+            }
             if (samples != null & classifier != null) {
                 Evaluator e = new Evaluator(classifier, samples[0]);
                 ResultPanel.showResultDialog(e, this,
@@ -310,6 +326,16 @@ public class MainFrame extends javax.swing.JFrame {
         System.out.println("WindowFocusLost");
         jDialog1.setVisible(false);
     }//GEN-LAST:event_jDialog1WindowLostFocus
+
+    private void jList1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList1MouseClicked
+        if (evt.getClickCount() == 2 && jList1.getSelectedValue() != null) {
+            jButton3ActionPerformed(null);
+        }
+    }//GEN-LAST:event_jList1MouseClicked
+
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox1ActionPerformed
     Samples[] samples;
     int neighbours = 4;
     Classifier classifier = null;
@@ -330,7 +356,6 @@ public class MainFrame extends javax.swing.JFrame {
                     ClassifierCapabilities caps = (ClassifierCapabilities) c.getAnnotation(ClassifierCapabilities.class);
                     System.out.println(name + "; caps: " + caps);
                 }
-                //System.out.println(c.getName());
                 cl2str.put(c, name);
                 str2cl.put(name, c);
             }
@@ -361,7 +386,9 @@ public class MainFrame extends javax.swing.JFrame {
             java.awt.EventQueue.invokeLater(new Runnable() {
 
                 public void run() {
-                    new MainFrame().setVisible(true);
+                    MainFrame frame = new MainFrame();
+                    frame.setLocationByPlatform(true);
+                    frame.setVisible(true);
                 }
             });
         } catch (Exception ex) {
@@ -373,10 +400,12 @@ public class MainFrame extends javax.swing.JFrame {
     public void updateSample() {
         jComboBox1.setEnabled(samples != null);
         jButton2.setEnabled(samples != null);
-        if (samples == null)
+        if (samples == null) {
             setTitle("Classifier tester.");
-        else
+        } else {
             setTitle("Classifier tester. Ralation \"" + samples[0].getName() + "\"");
+        }
+        filterClassifierList();
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton evalBtn;
@@ -421,8 +450,9 @@ public class MainFrame extends javax.swing.JFrame {
             getContentPane().add(new JButton(new AbstractAction("Terminate") {
 
                 public void actionPerformed(ActionEvent e) {
-                    if (threadrunner != null)
+                    if (threadrunner != null) {
                         threadrunner.stop();
+                    }
                     outputDialog.dispose();
                 }
             }), BorderLayout.SOUTH);
@@ -431,17 +461,26 @@ public class MainFrame extends javax.swing.JFrame {
     Thread threadrunner;
     ByteArrayOutputStream baos = new ByteArrayOutputStream(2048) {
 
+        boolean updating = false;
+
         @Override
         public void write(byte[] b) throws IOException {
-            super.write(b);
-            update();
+            if (!updating) {
+                updating = true;
+                super.write(b);
+                update();
+                updating = false;
+            }
         }
 
         @Override
         public synchronized void write(byte[] b, int off, int len) {
-            super.write(b, off, len);
-            update();
-
+            if (!updating) {
+                updating = true;
+                super.write(b, off, len);
+                update();
+                updating = false;
+            }
         }
 
         @Override
@@ -459,11 +498,12 @@ public class MainFrame extends javax.swing.JFrame {
                     textArea.setText(toUpdate);
                 }
             });
-
-
         }
     };
     PrintStream ps = new PrintStream(baos);
+
+    private void filterClassifierList() {
+    }
 
     class SplitPrintStream extends PrintStream {
 
@@ -536,10 +576,11 @@ public class MainFrame extends javax.swing.JFrame {
         } catch (Exception x) {
             classifier = null;
             System.out.println("error while instantiating: " + jComboBox1.getSelectedItem());
-            if (x.getCause() != null)
+            if (x.getCause() != null) {
                 x.getCause().printStackTrace();
-            else
+            } else {
                 x.printStackTrace();
+            }
             warn("Error while instantiating classifier:\n" + x.getCause());
         }
     }
