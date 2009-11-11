@@ -33,20 +33,19 @@
  */
 package apw.core.algorithms;
 
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+
 import apw.classifiers.Classifier;
 import apw.core.Attribute;
-import apw.core.Sample;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
 import apw.core.util.PropertiesManager;
 import apw.ga.FitnessFunction;
 import apw.ga.GeneticAlgorithm;
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
 
 /**
  *
@@ -55,136 +54,133 @@ import java.util.Properties;
 public class FeatureSelectingGA {
 	private final static Class[] CLASSIFIER_CONSTRUCTOR_PARAMETERS = new Class[]{Samples.class};
 
-	private final float CROSSOVER_PROBABILITY;
-	private final float MUTATION_PROBABILITY;
-	private final int POPULATION_SIZE;
-	private final int GENERATION_COUNT;
-	private Class<Classifier> EVALUATOR_CLASSIFIER_CLASS;
-	{
-		final Properties properties = PropertiesManager.getProperties("featureSelectingGA");
-
-		CROSSOVER_PROBABILITY = Float.valueOf(properties.getProperty("crossoverProbability"));
-		MUTATION_PROBABILITY = Float.valueOf(properties.getProperty("mutationProbability"));
-		POPULATION_SIZE = Integer.valueOf(properties.getProperty("populationSize"));
-		GENERATION_COUNT = Integer.valueOf(properties.getProperty("generationCount"));
-
-		try {
-			EVALUATOR_CLASSIFIER_CLASS = (Class<Classifier>) FeatureSelectingGA.class.getClassLoader().loadClass(
-					properties.getProperty("classifierToUse"));
-		} catch (ClassNotFoundException e) {
-			EVALUATOR_CLASSIFIER_CLASS = null;
-			e.printStackTrace();
-		}
-	}
-
-	private Classifier evaluatorClassifierClass;
-	private Samples samples;
-	private FitnessFunction fitnessFunction;
-	private final boolean[] FEATURES;
-	private final int FEATURES_COUNT;
-	private final int CLASS_ATTR_INDEX;
-
-
-	private FeatureSelectingGA(final Samples samples)
-			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException {
-		if (EVALUATOR_CLASSIFIER_CLASS == null) {
-			throw new RuntimeException("Classifier class could not be loaded ");
-		}
-		
-		this.FEATURES = samples.getSelected();
-		this.FEATURES_COUNT = FEATURES.length - 1;
-		this.CLASS_ATTR_INDEX = samples.getClassAttributeIndex();
-
-		this.evaluatorClassifierClass = EVALUATOR_CLASSIFIER_CLASS.getConstructor(CLASSIFIER_CONSTRUCTOR_PARAMETERS).newInstance(samples);
-		this.samples = samples;
-
-		final int noOfConditionalAtts = samples.getAtts().size()-1;	// = the number of features
-		if (noOfConditionalAtts > 32) {
-			throw new RuntimeException("Samples with more than 32 attributes are not supported");
-		}
-
-		this.fitnessFunction = getFitnessFunction();
-
-		
-        GeneticAlgorithm.
-                defineGenotype().integer(noOfConditionalAtts, true).endDefinition().
-                fitnessFunction(fitnessFunction).
-                crossoverProb(CROSSOVER_PROBABILITY).
-                mutationProb(MUTATION_PROBABILITY).
-                populationSize(POPULATION_SIZE).
-                evolve(GENERATION_COUNT);
-	}
-
-	private FitnessFunction getFitnessFunction() {
+	
+	private static FitnessFunction getFitnessFunction(final Classifier evaluatorClassifierClass, final Samples samples, final float maxErrorRate) {
 		return new FitnessFunction() {
+			/** The so-far best classfication rate */
+			private double maxCorrectClassificationRate = Double.MIN_VALUE;
+
 			public double evalFitness(Object[] args) {
 				final int chromosome = (Integer) args[0];
+				/* At least one attribute has to be selected for the classification to be possible,
+				 * so if none are selected, then return 0 as the fitness value */
+				if (chromosome == 0) {
+					return 0;
+				}
+				
+				final double noOfBitsOn = updateSelectedFeatureArray(chromosome, samples);
+				
+				/* Force the new attribute set to take effect */
+				samples.notifySamplesOfViewChange();
 
-				if (chromosome == 0) {	// can't be no features
+				evaluatorClassifierClass.rebuild();
+				
+				final double curCorrectClassificationRate = samples.getCorrectClassificationRate(evaluatorClassifierClass);
+
+				/* If the current set of attributes ensures a better classification rate,
+				 * then require at least that good a classification rate */
+				if (curCorrectClassificationRate + maxErrorRate >= maxCorrectClassificationRate) {
+					maxCorrectClassificationRate = curCorrectClassificationRate;
+
+					return 2 - Math.pow(2, noOfBitsOn / samples.getSelected().length);
+				} else {
 					return 0;
 				}
 
-				int noOfBitsOn = 0;
-				int floatingBit = 1;
-				int featureIndex = 0;
-
-				for (int i = 0; i < FEATURES_COUNT; ++i) {
-					if (featureIndex == CLASS_ATTR_INDEX) {
-						++featureIndex;	// skip the class attribute
-					}
-
-					if ((chromosome & floatingBit) == floatingBit) {
-						++noOfBitsOn;
-						FEATURES[featureIndex] = true;
-					} else {
-						FEATURES[featureIndex] = false;
-					}
-
-					floatingBit <<= 1;
-					++featureIndex;
-				}
-
-				evaluatorClassifierClass.rebuild();
-				final double classificationError = getClassificationErrorRate();
-
-				return  2 - ((double) noOfBitsOn) / FEATURES_COUNT - classificationError;
 			}
 		};
 	}
 
-	private double getClassificationErrorRate() {
-        int classifiedIncorrectly = 0;
+	/** Process the information encoded in the chromosome,
+	 * enabling or disabling the attributes depending on the value of the corresponding bit */
+	private static int updateSelectedFeatureArray(final int chromosome, final Samples samples) {
+		int noOfBitsOn = 0;
+		int floatingBit = 1;
+		int featureIndex = 0;
+		
+		for (int i = 1; i < samples.getSelected().length; ++i) {
+			if (featureIndex == samples.getClassAttributeIndex()) {
+				++featureIndex;	// skip the class attribute
+			}
 
-        for (final Sample sample : samples) {
-            final double targetValue = (Double) sample.classAttributeRepr();
-            final double calculatedValue = (Double) samples.getClassAttribute()
-					.getRepresentation(evaluatorClassifierClass.classifySampleAsObject(sample));
+			if ((chromosome & floatingBit) == floatingBit) {
+				++noOfBitsOn;
+				samples.getSelected()[featureIndex] = true;
+			} else {
+				samples.getSelected()[featureIndex] = false;
+			}
 
-            /* Compare the expected classification class with the calculated one */
-            if (targetValue != calculatedValue) {
-                ++classifiedIncorrectly;
-            }
-        }
+			floatingBit <<= 1;
+			++featureIndex;
+		}
+		
+		return noOfBitsOn;
+	}
+	
+	public static List<Attribute> getSelectedAttributes(final Samples samples)
+		throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException {
+		
+		selectAttributes(samples);
+		
+		final List<Attribute> result = samples.getSelectedAtts();
+		
+		resetAttsSelectedStatus(samples);
+		
+		return result;
+	}
+	
+	public static void selectAttributes(final Samples samples)
+		throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException {
+		
+		final int noOfConditionalAtts = samples.getAtts().size()-1;	// = the number of features
+		if (noOfConditionalAtts > 32) {
+			throw new RuntimeException("Samples with more than 32 attributes are not supported");
+		}
+		
+		
+		final Properties properties = PropertiesManager.getProperties("featureSelectingGA");
 
-		return ((double) classifiedIncorrectly) / samples.size();
+		final float crossoverProbability = Float.valueOf(properties.getProperty("crossoverProbability"));
+		final float mutationProbability = Float.valueOf(properties.getProperty("mutationProbability"));
+		final int populationSize = Integer.valueOf(properties.getProperty("populationSize"));
+		final int generationCount = Integer.valueOf(properties.getProperty("generationCount"));
+		final float maxErrorRate = Float.valueOf(properties.getProperty("maxErrorRate"));
+		final Classifier evaluatorClassifier = getClassifierInstance(properties, samples);
+		
+		final int bitSet = (Integer) GeneticAlgorithm.
+		        defineGenotype().integer(noOfConditionalAtts, true).endDefinition().
+		        fitnessFunction(getFitnessFunction(evaluatorClassifier, samples, maxErrorRate)).
+		        crossoverProb(crossoverProbability).
+		        mutationProb(mutationProbability).
+		        populationSize(populationSize).
+		        evolve(generationCount)[0];
+
+		updateSelectedFeatureArray(bitSet, samples);
 	}
 
-	public static List<Attribute> getAttributes(final Samples samples)
-		throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException {
-		final FeatureSelectingGA selectorInstance = new FeatureSelectingGA(samples);
-		final List<Attribute> result = selectorInstance.samples.getSelectedAtts();	// all attributes selected and not the class attribute
-
-		selectorInstance.resetAttsSelectedStatus();
-
-		return result;
+	private static Classifier getClassifierInstance(
+			final Properties properties, final Samples samples)
+			throws InstantiationException, IllegalAccessException,
+			InvocationTargetException, NoSuchMethodException {
+		final Class<Classifier> classifierToUse;
+		try {
+			classifierToUse = (Class<Classifier>) FeatureSelectingGA.class.getClassLoader().loadClass(
+					properties.getProperty("classifierToUse"));
+		
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException("Classifier class could not be loaded ");
+		}
+		
+		final Classifier evaluatorClassifier = classifierToUse.getConstructor(CLASSIFIER_CONSTRUCTOR_PARAMETERS).newInstance(samples);
+		return evaluatorClassifier;
 	}
 
 	public static void main(String[] args) throws Exception {
-		List<Attribute> l = FeatureSelectingGA.getAttributes(new ARFFLoader(new File("data/test2.arff")).getSamples());
-		System.out.println();
+		List<Attribute> l = FeatureSelectingGA.getSelectedAttributes(new ARFFLoader(new File("data/iris.arff")).getSamples());
+		System.out.println(l.toString());
 	}
 
-	private void resetAttsSelectedStatus() {
+	private static void resetAttsSelectedStatus(Samples samples) {
 		final boolean[] newSelected = new boolean[samples.getAtts().size()];
 		Arrays.fill(newSelected, true);
 		samples.setSelected(newSelected);
