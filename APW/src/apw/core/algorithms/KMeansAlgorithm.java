@@ -33,32 +33,55 @@
  */
 package apw.core.algorithms;
 
-import apw.core.*;
+import static apw.core.algorithms.DistanceMetrics.getEuclideanDistance;
+
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import static apw.core.algorithms.DistanceMetrics.getEuclideanDistance;
+import apw.core.Sample;
+import apw.core.Samples;
+import apw.core.loader.ARFFLoader;
 
 
 /**
  *
- * @author Waldemar Szostak < wszostak@wp.pl >
+ * @author Waldemar Szostak
  */
 public final class KMeansAlgorithm {
 	public static double[][] findClusterCentres(final Samples samples, final int noOfCentres) {
+		if (noOfCentres < 2) {
+			throw new RuntimeException("At least 2 centres should be looked for.");
+		}
 		if (samples.size() < noOfCentres) {
-			throw new RuntimeException("There are too few samples to find " + noOfCentres + " centroids; at least that many samples are needed.");
+			throw new RuntimeException("There are too few samples to find " + noOfCentres
+					+ " centroids; at least that many samples are needed.");
 		}
 
-		System.out.print("Looking for " + noOfCentres + " cluster centres: ");
+		System.out.print("Looking for " + noOfCentres + " cluster centres: ");	
+
+		final double[][] result = new double[noOfCentres][];
+
 		final Centroid[] centroids = new Centroid[noOfCentres];
-
 		int centroidId = 0;
-		for (final Integer sampleId : getRandomSampleIds(samples, noOfCentres)) {
-			centroids[centroidId++] = new Centroid(samples.get(sampleId).toDoubleArray());
+		/* Get several samples at random to be the cluster centres for the start */
+		final Set<Integer> randomSampleIds = getRandomSampleIds(samples, noOfCentres);
+		for (final int sampleId : randomSampleIds) {
+			centroids[centroidId++] = new Centroid(samples.get(sampleId));
 		}
+		
+		Samples samplesRest = samples.copyStructure();
+		for (int i = 0; i < samples.size(); ++i) {
+			if (!randomSampleIds.contains(i)) {
+				samplesRest.add(samples.get(i));
+			}
+		}
+		
 
 		boolean centroidsChanged;
 		do {
@@ -66,7 +89,7 @@ public final class KMeansAlgorithm {
 			System.out.print(".");
 
 			/* Assign each input vector to the nearest centroid */
-			for (final Sample sample : samples) {
+			for (final Sample sample : samplesRest) {
 				Centroid candidatingCentroid = centroids[0];
 				double curMinDistance = candidatingCentroid.getDistance(sample);
 
@@ -80,15 +103,22 @@ public final class KMeansAlgorithm {
 
 				candidatingCentroid.samples.add(sample);
 			}
-
+			
 			for (final Centroid centroid : centroids) {
+//				System.out.println("centre: " + Arrays.toString(centroid.centre));
+//				System.out.println("diversity: " + centroid.getCentreClassDiversity());
+//				System.out.println();
+				
 				if (centroid.recalculateCentre()) {
 					centroidsChanged = true;
 				}
 			}
+			
+			/* The centres have been recalculated and its member samples were deleted,
+			 * so from now on we have to be able to select from the entire set of samples */
+			samplesRest = samples;
 		} while (centroidsChanged);
-
-		final double[][] result = new double[noOfCentres][];
+		
 		for (int i = 0; i < noOfCentres; i++) {
 			result[i] = centroids[i].centre;
 		}
@@ -105,6 +135,8 @@ public final class KMeansAlgorithm {
 		do {
 			result.add((int) (Math.random() * samplesCount));
 		} while (result.size() != noOfCentres);
+		
+		System.out.println(result.toString());
 
 		return result;
 	}
@@ -114,12 +146,14 @@ public final class KMeansAlgorithm {
 		double[] centre;
 
 
-		public Centroid(final double[] centre) {
-			this.centre = centre;
+		public Centroid(final Sample sample) {
+			samples.add(sample);
+			this.centre = sample.toDoubleArray();
 		}
 
-		public double getDistance(final Sample sample) {
-			return getEuclideanDistance(centre, sample.toDoubleArray());
+		double getDistance(final Sample sample) {
+			final double[] sampleDoubles = sample.toDoubleArray();
+			return getEuclideanDistance(centre, sampleDoubles);
 		}
 
 		public boolean recalculateCentre() {
@@ -127,10 +161,9 @@ public final class KMeansAlgorithm {
 			boolean centreChanged = false;
 
 			for (int i = 0; i < newCentre.length; i++) {
-				newCentre[i]  = 0;
-
 				for (final Sample sample : samples) {
-					newCentre[i] += sample.toDoubleArray()[i];
+					double[] t = sample.toDoubleArray();
+					newCentre[i] += t[i];
 				}
 
 				newCentre[i] /= samples.size();
@@ -144,5 +177,27 @@ public final class KMeansAlgorithm {
 
 			return centreChanged;
 		}
+		
+		public Map<Object, Integer> getCentreClassDiversity() {
+			final Map<Object, Integer> result = new HashMap<Object, Integer>();
+			
+			for (final Sample s : samples) {
+				final Object sampleClass = s.classAttributeInt();
+				Integer noOfSamplesPerClass = result.get(sampleClass);
+				if (noOfSamplesPerClass == null) {
+					noOfSamplesPerClass = 0;
+				}
+				result.put(sampleClass, noOfSamplesPerClass+1);
+			}
+			
+			
+			return result;
+		}
+	}
+	
+	public static void main(String[] args) throws Exception {
+		Samples samples = new ARFFLoader(new File("/home/wsz/dev/workspace/apw/data/iris.arff")).getSamples();
+		double[][] centres = findClusterCentres(samples, 150);
+
 	}
 }
