@@ -39,6 +39,7 @@ import apw.core.Sample;
 import apw.core.Samples;
 import apw.core.loader.ARFFLoader;
 import apw.core.meta.ClassifierCapabilities;
+import apw.core.util.SamplesNormalizer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +47,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -209,49 +209,6 @@ public class SVMClassifier extends Classifier {
             Logger.getLogger(SVMClassifier.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
-    }
-
-    public Samples normalize(Samples nSamples) {
-        double length;
-        Samples _samples = new Samples(nSamples.getAtts());
-
-        for (int i = 0; i < nSamples.size(); i++) {
-            length = 0.0;
-            int size = nSamples.get(i).size() - 1;
-            double data;
-
-            for (int j = 0; j < size; j++) {
-                String str = nSamples.getAtts().get(j).getRepresentation(nSamples.get(i).get(j)).toString();
-                data = atof(str);
-                length += data * data;
-            }
-
-            length = Math.sqrt(length);
-
-            List<Object> list = new ArrayList<Object>();
-
-            for (int j = 0; j < size; j++)
-                if (!nSamples.getAtts().get(j).isNominal()) {
-                    String str = nSamples.getAtts().get(j).getRepresentation(nSamples.get(i).get(j)).toString();
-                    data = atof(str);
-                    data /= length;
-                    str = Double.toString(data);
-                    Object obj = nSamples.getAtts().get(j).getRepresentation(str);
-                    list.add(obj);
-                } else
-                    list.add(nSamples.getAtts().get(j).getRepresentation(nSamples.get(i).get(j)));
-
-            Object obj = nSamples.getAtts().get(size).
-                    getRepresentation(nSamples.get(i).get(size).toString());
-
-
-            list.add(obj);
-            Sample newSample = new Sample(new Samples(nSamples.getAtts()), list.toArray());
-
-            _samples.add(newSample);
-        }
-
-        return _samples;
     }
 
     public void setOptions(String[] options) throws Exception {
@@ -504,7 +461,7 @@ public class SVMClassifier extends Classifier {
         if (normalize == 1) {
             if (getDebug())
                 System.err.println("Normalizing...");
-            _samples = samples = normalize(samples);
+            _samples = samples = SamplesNormalizer.normalize(samples);
         } else if (this.normalize != 0)
             System.err.println("Not defined value for normailizing...");
 
