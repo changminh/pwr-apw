@@ -35,15 +35,22 @@ package apw.core.algorithms;
 
 /**
  *
- * @author Waldemar Szostak < wszostak@wp.pl >
+ * @author Waldemar Szostak
  */
 public final class DistanceMetrics {
 	public static double getEuclideanDistance(final double[] a, final double[] b) {
+		return getMinkovskyDistance(2, a, b);
+	}
+	
+	public static double getManhattanDistance(final double[] a, final double[] b) {
+		return getMinkovskyDistance(1, a, b);
+	}
+	
+	public static double getMinkovskyDistance(final double dimension, final double[] a, final double[] b) {
 		double sum = 0;
-
+		
 		for (int i = 0; i < a.length; i++) {
-			final double tmp = a[i] - b[i];
-			sum += tmp * tmp;
+			sum += Math.pow(Math.abs(a[i] - b[i]), dimension);
 		}
 
 		return Math.sqrt(sum);
