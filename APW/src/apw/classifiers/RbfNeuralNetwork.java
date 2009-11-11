@@ -33,76 +33,77 @@
  */
 package apw.classifiers;
 
-import apw.core.Evaluator;
-import apw.core.algorithms.KMeansAlgorithm;
-import apw.core.Nominal;
-import apw.core.Sample;
-import apw.core.Samples;
-import apw.core.loader.ARFFLoader;
-import apw.core.meta.ClassifierCapabilities;
-import apw.gui.ResultPanel;
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-
-import javax.swing.JFileChooser;
 import static apw.core.algorithms.DistanceMetrics.getEuclideanDistance;
 import static apw.core.util.MiscUtils.copyMatrix;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.Properties;
+
+import javax.swing.JFileChooser;
+
+import apw.core.Attribute;
+import apw.core.Evaluator;
+import apw.core.Nominal;
+import apw.core.Sample;
+import apw.core.Samples;
+import apw.core.algorithms.KMeansAlgorithm;
+import apw.core.loader.ARFFLoader;
+import apw.core.meta.ClassifierCapabilities;
+import apw.core.util.PropertiesManager;
+import apw.core.util.SamplesNormalizer;
+import apw.gui.ResultPanel;
+
 /**
  *
- * @author Waldemar Szostak < wszostak@wp.pl >
+ * @author Waldemar Szostak
  */
 @ClassifierCapabilities(handlesNumericAtts = true,
                         multiClass = true,
                         regression = true)
 public class RbfNeuralNetwork extends Classifier {
+	private final double MAX_ACCEPTABLE_ERROR;
+	private final double LEARNING_RATE;
+	private final double MOMENTUM;
+	private final int NO_OF_CENTRES;
+	private final long MAX_ITERATIONS;
+	{
+		final Properties properties = PropertiesManager.getProperties("rbfNeuralNetwork");
 
-    final static double MAX_ACCEPTABLE_ERROR = 0.01;
-    private double[][] weights;
-    private double[] biases;
+		MAX_ACCEPTABLE_ERROR = Double.valueOf(properties.getProperty("maxAcceptableError"));
+		LEARNING_RATE = Double.valueOf(properties.getProperty("learningRate"));
+		MOMENTUM = Double.valueOf(properties.getProperty("momentum"));
+		NO_OF_CENTRES = Integer.valueOf(properties.getProperty("noOfCentres"));
+		MAX_ITERATIONS = Long.valueOf(properties.getProperty("maxIterations"));
+	}
+    
+    private double[][] outputWeights;
+    private double[] outputBiases;
     private double[][] centres;
     private double[] deviations;
     private Samples samples;
-    private int noOfHiddenNodes;
-    private int noOfOutputNodes;
-    private double learningRate = 0.05;
+    private final int noOfOutputNodes;
+    
     private boolean rebuildNeeded;
 
-    public RbfNeuralNetwork(final Samples samples, int noOfCentres) {
-        super(samples);
 
-        if (samples.size() == 0)
+    public RbfNeuralNetwork(final Samples samples) {
+        super(samples);
+        
+
+        if (samples.size() == 0) {
             throw new RuntimeException("The samples object cannot be empty");
+        }
 
         /* If the class attribute is numeric, we want to output just one value,
          * but if we have nominal class attribute, let's have as many  */
-        this.noOfOutputNodes = samples.getClassAttribute().isNominal()
-                ? ((Nominal) samples.getClassAttribute()).getKeys().size() : 2;
-
-        this.noOfHiddenNodes = noOfCentres == -1 ? Math.min(2 * noOfOutputNodes, samples.size()) : noOfCentres;
-        this.samples = samples;
+        final Attribute classAttr = samples.getClassAttribute();
+        this.noOfOutputNodes = classAttr.isNominal() ? ((Nominal) classAttr).getKeys().size() : 1;
+        this.samples = SamplesNormalizer.normalize(samples);
 
         this.rebuildNeeded = true;
-    }
-
-    public void setNoOfOutputNodes(final int noOfOutputNodes) {
-        this.noOfOutputNodes = noOfOutputNodes;
-        rebuildNeeded = true;
-    }
-
-    public void setNoOfHiddenNodes(final int noOfHiddenNodes) {
-        this.noOfHiddenNodes = noOfHiddenNodes;
-        rebuildNeeded = true;
-    }
-
-    public void setLearningRate(final int learningRate) {
-        this.learningRate = learningRate;
-        rebuildNeeded = true;
-    }
-
-    public RbfNeuralNetwork(final Samples samples) {
-        this(samples, -1);
     }
 
     public RbfNeuralNetwork(final String inputPath) throws IOException, ParseException {
@@ -110,6 +111,9 @@ public class RbfNeuralNetwork extends Classifier {
     }
 
     public static void main(String[] args) throws Exception {
+    	args = new String[1];
+    	args[0] = "/home/wsz/dev/workspace/apw/data/iris.arff";
+    	
         File f = null;
         if (args.length > 0 && !args[0].isEmpty())
             f = new File(args[0]);
@@ -122,24 +126,28 @@ public class RbfNeuralNetwork extends Classifier {
 
         if (f != null) {
             Samples samples = new ARFFLoader(f).getSamples();
+            samples.setClassAttributeIndex(samples.getAtts().size()-1);
 
             RbfNeuralNetwork network = new RbfNeuralNetwork(samples);
             network.rebuild();
-
-
+            
             // Evaluator to obiekt, który liczy miary jakości klasyfikacji
             Evaluator e = new Evaluator(network, samples);
 
             // To metoda statyczna prezentująca miary jakości w oknie Swing
             ResultPanel.showResultFrame(e);
+
+            samples = SamplesNormalizer.normalize(samples);
+            System.out.println("Correct classification ratio: " + samples.getCorrectClassificationRate(network));
         }
     }
 
     @Override
     public double[] classifySample(final Sample sample) {
-        if (rebuildNeeded)
+        if (rebuildNeeded) {
             throw new IllegalStateException("The classifier has been modified " +
                     "(new sample/-s have been added) and has to be rebuilt");
+        }
 
         return getOutputs(sample);
     }
@@ -149,31 +157,35 @@ public class RbfNeuralNetwork extends Classifier {
         final double[] hiddenOutputs = getHiddenOutputs(sample);
 
         for (int k = 0; k < noOfOutputNodes; k++) {
-            for (int j = 0; j < noOfHiddenNodes; j++)
-                result[k] += weights[j][k] * hiddenOutputs[j];
-            result[k] += biases[k];
+            for (int j = 0; j < NO_OF_CENTRES; j++) {
+                result[k] += outputWeights[j][k] * hiddenOutputs[j];
+            }
+            result[k] += outputBiases[k];
         }
 
         return result;
     }
 
     private double[] getHiddenOutputs(final Sample sample) {
-        final double[] result = new double[noOfHiddenNodes];
+        final double[] result = new double[NO_OF_CENTRES];
         final double[] inputs = sample.toDoubleArray();
 
-        for (int j = 0; j < noOfHiddenNodes; j++) {
+        for (int j = 0; j < NO_OF_CENTRES; j++) {
+        	// exp(-r^2/(2*d^2)) = exp(-0.5 * tmp^2), tmp = r/d 
             final double tmp = getEuclideanDistance(inputs, centres[j]) / deviations[j];
+            
             result[j] = Math.exp(-0.5 * tmp * tmp);
         }
 
         return result;
     }
 
+    
     @Override
     public void rebuild() {
-        this.deviations = new double[noOfHiddenNodes];
-        this.centres = KMeansAlgorithm.findClusterCentres(samples, noOfHiddenNodes);
-
+        this.deviations = new double[NO_OF_CENTRES];
+        this.centres = KMeansAlgorithm.findClusterCentres(samples, NO_OF_CENTRES);
+        
         findDeviations();
         initWeights();
         findWeights();
@@ -181,33 +193,30 @@ public class RbfNeuralNetwork extends Classifier {
         rebuildNeeded = false;
     }
 
-    private void initWeights() {
-        weights = new double[noOfHiddenNodes][noOfOutputNodes];
-        biases = new double[noOfOutputNodes];
+	private void initWeights() {
+        outputWeights = new double[NO_OF_CENTRES][noOfOutputNodes];
+        outputBiases = new double[noOfOutputNodes];
 
         for (int k = 0; k < noOfOutputNodes; k++) {
-            for (int j = 0; j < noOfHiddenNodes; j++)
-                weights[j][k] = Math.random();
-            biases[k] = Math.random();
+            for (int j = 0; j < NO_OF_CENTRES; j++) {
+                outputWeights[j][k] = Math.random();
+            }
+            outputBiases[k] = Math.random();
         }
     }
 
     private void findDeviations() {
         System.out.print("Calculating standard deviations...");
-        if (centres.length == 1) {
-            deviations[0] = 0.5;	// TODO: how this should be handled??
-            return;
-        }
 
-
-        for (int i = 0; i < deviations.length; i++) {
+        for (int i = 0; i < centres.length; i++) {
             double minDistance = Double.MAX_VALUE;
-            for (int j = 0; j < deviations.length; j++)
-                if (i != j) {
+            for (int j = 0; j < centres.length; j++)
+                if (i != j) {	// if it's not the same centre
                     final double tmpDistance = getEuclideanDistance(centres[i], centres[j]);
 
-                    if (tmpDistance < minDistance)
+                    if (tmpDistance < minDistance && tmpDistance != 0) {
                         minDistance = tmpDistance;
+                    }
                 }
 
             deviations[i] = minDistance;
@@ -219,12 +228,17 @@ public class RbfNeuralNetwork extends Classifier {
     private void findWeights() {
         System.out.print("Calculating network's weights: ");
 
-        double error = Double.MAX_VALUE;
-        double oldError;
+        double error;
+        
+        double[][] weightChanges = new double[NO_OF_CENTRES][];
+        for (int i = 0; i < NO_OF_CENTRES ; i++) {
+        	weightChanges[i] = new double[noOfOutputNodes];
+        	Arrays.fill(weightChanges[i], 0);
+        }
 
+        long curIteration = 0;
         do {
             System.out.print(".");
-            oldError = error;
             error = 0;
 
             for (final Sample sample : samples) {
@@ -232,49 +246,51 @@ public class RbfNeuralNetwork extends Classifier {
                 final double[] hiddenOutputs = getHiddenOutputs(sample);
 
                 for (int k = 0; k < noOfOutputNodes; k++) {
-//System.out.println("output node no.: " + k);
-                    double singleNodeOuput = biases[k];
+                    double singleNodeOuput = outputBiases[k];
 
-                    for (int j = 0; j < noOfHiddenNodes; j++)
-                        singleNodeOuput += weights[j][k] * hiddenOutputs[j];
+                    for (int j = 0; j < NO_OF_CENTRES; j++) {
+                        singleNodeOuput += outputWeights[j][k] * hiddenOutputs[j];
+                    }
+                    
+                    double targetCalculatedDiff = (targetValue == k ? 1 : 0) - singleNodeOuput;
+                    error += targetCalculatedDiff * targetCalculatedDiff;
 
-                    double tmp = (targetValue == k ? 1 : 0) - singleNodeOuput;
-//System.out.println("\ttarget value: " + (targetValue == k ? 1 : 0) + "; calculated: " + singleNodeOuput);
-
-                    error += tmp * tmp;	// this line has to stay here, because tmp is going to change...
-
-                    tmp *= learningRate;	// now: tmp = (targetValue - outputNode) * learningRate
-                    for (int j = 0; j < noOfHiddenNodes; j++)
-//System.out.print("\t\tw[" + j + "][" + k + "]: " + weights[j][k]);
-                        weights[j][k] = weights[j][k] + tmp * hiddenOutputs[j];
-                    biases[k] = biases[k] + tmp;
-                }
-
-                error *= 0.5;
+                    targetCalculatedDiff *= LEARNING_RATE;	// now: tmp = (targetValue - outputNode) * learningRate
+                    for (int j = 0; j < NO_OF_CENTRES; j++) {
+                    	weightChanges[j][k] = targetCalculatedDiff * hiddenOutputs[j] + MOMENTUM * weightChanges[j][k];
+                        outputWeights[j][k] += weightChanges[j][k]; 
+                    }
+                    
+                    outputBiases[k] = outputBiases[k] + targetCalculatedDiff;
+                }       
             }
+            
+            error *= 0.5;
 
-//System.out.println("\tError: " + error);
-        } while (error != oldError && error > MAX_ACCEPTABLE_ERROR);
+            System.out.println("\tError: " + error);
 
-        System.out.println(" done.");
+        } while (error > MAX_ACCEPTABLE_ERROR && ++curIteration < MAX_ITERATIONS);
+
+        if (curIteration == MAX_ITERATIONS) {
+        	System.out.println("Too many iterations, weight adjusting aborted.");
+        } else {
+        	System.out.println(" done.");
+        }
     }
-
+    
     @Override
     public Classifier copy() {
-        final RbfNeuralNetwork result = new RbfNeuralNetwork(samples, centres.length);
+        final RbfNeuralNetwork result = new RbfNeuralNetwork(samples);
 
-        result.weights = copyMatrix(noOfHiddenNodes, noOfOutputNodes, weights);
-        result.centres = copyMatrix(noOfHiddenNodes, 2, centres);
+        result.outputWeights = copyMatrix(NO_OF_CENTRES, noOfOutputNodes, outputWeights);
+        result.centres = copyMatrix(NO_OF_CENTRES, 2, centres);
 
-        result.biases = new double[noOfOutputNodes];
-        System.arraycopy(biases, 0, result.biases, 0, noOfOutputNodes);
+        result.outputBiases = new double[noOfOutputNodes];
+        System.arraycopy(outputBiases, 0, result.outputBiases, 0, noOfOutputNodes);
 
-        result.deviations = new double[noOfHiddenNodes];
-        System.arraycopy(deviations, 0, result.deviations, 0, noOfHiddenNodes);
+        result.deviations = new double[NO_OF_CENTRES];
+        System.arraycopy(deviations, 0, result.deviations, 0, NO_OF_CENTRES);
 
-        result.learningRate = learningRate;
-        result.noOfHiddenNodes = noOfHiddenNodes;
-        result.noOfOutputNodes = noOfOutputNodes;
         result.rebuildNeeded = false;
 
         return result;
