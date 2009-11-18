@@ -53,7 +53,7 @@ public class KNNProperties2 {
      * An int property
      */
     @Range(max = 5, min = 1, message = "test")
-    @Description(value="test property")
+    @Description(value = "test property")
     Property<Integer> firstProperty = new Property();
     /**
      * REGEX validated name. Expression source:

@@ -347,7 +347,7 @@ public class MainFrame extends javax.swing.JFrame {
         try {
             ClassifierFactory.initializeClassifierList(
                     this.getClass().getClassLoader());
-            classifiers = ClassifierFactory.registeredClassifiers;
+            classifiers = samples == null ? ClassifierFactory.registeredClassifiers : ClassifierFactory.getFeasibleClassifierSet(samples[1], true);
             String name;
             for (Class c : classifiers) {
                 name = c.getName();
@@ -503,6 +503,8 @@ public class MainFrame extends javax.swing.JFrame {
     PrintStream ps = new PrintStream(baos);
 
     private void filterClassifierList() {
+        initClassifiersRepr();
+
     }
 
     class SplitPrintStream extends PrintStream {
