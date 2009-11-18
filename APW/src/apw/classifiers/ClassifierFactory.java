@@ -33,6 +33,7 @@
  */
 package apw.classifiers;
 
+import apw.core.Samples;
 import apw.core.meta.ClassifierCapabilities;
 import java.io.*;
 import java.net.MalformedURLException;
@@ -59,7 +60,7 @@ public class ClassifierFactory {
      * @param includeUndefined
      * @return
      */
-    public static Set<Class> getFeasibleClassifierSet(
+    private static Set<Class> getFeasibleClassifierSet(
             boolean numAtt,
             boolean nomAtt,
             boolean numClz,
@@ -70,25 +71,44 @@ public class ClassifierFactory {
             boolean passed = false;
             if (c.getAnnotation(ClassifierCapabilities.class) != null) {
                 ClassifierCapabilities caps = (ClassifierCapabilities) c.getAnnotation(ClassifierCapabilities.class);
-                if (caps == null)
+                if (caps == null) {
                     continue;
+                }
                 passed = true;
 
-                if (numAtt)
+                if (numAtt) {
                     passed &= caps.handlesNumericAtts();
-                if (nomAtt)
+                }
+                if (nomAtt) {
                     passed &= caps.handlesNominalAtts();
-                if (nomClz)
+                }
+                if (nomClz) {
                     passed &= caps.multiClass();
-                if (numClz)
+                }
+                if (numClz) {
                     passed &= caps.regression();
+                }
 
-            } else if (includeUndefined)
+            } else if (includeUndefined) {
                 passed = true;
-            if (passed)
+            }
+            if (passed) {
                 set.add(c);
+            }
         }
         return set;
+    }
+
+    private static Set<Class> getFeasibleClassifierSet(
+            Samples.SamplesInfo info,
+            boolean includeUndefined) {
+        return getFeasibleClassifierSet(info.numAtt, info.nomAtt, info.numClz, info.nomClz, includeUndefined);
+    }
+
+    public static Set<Class> getFeasibleClassifierSet(
+            Samples samples,
+            boolean includeUndefined) {
+        return getFeasibleClassifierSet(samples.getInfo(), includeUndefined);
     }
 
     /**
@@ -123,25 +143,30 @@ public class ClassifierFactory {
                         new InputStreamReader(pluginUrl.openStream()));
                 while (true) {
                     String line = reader.readLine();
-                    if (line == null)
+                    if (line == null) {
                         break;
+                    }
                     String[] parts = line.split("=");
-                    if (parts.length != 2)
+                    if (parts.length != 2) {
                         continue;
+                    }
                     String key = parts[0];
                     String value = parts[1];
-                    if ("Classifier".compareTo(key) == 0)
+                    if ("Classifier".compareTo(key) == 0) {
                         try {
                             Class pluginClass = classLoader.loadClass(value);
-                            if (pluginClass == null)
+                            if (pluginClass == null) {
                                 continue;
-                            if (Classifier.class.isAssignableFrom(pluginClass))
-                                // ClassifierFactory.registeredClassifiers.add(pluginClass);
+                            }
+                            if (Classifier.class.isAssignableFrom(pluginClass)) // ClassifierFactory.registeredClassifiers.add(pluginClass);
+                            {
                                 classifiers.add(pluginClass);
+                            }
                         } catch (NoClassDefFoundError ncdfe) {
                             // trying to initialize a plugin with a missing
                             // class
                         }
+                    }
                 }
             }
         } catch (Exception exc) {
@@ -231,8 +256,9 @@ public class ClassifierFactory {
                 files = Collections.enumeration(dirListing);
             } else if (classPath.getName().endsWith(".jar")) {    // is our classpath a jar?
                 // skip any jars not list in the filter
-                if (jarFilter != null && !jarFilter.contains(classPath.getName()))
+                if (jarFilter != null && !jarFilter.contains(classPath.getName())) {
                     continue;
+                }
                 try {
                     // if our resource is a jar, instantiate a jarfile using the full path to resource
                     module = new JarFile(classPath);
@@ -257,8 +283,9 @@ public class ClassifierFactory {
                     // debug class list
                     // System.out.println(className);
                     // skip any classes in packages not explicitly requested in our package filter
-                    if (packageFilter != null && !qualifies(packageFilter, className))
+                    if (packageFilter != null && !qualifies(packageFilter, className)) {
                         continue;
+                    }
                     // get the class for our class name
                     Class theClass = null;
                     try {
@@ -268,8 +295,9 @@ public class ClassifierFactory {
                         continue;
                     }
                     // skip interfaces
-                    if (theClass.isInterface())
+                    if (theClass.isInterface()) {
                         continue;
+                    }
                     //then get an array of all the interfaces in our class
                     Class[] classInterfaces = theClass.getInterfaces();
 
@@ -279,12 +307,14 @@ public class ClassifierFactory {
                         boolean superClassQualify = false;
                         superClass = theClass.getSuperclass();
                         while (superClass != null) {
-                            if (qualifies(parentClassFilter, superClass.getName()))
+                            if (qualifies(parentClassFilter, superClass.getName())) {
                                 superClassQualify = true;
+                            }
                             superClass = superClass.getSuperclass();
                         }
-                        if (!superClassQualify)
+                        if (!superClassQualify) {
                             continue;
+                        }
                     }
                     // for each interface in this class, add both class and interface into the map
                     String interfaceName = null;
@@ -292,14 +322,15 @@ public class ClassifierFactory {
                         if (i < classInterfaces.length) {
                             interfaceName = classInterfaces[i].getName();
                             // was this interface requested?
-                            if (interfaceFilter != null && !interfaceFilter.contains(interfaceName))
+                            if (interfaceFilter != null && !interfaceFilter.contains(interfaceName)) {
                                 continue;
+                            }
                         }
                         // is this interface already in the map?
-                        if (classTable.containsKey(interfaceName))
-                            // if so then just add this class to the end of the list of classes implementing this interface
+                        if (classTable.containsKey(interfaceName)) // if so then just add this class to the end of the list of classes implementing this interface
+                        {
                             classTable.get(interfaceName).add(theClass);
-                        else {
+                        } else {
                             // else create a new list initialised with our first class and put the list into the map
                             Set<Class> allClasses = new HashSet();
                             allClasses.add(theClass);
@@ -311,13 +342,14 @@ public class ClassifierFactory {
             }
 
             // close the jar if it was used
-            if (module != null)
+            if (module != null) {
                 try {
                     module.close();
                 } catch (IOException ioe) {
                     throw new ClassNotFoundException("The module jar file '" + classPath.getName() +
                             "' could not be closed. Error: " + ioe.getMessage());
                 }
+            }
 
         } // end for loop
 
@@ -325,9 +357,11 @@ public class ClassifierFactory {
     } // end method
 
     private static boolean qualifies(Set<String> packageFilter, String className) {
-        for (String filter : packageFilter)
-            if (className.startsWith(filter))
+        for (String filter : packageFilter) {
+            if (className.startsWith(filter)) {
                 return true;
+            }
+        }
         return false;
     }
 
@@ -356,15 +390,17 @@ public class ClassifierFactory {
                 //  delete subdirectory previously appended to our relative path
                 relativePath.delete(prevLen, relativePath.length());
             }
-        } else
-            // this dir is a file; append it to the relativeto path and add it to the directory listing
+        } else // this dir is a file; append it to the relativeto path and add it to the directory listing
+        {
             dirListing.add(relativePath.toString());
+        }
     }
 
     public static final Set<Class> flatout(Map<String, Set<Class>> map) {
         HashSet<Class> set = new HashSet();
-        for (String s : map.keySet())
+        for (String s : map.keySet()) {
             set.addAll(map.get(s));
+        }
         return set;
     }
 }

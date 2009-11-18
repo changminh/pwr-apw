@@ -50,6 +50,34 @@ import javax.swing.table.AbstractTableModel;
  */
 public class Samples implements List<Sample> {
 
+    public class SamplesInfo {
+
+        public boolean numAtt = false, nomAtt = false, numClz = false, nomClz = false;
+    }
+
+    public SamplesInfo getInfo() {
+        SamplesInfo inf = new SamplesInfo();
+        for (int i = 0; i < atts.size(); i++) {
+            boolean b = selected[i];
+            Attribute a = atts.get(i);
+            if (i == classAttributeIndex) {
+                if (a.isNominal()) {
+                    inf.nomClz = true;
+                } else {
+                    inf.numClz = true;
+                }
+
+            } else {
+                if (a.isNominal()) {
+                    inf.nomAtt = true;
+                } else {
+                    inf.numAtt = true;
+                }
+            }
+        }
+        return inf;
+    }
+
     private String getDiffTime(long startime) {
         long now = System.nanoTime() - startime;
         return nanoTimeToString(now);
@@ -58,11 +86,12 @@ public class Samples implements List<Sample> {
     private int getMaxIndex(double[] o) {
         int i = 0;
         double d = o[0];
-        for (int j = 0; j < o.length; j++)
+        for (int j = 0; j < o.length; j++) {
             if (d < o[j]) {
                 d = o[j];
                 i = j;
             }
+        }
         return i;
     }
 
@@ -88,41 +117,40 @@ public class Samples implements List<Sample> {
     }
 
     // BEGIN View attributes ****************************
-    
-    public Samples copyStructure()
-    {
-    	Samples result = new Samples(atts);
-    	result.classAttributeIndex = this.classAttributeIndex;
-    	result.name = new String(this.name);
-    	result.selected = this.selected.clone();
-    	return result;
+    public Samples copyStructure() {
+        Samples result = new Samples(atts);
+        result.classAttributeIndex = this.classAttributeIndex;
+        result.name = new String(this.name);
+        result.selected = this.selected.clone();
+        return result;
     }
-    
+
     private void notifySamplesOfViewChange() {
-        for (int i = 0; i < data.getSize(); i++)
+        for (int i = 0; i < data.getSize(); i++) {
             ((Sample) data.get(i)).viewObsolete = true;
+        }
     }
     int classAttributeIndex;
     boolean selected[];
 
     public void setClassAttributeIndex(int index) {
-        if (index == classAttributeIndex)
+        if (index == classAttributeIndex) {
             return;
+        }
         classAttributeIndex = index;
         notifySamplesOfViewChange();
     }
-
 
     public void setSelected(final boolean[] selected) {
         this.selected = selected;
         notifySamplesOfViewChange();
     }
 
-	public boolean[] getSelected() {
+    public boolean[] getSelected() {
         return selected;
     }
 
-	public void setSelected(int index, boolean select) {
+    public void setSelected(int index, boolean select) {
         selected[index] = select;
         notifySamplesOfViewChange();
     }
@@ -132,15 +160,16 @@ public class Samples implements List<Sample> {
     }
 
     public int getClassAttributeIndex() {
-		return classAttributeIndex;
-	}
-    
+        return classAttributeIndex;
+    }
+
     public Attribute getClassAttribute() {
-        if (classAttributeIndex < 0 || classAttributeIndex > atts.size())
+        if (classAttributeIndex < 0 || classAttributeIndex > atts.size()) {
             throw new IllegalStateException("Class not set.");
+        }
         return atts.get(classAttributeIndex);
     }
-    // END   View attributes ****************************
+    // END View attributes ****************************
 
     public Samples(ArrayList<Attribute> atts) {
         this.atts = atts;
@@ -158,16 +187,16 @@ public class Samples implements List<Sample> {
     }
 
     public ArrayList<Attribute> getSelectedAtts() {
-		/* the size is just a rough estimation; there usually won't be fewer than 50% attributes selected */
-		final ArrayList<Attribute> result = new ArrayList<Attribute>(atts.size() / 2);
+        /* the size is just a rough estimation; there usually won't be fewer than 50% attributes selected */
+        final ArrayList<Attribute> result = new ArrayList<Attribute>(atts.size() / 2);
 
-		for (int i = 0; i < selected.length; i++) {
-			if (i != classAttributeIndex && selected[i]) {
-				result.add(atts.get(i));
-			}
-		}
+        for (int i = 0; i < selected.length; i++) {
+            if (i != classAttributeIndex && selected[i]) {
+                result.add(atts.get(i));
+            }
+        }
 
-		return result;
+        return result;
     }
 
     public void setName(String name) {
@@ -175,21 +204,25 @@ public class Samples implements List<Sample> {
     }
 
     public void setData(FastVector data) {
-        if (data == null)
+        if (data == null) {
             return;
+        }
         this.data = data;
-        for (int i = 0; i < data.getSize(); i++)
+        for (int i = 0; i < data.getSize(); i++) {
             ((Sample) data.get(i)).setSamples(this);
+        }
         selected = new boolean[atts.size()];
-        for (int i = 0; i < selected.length; i++)
+        for (int i = 0; i < selected.length; i++) {
             selected[i] = true;
+        }
         classAttributeIndex = atts.size() - 1;
     }
 
     @Override
     public int size() {
-        if (data == null)
+        if (data == null) {
             return 0;
+        }
         return data.getSize();
     }
 
@@ -200,27 +233,32 @@ public class Samples implements List<Sample> {
 
     @Override
     public boolean contains(Object o) {
-        if (data == null)
+        if (data == null) {
             return false;
+        }
         Object os[] = data.getData();
-        for (int i = 0; i < os.length; i++)
-            if (os[i].equals(o))
+        for (int i = 0; i < os.length; i++) {
+            if (os[i].equals(o)) {
                 return true;
+            }
+        }
         return false;
     }
 
     @Override
     public Iterator<Sample> iterator() {
-        if (data == null)
+        if (data == null) {
             return new EmptyIterator<Sample>();
+        }
         ArrayIterator it = new ArrayIterator(data.getData(), size());
         return it;
     }
 
     @Override
     public Object[] toArray() {
-        if (data == null)
+        if (data == null) {
             return null;
+        }
         Sample[] r = new Sample[size()];
         System.arraycopy(data.getData(), 0, r, 0, r.length);
         return data.getData();
@@ -244,15 +282,17 @@ public class Samples implements List<Sample> {
 
     @Override
     public boolean remove(Object o) {
-        if (!(o instanceof Sample))
+        if (!(o instanceof Sample)) {
             throw new ClassCastException(
                     "this list accepts only Samples");
+        }
         Object os[] = data.getData();
-        for (int i = 0; i < os.length; i++)
+        for (int i = 0; i < os.length; i++) {
             if (os[i].equals(o)) {
                 data.removeElementAt(i);
                 return true;
             }
+        }
         return false;
 
     }
@@ -260,24 +300,27 @@ public class Samples implements List<Sample> {
     @Override
     public boolean containsAll(Collection<?> c) {
         boolean contains = true;
-        for (Object object : c)
+        for (Object object : c) {
             contains &= contains(object);
+        }
         return contains;
     }
 
     @Override
     public boolean addAll(Collection<? extends Sample> c) {
         boolean added = false;
-        for (Object object : c)
+        for (Object object : c) {
             added |= add((Sample) object);
+        }
         return added;
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
         boolean removed = false;
-        for (Object object : c)
+        for (Object object : c) {
             removed |= remove(object);
+        }
         return removed;
     }
 
@@ -288,8 +331,9 @@ public class Samples implements List<Sample> {
 
     @Override
     public Sample set(int index, Sample element) {
-        if (index > data.getSize())
+        if (index > data.getSize()) {
             throw new IndexOutOfBoundsException("index greater than no of samples");
+        }
         Sample old = (Sample) data.getData()[index];
         data.getData()[index] = element;
         return old;
@@ -298,34 +342,40 @@ public class Samples implements List<Sample> {
     @Override
     public int indexOf(Object o) {
         Object os[] = data.getData();
-        for (int i = 0; i < os.length; i++)
-            if (os[i]!=null&&os[i].equals(o))
+        for (int i = 0; i < os.length; i++) {
+            if (os[i] != null && os[i].equals(o)) {
                 return i;
+            }
+        }
         return -1;
     }
 
     @Override
     public int lastIndexOf(Object o) {
         Object os[] = data.getData();
-        for (int i = os.length - 1; i >= 0; i--)
-            if (os[i].equals(o))
+        for (int i = os.length - 1; i >= 0; i--) {
+            if (os[i].equals(o)) {
                 return i;
+            }
+        }
         return -1;
     }
 
     @Override
     public String toString() {
         Iterator<Sample> i = iterator();
-        if (!i.hasNext())
+        if (!i.hasNext()) {
             return "[]";
+        }
 
         StringBuilder sb = new StringBuilder();
         sb.append('[');
         for (;;) {
             Sample e = i.next();
             sb.append(e);
-            if (!i.hasNext())
+            if (!i.hasNext()) {
                 return sb.append(']').toString();
+            }
             sb.append(", ");
         }
 
@@ -373,8 +423,9 @@ public class Samples implements List<Sample> {
     TableModel tm;
 
     public AbstractTableModel getTableModel() {
-        if (tm == null)
+        if (tm == null) {
             tm = new TableModel();
+        }
         return tm;
     }
 
@@ -418,8 +469,9 @@ public class Samples implements List<Sample> {
     };
 
     public double getCorrectClassificationRate(Classifier c) {
-        if (classAttributeIndex < 0 || classAttributeIndex > atts.size())
+        if (classAttributeIndex < 0 || classAttributeIndex > atts.size()) {
             throw new IllegalStateException("Class not set.");
+        }
         int correct = 0, all = size();
         Double[] keys = ((Nominal) getClassAttribute()).getSortedRKeys();
         Double x;
@@ -432,8 +484,9 @@ public class Samples implements List<Sample> {
             double[] o = c.classifySample(s);
             int m = getMaxIndex(o);
             x = (Double) s.classAttributeRepr();
-            if (keys[m].equals(x))
+            if (keys[m].equals(x)) {
                 correct++;
+            }
 
 
             double ratio = (double) i / (double) all;
