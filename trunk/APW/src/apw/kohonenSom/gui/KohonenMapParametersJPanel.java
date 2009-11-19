@@ -387,7 +387,7 @@ public class KohonenMapParametersJPanel extends javax.swing.JPanel {
 
         //TODO
 
-        parent.parametersSet();
+        // parent.parametersSet();
     }//GEN-LAST:event_create_jbActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

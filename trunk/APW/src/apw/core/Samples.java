@@ -125,7 +125,7 @@ public class Samples implements List<Sample> {
         return result;
     }
 
-    private void notifySamplesOfViewChange() {
+    public void notifySamplesOfViewChange() {
         for (int i = 0; i < data.getSize(); i++) {
             ((Sample) data.get(i)).viewObsolete = true;
         }

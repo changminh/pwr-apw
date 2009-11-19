@@ -60,7 +60,7 @@ public class ClassifierFactory {
      * @param includeUndefined
      * @return
      */
-    private static Set<Class> getFeasibleClassifierSet(
+    static Set<Class> getFeasibleClassifierSet(
             boolean numAtt,
             boolean nomAtt,
             boolean numClz,
