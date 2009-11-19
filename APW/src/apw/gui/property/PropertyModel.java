@@ -49,7 +49,7 @@ import java.util.logging.Logger;
  */
 public class PropertyModel {
 
-    List<PropertyDescriptor> props;
+    public List<PropertyDescriptor> props;
     Object propertyObject;
 
     /**

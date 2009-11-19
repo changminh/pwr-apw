@@ -64,15 +64,4 @@ public class PropertyIntrospectorTest {
         /************************************************************/
     }
 
-    /**
-     * Test of listProperties method, of class PropertyModel.
-     */
-    @Test
-    public void testlistPropertyFields() {
-        System.out.println("listProperties");
-        PropertyDescriptor instance = new PropertyModel(toIntrospect).props.get(0);
-        System.out.println("Properties:  " + instance.prop);
-        System.out.println("Names:       " + instance.name);
-        //assertEquals(expResult, result.get(0).getName());
-    }
 }
